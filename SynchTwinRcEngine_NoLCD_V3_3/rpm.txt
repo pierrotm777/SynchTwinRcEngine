@@ -1,0 +1,70 @@
+#define PHOTOCELL 5
+#define LED_N_SIDE 2
+#define LED_P_SIDE 3
+
+int photocellThreshold = 2000;
+int currentState = 0;
+int leeway = 4;
+unsigned long lastOnTime = 0;
+unsigned long times[5] = {0,0,0,0,0};
+int timesPos = 0;
+
+void setup() {
+Serial.begin (115200);
+Serial.println("Start");
+}
+
+void loop() {
+//Serial.print(“Photocell Value: “);
+int currentVal = readLight();
+if (currentState == 1 && currentVal < photocellThreshold – leeway) {
+lightOff();
+} else if (currentState == 0 && currentVal > photocellThreshold + leeway) {
+lightOn();
+}
+//Serial.println(analogRead(PHOTOCELL));
+delay(5);
+}
+
+void lightOff() {
+currentState = 0;
+}
+
+void lightOn() {
+currentState = 1;
+unsigned long now = millis();
+if (lastOnTime) {
+unsigned long thisTime = now – lastOnTime;
+times[timesPos] = thisTime;
+averageTimes();
+timesPos = (timesPos + 1) % 5;
+}
+lastOnTime = now;
+}
+
+void averageTimes() {
+unsigned long sum = times[0] + times[1] + times[2] + times[3] + times[4];
+float avg = 300000 / float(sum);
+Serial.print("RPM : ");
+Serial.println(avg);
+}
+
+int readLight() {
+unsigned int j;
+
+// Apply reverse voltage, charge up the pin and led capacitance
+pinMode(LED_N_SIDE,OUTPUT);
+pinMode(LED_P_SIDE,OUTPUT);
+digitalWrite(LED_N_SIDE,HIGH);
+digitalWrite(LED_P_SIDE,LOW);
+
+// Isolate the pin 2 end of the diode
+pinMode(LED_N_SIDE,INPUT);
+digitalWrite(LED_N_SIDE,LOW); // turn off internal pull-up resistor
+
+// Count how long it takes the diode to bleed back down to a logic zero
+for ( j = 10000; j > 1; j–) {
+if ( digitalRead(LED_N_SIDE)==0) break;
+}
+return j;
+}

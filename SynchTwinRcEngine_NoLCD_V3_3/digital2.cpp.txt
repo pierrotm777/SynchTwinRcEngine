@@ -1,0 +1,68 @@
+/*  *****************************************************************************************************
+ * Nouvelle version de digitalWrite/Read
+ *
+ * N�cessite de faire soi m�me la conversion d�nomination Arduino des IO en d�nomination Atmel
+ *
+ * Licence compl�tement libre domaine public
+ * *************************************************************/
+#include "digital2.h"
+#include <inttypes.h>
+
+void pinMode(volatile uint8_t *ddr, uint8_t rang, uint8_t sens)
+{
+  if (sens) {*ddr |=  (1<<rang) ; }
+  else      {*ddr &= ~(1<<rang) ; }
+}
+void digitalWrite(volatile uint8_t *port, uint8_t rang, uint8_t valeur)
+{
+  if (valeur)  { *port |=  (1<<rang) ; }
+  else          {*port &= ~(1<<rang) ; }
+}
+uint8_t digitalRead(volatile uint8_t *pin, uint8_t rang)
+{
+  uint8_t lecture;
+  lecture = (*pin &= (1<<rang)) >> rang ;
+  return lecture;
+}
+
+/*
+
+#include "digital2.h"
+uint8_t mesure ;
+uint8_t mesure0;
+uint8_t mesure1;
+
+void setup()
+{
+  Serial.begin(115200);
+  TCCR2B = 1 ; //Timer 16MHz-> compte les cycles horloge.
+  mesure = 0;
+  TCNT2 =0 ; 
+  pinMode(&DDRB, 5, 1 ) ;  // choisir de mettre en service la nouvelle ou l'ancienne forme
+  //pinMode(13, OUTPUT);
+  mesure = TCNT2;
+  Serial.println("\n\n MESURES ");
+  Serial.print("Config du sens : Nbre de cycle = "); Serial.println(mesure);
+}
+void loop()
+{
+  TCNT2 =0 ;
+  digitalWrite(&PORTB,5,1) ; // choisir de mettre en service la nouvelle ou l'ancienne forme  //digitalWrite(13,1);
+  mesure1 = TCNT2;
+  delay(500);
+ 
+  TCNT2 = 0 ;
+  digitalWrite(&PORTB,5,0) ; // choisir de mettre en service la nouvelle ou l'ancienne forme  
+  //digitalWrite(13,0);
+  mesure0 = TCNT2 ;
+
+  Serial.print("\n Ecriture d'un 1 = "); Serial.print(mesure1);
+  Serial.print("\n Ecriture d'un 0 = "); Serial.print(mesure0);
+  delay(500);
+
+}
+
+
+
+
+*/

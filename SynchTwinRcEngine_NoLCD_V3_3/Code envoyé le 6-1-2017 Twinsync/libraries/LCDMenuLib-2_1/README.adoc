@@ -1,0 +1,10 @@
+= Arduino LCDMenuLib with Layers, 4Bit LCD, 8Bit LCD, I2C, ShiftReg, DogLCD =
+
+With this library, you can create menus with layers on base on the
+Nested-Set-Model. For every menu element can be create a function
+to control the content. This function is called automatical from the
+library and runs in a loop, without blocking other program parts. 
+
+For more information about this library please visit us at
+https://github.com/Jomelo/LCDMenuLib
+

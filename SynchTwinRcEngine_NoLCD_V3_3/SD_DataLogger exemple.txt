@@ -1,0 +1,240 @@
+// voir http://electroniqueamateur.blogspot.fr/2013/06/saisie-de-donnees-data-logging-avec-un.html
+
+/************************************************************
+ 
+ Saisie de données (data logging) avec un Arduino
+ 
+ Matériel:  Arduino Uno
+ Lecteur de carte SD (10-11-12-13) avec adapteur 5/3,3 V
+ Horloge temps réel (RTC) (A-4 et A-5)
+ Thermomètre numérique DS18B20 (digital 8)
+ Phorésistance en diviseur de tension (A-0)
+  
+ http://electroniqueamateur.blogspot.com/2013/06/saisie-de-donnees-data-logging-avec-un.html
+ 
+ *************************************************************/
+
+// Les librairies
+#include <OneWire.h>        // pour le ds18b20
+#include <SD.h>             // pour le lecteur de carte SD
+#include <Wire.h>   
+#include <RTClib.h>         // pour l'horloge temps réel
+
+// Nombre de secondes entres chaque prise de mesure
+#define DELAI_MESURES  60
+
+RTC_DS1307 RTC; // objet Real Time Clock
+DateTime now;
+long tempsInitial = 0; // nombre de secondes entre le 1 jan 2000 et le début du script
+long derniereMesure = 0; // moment de la plus récente prise de mesure
+
+const int chipSelect = 10;  // chipSelect de la carte SD àla pin 10
+File logfile;  //fichier 
+
+OneWire  ds(8);  // fil data du thermomètre branché sur digital 8
+byte addresseThermo[8];  // adresse du thermomètre
+
+int photoResPin = A0;   // photoresistance branchée à  analog 0
+
+
+void error(char *str)
+{
+ 
+  Serial.print("Erreur: ");
+  Serial.println(str);
+  while(1);
+}
+
+void setup(void)
+{
+
+  // initialisation du moniteur série, s'il y a lieu
+ 
+  Serial.begin(9600);
+  Serial.println();
+
+
+  // initialisation de la carte SD  
+  pinMode(10, OUTPUT);
+
+  // see if the card is present and can be initialized:
+  if (!SD.begin(chipSelect)) {
+    error("echec de l'initialisation de la carte SD");
+  }
+
+     
+  Serial.println("Initialisation de la carte SD reussie.");
+
+
+  // Création d'un fichier
+  char filename[] = "RAPPOR00.CSV";
+  for (uint8_t i = 0; i < 100; i++) {
+    filename[6] = i/10 + '0';
+    filename[7] = i%10 + '0';
+    if (! SD.exists(filename)) {
+      logfile = SD.open(filename, FILE_WRITE); 
+      break;  
+    }
+  }
+
+  if (! logfile) {
+    error("echec de la creation du fichier");
+  }
+
+    
+  Serial.print("Nom du fichier: ");
+  Serial.println(filename);
+
+
+  // initialisation de l'horloge temps réel (RTC)
+  Wire.begin(); 
+  RTC.begin();
+  
+  now = RTC.now();
+  tempsInitial =  now.get();
+  derniereMesure = now.get()-DELAI_MESURES;
+
+  // initialisation du thermometre  ds18b20:
+
+  if ( !ds.search(addresseThermo)) {
+    logfile.println("Erreur addr thermometre");
+
+    Serial.println("Erreur addr thermometre");
+
+    ds.reset_search();
+    return;
+  }
+
+  if ( OneWire::crc8( addresseThermo, 7) != addresseThermo[7]) {
+    logfile.println("Erreur CRC (thermometre)"); 
+
+    Serial.println("Erreur CRC (thermometre)");
+
+    return;
+  }
+
+  logfile.println("secondes;date;heure;lumiere;temperature");    
+
+  Serial.println("secondes;date;heure;lumiere;temperature");
+ 
+}
+
+// Routine de lecture de température
+float getTemp() {
+  byte i;
+  byte present = 0;
+  byte data[12];
+  int HighByte, LowByte, TReading, Tc_100,SignBit;
+  float temperature;
+
+  ds.reset();
+  ds.select(addresseThermo);
+  ds.write(0x44,1);
+
+  present = ds.reset();
+  ds.select(addresseThermo);    
+  ds.write(0xBE);
+
+  for ( i = 0; i < 9; i++) {
+    data[i] = ds.read();
+  }
+
+  LowByte = data[0];
+  HighByte = data[1];
+  TReading = (HighByte << 8) + LowByte;
+  SignBit = TReading & 0x8000;
+  if (SignBit) {
+    TReading = -TReading;
+  }
+
+  Tc_100 = (6 * TReading) + TReading / 4;    // conversion en celcius?  vÃ©rifier la fiche technique!
+
+  temperature = float(Tc_100) / 100;
+
+  return temperature;
+}
+
+
+
+void loop(void)
+{
+  
+  // on mesure les données pertinentes
+  
+  now = RTC.now();  // quelle heure est-il?
+  
+  if ((now.get()-derniereMesure)< DELAI_MESURES) return;
+  derniereMesure = now.get();
+  
+  analogRead(photoResPin);  // luminosité
+  delay(10); 
+  int luminosite = analogRead(photoResPin);  
+  
+  float temperature = getTemp();   //température
+
+  // Écriture du fichier
+
+  logfile.print(now.get()-tempsInitial);           // nombre de secondes depuis le début des mesures
+  logfile.print("; ");  
+  if (now.day() < 10) logfile.print("0");      // date
+  logfile.print(now.day(), DEC);
+  logfile.print("-");
+  if (now.month() < 10) logfile.print("0");
+  logfile.print(now.month(), DEC);
+  logfile.print("-");
+  logfile.print(now.year(), DEC);
+
+  logfile.print("; ");
+  if (now.hour() < 10) logfile.print("0");      // heure
+  logfile.print(now.hour(), DEC);
+  logfile.print(":");
+  if (now.minute() < 10) logfile.print("0");
+  logfile.print(now.minute(), DEC);
+  logfile.print(":");
+  if (now.second() < 10) logfile.print("0");
+  logfile.print(now.second(), DEC);
+  logfile.print("; ");    
+  logfile.print(luminosite);      // luminosite
+  logfile.print("; "); 
+    logfile.print(short(temperature));
+  logfile.print(",");
+  short decimales = (short)(temperature*100)%100;   // température (en remplaçant le point décimal 
+  if (decimales < 10) logfile.print("0");           // par une virgule)
+  logfile.print(decimales);
+  logfile.println();
+
+  // Écriture du moniteur série (utile pour le débogage, pas tellement pendant
+  // l'utilisation réelle.
+  
+  Serial.print(now.get()-tempsInitial);  // nombre de secondes depuis le début du sketch
+  Serial.print("; ");  
+  if (now.day() < 10) Serial.print("0");
+  Serial.print(now.day(), DEC);
+  Serial.print("-");
+  if (now.month() < 10) Serial.print("0");
+  Serial.print(now.month(), DEC);
+  Serial.print("-");
+  Serial.print(now.year(), DEC);
+
+  Serial.print("; ");
+  if (now.hour() < 10) Serial.print("0");
+  Serial.print(now.hour(), DEC);
+  Serial.print(":");
+  if (now.minute() < 10) Serial.print("0");
+  Serial.print(now.minute(), DEC);
+  Serial.print(":");
+  if (now.second() < 10) Serial.print("0");
+  Serial.print(now.second(), DEC);
+  Serial.print("; ");   
+  Serial.print(luminosite);
+  Serial.print("; ");     
+ 
+  Serial.print(short(temperature));
+  Serial.print(",");
+  if (decimales < 10) Serial.print("0");
+  Serial.print(decimales);
+  Serial.println();
+
+  logfile.flush();
+
+}

@@ -1,0 +1,73 @@
+void setupTelemetry()
+{
+    //Initialisation de la telemetrie (uniquement en mode 0
+    //telemetryType --> 0- Rien, 1- FrSky (S-Port), 2- Hitec, 3- Hott, 4- Spektrum 5-Futaba Sbus 6-Spektrum    
+    switch (telemetryType)
+    {
+      case 0://pas de telemetrie
+        //
+        break;
+#ifdef FRSKYSPORT 
+      case 1://connexion serie
+        if(Serial.available()) 
+        {
+          Serial.end();//Serial.begin(57600);
+          FrSkySPort_Init();//Serial << F("Initialisation Telemetrie Frsky") << endl;//demarrage de la telemetrie FrSky au format SPort
+        }
+        break;
+#endif
+#ifdef HITEC
+      case 2:
+        Hitec_Init();//Serial << F("Initialisation Telemetrie Hitec") << endl;
+        break;
+#endif
+#ifdef HOTT
+      case 3:
+        if(Serial.available()) 
+        {
+          Serial.end();//Serial.begin(19200);
+          Hott_Init();//Serial <<F( "Initialisation Telemetrie Hott") << endl;
+        }
+        break;
+#endif
+#ifdef SPEKTRUM
+      case 4:
+        if(Serial.available()) 
+        {
+          //Serial.end();//Serial.begin(19200);
+          Spektrum_Init();//Serial << F("Initialisation Telemetrie Spektrum") << endl;
+        }
+        break;
+#endif        
+    }
+}
+
+void updateTelemetry()
+{
+    //Mise a jour telemetrie
+    switch (telemetryType)
+    {
+#ifdef FRSKYSPORT
+      case 1://connexion serie
+        FrSkySPort_Update();
+        break;
+#endif
+#ifdef HITEC
+      case 2:
+        Hitec_Update();
+        break;
+#endif
+#ifdef HOTT
+      case 3://connexion serie
+        Hott_Update();
+        break;
+#endif
+#ifdef SPEKTRUM
+      case 4:
+        Spektrum_Update();
+        break;
+#endif          
+    }
+ 
+  
+}

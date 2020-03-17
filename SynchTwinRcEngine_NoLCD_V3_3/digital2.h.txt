@@ -1,0 +1,17 @@
+/*  **********************************************************************************
+   Nouvelle version de digitalWrite/Read
+   Nécessite de faire soi même la conversion dénomination Arduino des IO en dénomination Atmel
+   Licence complètement libre domaine public
+ * ***********************************************************************************/
+#ifndef DIGITAL2_H
+#define DIGITAL2_H
+
+#include <inttypes.h>
+
+void pinMode(volatile uint8_t *ddr, uint8_t rang, uint8_t sens);
+
+void digitalWrite(volatile uint8_t *port, uint8_t rang, uint8_t valeur);
+
+uint8_t digitalRead(volatile uint8_t *pin, uint8_t rang);
+
+#endif     //DIGITAL2_H
