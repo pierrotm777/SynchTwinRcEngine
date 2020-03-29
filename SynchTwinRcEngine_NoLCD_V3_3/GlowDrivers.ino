@@ -33,7 +33,7 @@ void glowUpdate()
 {
 
  // Controle de la largeur d'impulsion en µs minimumPulse_US -- maximumPulse_US 
- if ((Width_us >= minimumPulse_US) && (Width_us <= maximumPulse_US )) 
+ if ((Width_us >= ms.minimumPulse_US) && (Width_us <= ms.maximumPulse_US )) 
  {
    tpulse_0 = tpulse_1;      // memorisation durée pulse précédente
    tpulse_1 = tpulse;        // pulse courante
@@ -57,7 +57,7 @@ void glowUpdate()
  // coupure_gaz : seuil de coupure du moteur
  // au ralenti le chauffage est réalisé entre "coupure_gaz" et "idelposServos1"
  
- if ((Width_us >= COUPURE_GAZ) && (Width_us <= idelposServos1)) 
+ if ((Width_us >= COUPURE_GAZ) && (Width_us <= ms.idelposServos1)) 
  {
    cmd_chauffe = true;  
    if (moteur_marche == false) 

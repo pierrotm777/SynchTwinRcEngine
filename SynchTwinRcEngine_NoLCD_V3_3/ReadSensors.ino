@@ -52,8 +52,8 @@ void readCaptorTransitions()
       }
         vitesse1 = vitesse1 / 5;
         vitesse2 = vitesse2 / 5;
-        vitesse1 = (vitesse1 > 0)?vitesse1/nbPales:0;// preventing 0/nbPales
-        vitesse2 = (vitesse2 > 0)?vitesse2/nbPales:0;
+        vitesse1 = (vitesse1 > 0)?vitesse1/ms.nbPales:0;// preventing 0/nbPales
+        vitesse2 = (vitesse2 > 0)?vitesse2/ms.nbPales:0;
      }
     interrupts();
   }
@@ -69,5 +69,3 @@ void readCaptorTransitions()
   }
 #endif   
 }
-
-

@@ -4,14 +4,14 @@ void readAuxiliaryChannel()
 {
 
   /* remplacer mini et maxi par idelposServos et fullThrottle ? */
-//  static uint16_t OneQuarterThrottle = THROTTLE_FRACT(minimumPulse_US, maximumPulse_US, 1, 4); /* 1/4 */
-  static uint16_t OneFifthThrottle = THROTTLE_FRACT(minimumPulse_US, maximumPulse_US, 1, 5); /* 1/5 */
-  static uint16_t OneThirdThrottle = THROTTLE_FRACT(minimumPulse_US, maximumPulse_US, 1, 3); /* 1/3 */
-  static uint16_t TwoThirdThrottle = THROTTLE_FRACT(minimumPulse_US, maximumPulse_US, 2, 3); /* 2/3 */
+//  static uint16_t OneQuarterThrottle = THROTTLE_FRACT(ms.minimumPulse_US, ms.maximumPulse_US, 1, 4); /* 1/4 */
+  static uint16_t OneFifthThrottle = THROTTLE_FRACT(ms.minimumPulse_US, ms.maximumPulse_US, 1, 5); /* 1/5 */
+  static uint16_t OneThirdThrottle = THROTTLE_FRACT(ms.minimumPulse_US, ms.maximumPulse_US, 1, 3); /* 1/3 */
+  static uint16_t TwoThirdThrottle = THROTTLE_FRACT(ms.minimumPulse_US, ms.maximumPulse_US, 2, 3); /* 2/3 */
   /* remplacer mini et maxi par idelposServos et fullThrottle ? */
      
   /* a remplacer par les center servo 1&2 ? */
-  static uint16_t MiddleThrottle = THROTTLE_FRACT(minimumPulse_US, maximumPulse_US, 1, 2); /* 1/2 */
+  static uint16_t MiddleThrottle = THROTTLE_FRACT(ms.minimumPulse_US, ms.maximumPulse_US, 1, 2); /* 1/2 */
   /* a remplacer par les center servo 1&2 ? */
   
 //  Serial <<  "1/5 " << OneFifthThrottle << "| 1/3 " << OneThirdThrottle << "| 2/3 " << TwoThirdThrottle << "| Middle " << MiddleThrottle << endl;
@@ -24,7 +24,7 @@ void readAuxiliaryChannel()
   if(Width_us >= OneFifthThrottle){PIN_HIGH(B,3);}else{PIN_LOW(B,3);}
 
   //ajouter gestion de l'entree AUX avec inters 2 ou 3 positions:
-  switch (auxChannel)
+  switch (ms.auxChannel)
   {
       //AUX n'est pas connecte (moteurs synchronises au-dela de 1/5 de RX)
     case 1:
@@ -46,19 +46,19 @@ void readAuxiliaryChannel()
       //au-dessus 2/3 le moteur1 est en idle et le moteur2 controle par RX
     case 2:
        synchroIsActive=false;//synchro inactive
-       //Serial << "Idle 1: " << idelposServos1 << " Idle 2: " << idelposServos2 << " Aux: " << WidthAux_us << " Motors: " << Width_us << endl;
+       //Serial << "Idle 1: " << idelposServos1 << " Idle 2: " << ms.idelposServos2 << " Aux: " << WidthAux_us << " Motors: " << Width_us << endl;
        if(WidthAux_us < OneThirdThrottle)//(OK)
        {
          //sous 1/3 ==> moteur1 controle par RX et moteur2 en idle 
          if (SecurityIsON == false)
          {  
-           if (reverseServo1 == 0) {ServoMotor1.write_us(Width_us);}else{ServoMotor1.write_us((centerposServo1*2)-Width_us);}               
-           if (reverseServo2 == 0) {ServoMotor2.write_us(idelposServos2);}else{ServoMotor2.write_us((centerposServo2*2)-idelposServos2);}
+           if (ms.reverseServo1 == 0) {ServoMotor1.write_us(Width_us);}else{ServoMotor1.write_us((ms.centerposServo1*2)-Width_us);}               
+           if (ms.reverseServo2 == 0) {ServoMotor2.write_us(ms.idelposServos2);}else{ServoMotor2.write_us((ms.centerposServo2*2)-ms.idelposServos2);}
          }
          else
          {//mise en securite
-           (reverseServo1 == 0)?ServoMotor1.write_us(minimumPulse_US):ServoMotor1.write_us(maximumPulse_US);               
-           (reverseServo2 == 0)?ServoMotor2.write_us(minimumPulse_US):ServoMotor2.write_us(maximumPulse_US);                       
+           (ms.reverseServo1 == 0)?ServoMotor1.write_us(ms.minimumPulse_US):ServoMotor1.write_us(ms.maximumPulse_US);               
+           (ms.reverseServo2 == 0)?ServoMotor2.write_us(ms.minimumPulse_US):ServoMotor2.write_us(ms.maximumPulse_US);                       
          }
        }
        if(WidthAux_us > TwoThirdThrottle)//(OK)
@@ -66,13 +66,13 @@ void readAuxiliaryChannel()
          //au-dessus 2/3 ==> le moteur1 est en idle et le moteur2 controle par RX 
          if (SecurityIsON == false)
          {       
-           if (reverseServo1 == 0) {ServoMotor1.write_us(idelposServos1);}else{ServoMotor1.write_us((centerposServo1*2)-idelposServos1);}               
-           if (reverseServo2 == 0) {ServoMotor2.write_us(Width_us);}else{ServoMotor2.write_us((centerposServo2*2)-Width_us);}
+           if (ms.reverseServo1 == 0) {ServoMotor1.write_us(ms.idelposServos1);}else{ServoMotor1.write_us((ms.centerposServo1*2)-ms.idelposServos1);}               
+           if (ms.reverseServo2 == 0) {ServoMotor2.write_us(Width_us);}else{ServoMotor2.write_us((ms.centerposServo2*2)-Width_us);}
          }
          else
          {//mise en securite
-           (reverseServo1 == 0)?ServoMotor1.write_us(minimumPulse_US):ServoMotor1.write_us(maximumPulse_US);               
-           (reverseServo2 == 0)?ServoMotor2.write_us(minimumPulse_US):ServoMotor2.write_us(maximumPulse_US);                       
+           (ms.reverseServo1 == 0)?ServoMotor1.write_us(ms.minimumPulse_US):ServoMotor1.write_us(ms.maximumPulse_US);               
+           (ms.reverseServo2 == 0)?ServoMotor2.write_us(ms.minimumPulse_US):ServoMotor2.write_us(ms.maximumPulse_US);                       
          }
        }
        if((WidthAux_us >= OneThirdThrottle) && (WidthAux_us <= TwoThirdThrottle))//(OK)
@@ -86,12 +86,12 @@ void readAuxiliaryChannel()
       //position 1, synchro est active
       //position 2, pas de synchro (idem cable Y sur les moteurs) 
     case 3:
-       if (WidthAux_us > minimumPulse_US)
+       if (WidthAux_us > ms.minimumPulse_US)
        {
          synchroIsActive=true;//synchro active
          UseSynchroMotors();
        }
-       else if (WidthAux_us < maximumPulse_US)
+       else if (WidthAux_us < ms.maximumPulse_US)
        {
          synchroIsActive=false;//synchro inactive
          ServoMoteursWrite_Us();
@@ -119,35 +119,35 @@ void readAuxiliaryChannel()
          +---------XXX--------+--------------------+         
          */
          //HalfDeadZone definie une zone morte autour du point milieu
-         if (WidthAux_us >= minimumPulse_US && WidthAux_us <= (HalfDeadZone - MiddleThrottle))
+         if (WidthAux_us >= ms.minimumPulse_US && WidthAux_us <= (HalfDeadZone - MiddleThrottle))
          { //   1000 > Aux < 1500
-           LargeurMixed = map(WidthAux_us, minimumPulse_US, centerposServo1, centerposServo1/3, 0);
+           LargeurMixed = map(WidthAux_us, ms.minimumPulse_US, ms.centerposServo1, ms.centerposServo1/3, 0);
            if (SecurityIsON == false)
            {
-             if (reverseServo1 == 0) {ServoMotor1.write_us(Width_us-LargeurMixed);}else{ServoMotor1.write_us((centerposServo1*2)-Width_us+LargeurMixed);}        
-             if (reverseServo2 == 0) {ServoMotor2.write_us(Width_us);}else{ServoMotor2.write_us((centerposServo2*2)-Width_us);}
+             if (ms.reverseServo1 == 0) {ServoMotor1.write_us(Width_us-LargeurMixed);}else{ServoMotor1.write_us((ms.centerposServo1*2)-Width_us+LargeurMixed);}        
+             if (ms.reverseServo2 == 0) {ServoMotor2.write_us(Width_us);}else{ServoMotor2.write_us((ms.centerposServo2*2)-Width_us);}
            }
            else
            {//mise en securite
-             (reverseServo1 == 0)?ServoMotor1.write_us(minimumPulse_US):ServoMotor1.write_us(maximumPulse_US);               
-             (reverseServo2 == 0)?ServoMotor2.write_us(minimumPulse_US):ServoMotor2.write_us(maximumPulse_US);                         
+             (ms.reverseServo1 == 0)?ServoMotor1.write_us(ms.minimumPulse_US):ServoMotor1.write_us(ms.maximumPulse_US);               
+             (ms.reverseServo2 == 0)?ServoMotor2.write_us(ms.minimumPulse_US):ServoMotor2.write_us(ms.maximumPulse_US);                         
            }
          }
          /*Min Dir        Middle Dir            Max Dir
          +--------------------+---------XXX--------+         
          */
-         if (WidthAux_us >= (MiddleThrottle + HalfDeadZone) && WidthAux_us <= maximumPulse_US)
+         if (WidthAux_us >= (MiddleThrottle + HalfDeadZone) && WidthAux_us <= ms.maximumPulse_US)
          {
-           LargeurMixed = map(WidthAux_us, centerposServo2, maximumPulse_US, 0, centerposServo2/3);
+           LargeurMixed = map(WidthAux_us, ms.centerposServo2, ms.maximumPulse_US, 0, ms.centerposServo2/3);
            if (SecurityIsON == false)
            {
-             if (reverseServo1 == 0) {ServoMotor1.write_us(Width_us);}else{ServoMotor1.write_us((centerposServo1*2)-Width_us);}
-             if (reverseServo2 == 0) {ServoMotor2.write_us(Width_us-LargeurMixed);}else{ServoMotor2.write_us((centerposServo2*2)-Width_us+LargeurMixed);}
+             if (ms.reverseServo1 == 0) {ServoMotor1.write_us(Width_us);}else{ServoMotor1.write_us((ms.centerposServo1*2)-Width_us);}
+             if (ms.reverseServo2 == 0) {ServoMotor2.write_us(Width_us-LargeurMixed);}else{ServoMotor2.write_us((ms.centerposServo2*2)-Width_us+LargeurMixed);}
            }
            else
            {//mise en securite
-             (reverseServo1 == 0)?ServoMotor1.write_us(minimumPulse_US):ServoMotor1.write_us(maximumPulse_US);               
-             (reverseServo2 == 0)?ServoMotor2.write_us(minimumPulse_US):ServoMotor2.write_us(maximumPulse_US);              
+             (ms.reverseServo1 == 0)?ServoMotor1.write_us(ms.minimumPulse_US):ServoMotor1.write_us(ms.maximumPulse_US);               
+             (ms.reverseServo2 == 0)?ServoMotor2.write_us(ms.minimumPulse_US):ServoMotor2.write_us(ms.maximumPulse_US);              
            }
          }
          /*Min Dir        Middle Dir            Max Dir
@@ -196,7 +196,7 @@ void readAuxiliaryChannel()
          PIN_LOW(C,6);//Red Led is OFF
        }
 #endif       
-       if((WidthAux_us > idelposServos1) && (WidthAux_us > idelposServos2) && (vitesse1 > 0) && (vitesse2 > 0))
+       if((WidthAux_us > ms.idelposServos1) && (WidthAux_us > ms.idelposServos2) && (vitesse1 > 0) && (vitesse2 > 0))
        {
          synchroIsActive=true;//synchro active
          UseSynchroMotors();
@@ -215,12 +215,12 @@ void ServoMoteursWrite_Us()
 {
   if (SecurityIsON == false)
   {
-    (reverseServo1 == 0)?ServoMotor1.write_us(Width_us):ServoMotor1.write_us((centerposServo1*2)-Width_us);
-    (reverseServo2 == 0)?ServoMotor2.write_us(Width_us):ServoMotor2.write_us((centerposServo2*2)-Width_us);
+    (ms.reverseServo1 == 0)?ServoMotor1.write_us(Width_us):ServoMotor1.write_us((ms.centerposServo1*2)-Width_us);
+    (ms.reverseServo2 == 0)?ServoMotor2.write_us(Width_us):ServoMotor2.write_us((ms.centerposServo2*2)-Width_us);
   }
   else
   {//mise en securite
-    (reverseServo1 == 0)?ServoMotor1.write_us(idelposServos1):ServoMotor1.write_us((centerposServo1*2)-idelposServos1);               
-    (reverseServo2 == 0)?ServoMotor2.write_us(idelposServos2):ServoMotor2.write_us((centerposServo2*2)-idelposServos2);    
+    (ms.reverseServo1 == 0)?ServoMotor1.write_us(ms.idelposServos1):ServoMotor1.write_us((ms.centerposServo1*2)-ms.idelposServos1);               
+    (ms.reverseServo2 == 0)?ServoMotor2.write_us(ms.idelposServos2):ServoMotor2.write_us((ms.centerposServo2*2)-ms.idelposServos2);    
   }
 }

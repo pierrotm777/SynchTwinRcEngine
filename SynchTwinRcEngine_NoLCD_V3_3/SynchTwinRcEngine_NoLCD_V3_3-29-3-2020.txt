@@ -3,7 +3,9 @@
 
 #include <EEPROM.h>
 #include <Streaming.h>          /* Librairie remplacant Serial.print() */
+//#include <SoftRcPulseIn.h>      /* Librairie utilisee pour lire un signal pwm en entree */
 #include <SoftRcPulseOut.h>     /* Librairie utilisee pour creer un signal pwm en sortie */
+//#include <TinyPinChange.h>      /* Permet detecter en interruption les changements d'etat */
 #include "Macros.h"
 #include <TinyPpmReader.h>      /* Librairie utilisee pour lire un signal ppm en entree */
 #include <Rcul.h>
@@ -59,11 +61,12 @@ const int chipSelect = 10;
 #endif
 
 //affectation des pins des entrees RX et sorties servos
-#define BROCHE_PPMINPUT    0   /* Multiplex RX pinout 2 */
+#define BROCHE_VOIE_THROTTLE    0   /* Multiplex RX pinout 2 */
 #define BROCHE_SENSOR1          2    /* Hall or IR motor 1 */
 #define BROCHE_SENSOR2          3    /* Hall or IR motor 2 */
 #define BROCHE_SERVO1           4    /* Servo motor 1 */
 #define BROCHE_SERVO2           5    /* Servo motor 2 */
+//#define BROCHE_VOIE_AUX         A0   /* Multiplex RX pinout 5 */
 
 #ifdef GLOWMANAGER
 #define BROCHE_GLOW1            6  /* Glow driver motor 1 */
@@ -95,44 +98,31 @@ uint32_t BeginSecurityMs;//=millis();
 uint32_t LedStartMs;//=millis();
 uint32_t SendMotorsToVBMs;//=millis();
 
-
-/** La structure permettant de stocker les données */
-//https://www.carnetdumaker.net/articles/stocker-des-donnees-en-memoire-eeprom-avec-une-carte-arduino-genuino/
-struct MaStructure {
-  /* Valeurs par defaut dans EEprom */
-  byte ID;                                         //mode1 (in address 0)
-  uint16_t centerposServo1;                        //mode1 (in address 1)
-  uint16_t centerposServo2;                        //mode1 (in address 2)
-  uint16_t idelposServos1;//600                    //mode1 (in address 3)
-  uint16_t idelposServos2;//600                    //mode1 (in address 3)
-  uint8_t responseTime;                            //mode2 (= a TAUX_DE_MOYENNAGE) (in address 4)
-  uint16_t fullThrottle;//2400                     //mode1 (in address 5)
-  uint16_t beginSynchro;//                         //mode1 (in address 6)
-  uint8_t auxChannel;                              //mode2 (in address 7)
-  uint8_t reverseServo1;                           //mode2 (in address 8)
-  uint8_t reverseServo2;                           //mode2 (in address 9)
-  double diffVitesseErr;                          //difference de vitesse entre les 2 moteurs en tr/mn toleree
-  uint16_t minimumPulse_US;                        //mode1 (in address)
-  uint16_t maximumPulse_US;                        //mode1 (in address)
-  //uint8_t telemetryType;                           //mode2 0- Rien, 1- FrSky (S-Port), 2- Futaba Sbus, 3- Hitec, 4- Hott, 5- Jeti 6- Spektrum
-  uint8_t nbPales;                                 //mode2 the number of blades of the propeller or nb of magnets
-  uint8_t moduleMasterOrSlave;                     //0 = module maitre , 1= module esclave
-  uint8_t fahrenheitDegrees;                       //0 = C degrees , 1= Fahrenheit degrees
-  uint16_t minimumSpeed;
-  uint16_t maximumSpeed;
-  //PID variables
-  double aggKp=100, aggKi=0.2, aggKd=1;//aggressive
-  double consKp=1, consKi=0.05, consKd=0.25;//conservative
-
-}; // Ne pas oublier le point virgule !
-
-MaStructure ms;
+/* Valeurs par defaut dans EEprom */
+uint16_t centerposServo1;                        //mode1 (in address 1)
+uint16_t centerposServo2;                        //mode1 (in address 2)
+uint16_t idelposServos1;//600                    //mode1 (in address 3)
+uint16_t idelposServos2;//600                    //mode1 (in address 3)
+uint8_t responseTime;                            //mode2 (= a TAUX_DE_MOYENNAGE) (in address 4)
+uint16_t fullThrottle;//2400                     //mode1 (in address 5)
+uint16_t beginSynchro;//                         //mode1 (in address 6)
+uint8_t auxChannel;                              //mode2 (in address 7)
+uint8_t reverseServo1;                           //mode2 (in address 8)
+uint8_t reverseServo2;                           //mode2 (in address 9)
+uint16_t minimumPulse_US;                        //mode1 (in address)
+uint16_t maximumPulse_US;                        //mode1 (in address)
+//uint8_t telemetryType;                           //mode2 0- Rien, 1- FrSky (S-Port), 2- Futaba Sbus, 3- Hitec, 4- Hott, 5- Jeti 6- Spektrum
+uint8_t nbPales;                                 //mode2 the number of blades of the propeller or nb of magnets
+uint8_t moduleMasterOrSlave;                     //0 = module maitre , 1= module esclave
+uint8_t fahrenheitDegrees;                       //0 = C degrees , 1= Fahrenheit degrees
+static uint16_t minimumSpeed;
+static uint16_t maximumSpeed;
 
 /* comptage tr/mn */
 volatile uint16_t FirstInputChangeCount=0, SecondInputChangeCount=0;
 uint8_t VirtualPortNb, VirtualPortNb_;
 uint16_t vitesse1, vitesse2;                    //blades speeds in rpm
-//double diffVitesseErr;                          //difference de vitesse entre les 2 moteurs en tr/mn toleree
+double diffVitesseErr;                          //difference de vitesse entre les 2 moteurs en tr/mn toleree
 double diffVitesse;                             //difference de vitesse entre les 2 moteurs en tr/mn (peut etre negatif !!!)
 double stepMotor;                               //nb de micro secondes ajoutes ou enleves
 int readings_V1[10];                            //averaging last 10 readings_V1
@@ -144,9 +134,9 @@ int index = 0;
 #include <PID_v1.h>
 //Define PID Variables
 //Define the aggressive and conservative Tuning Parameters
-//double aggKp=100, aggKi=0.2, aggKd=1;//aggressive
-//double consKp=1, consKi=0.05, consKd=0.25;//conservative
-PID myPID(&diffVitesse, &stepMotor, &ms.diffVitesseErr, ms.consKp, ms.consKi, ms.consKd, DIRECT);
+double aggKp=100, aggKi=0.2, aggKd=1;//aggressive
+double consKp=1, consKi=0.05, consKd=0.25;//conservative
+PID myPID(&diffVitesse, &stepMotor, &diffVitesseErr, consKp, consKi, consKd, DIRECT);
 // EEPROM addresses for persisted data
 const int SpAddress = 50;//0
 const int KpAddress = 58;//8
@@ -180,20 +170,19 @@ int pos = 0;
 
 #ifdef I2CSLAVEFOUND
 #include <Wire.h>               /* Interface LCD I2C, SDA = A4, SCL = A5) */
-#define SLAVE_ADRESS      20
 #endif
 
 void setup()
 {
 
 #ifdef I2CSLAVEFOUND
-  Wire.begin(SLAVE_ADRESS,2);
+  Wire.begin();
 #endif
 
 #ifdef PIDCONTROL
   //initialize the variables we're linked to
   /* diffVitesse = V1-V2 */
-  //diffVitesseErr = EEPROMRead(42);
+  diffVitesseErr = EEPROMRead(42);
   
   //turn the PID on
   myPID.SetMode(AUTOMATIC);
@@ -273,8 +262,8 @@ void setup()
   //waitMs(250);
   Serial.end();
   //initialisation des voies moteur et auxiliaire: (minimumPulse_US = 600 et maximumPulse_US = 2400 (depend de la marque RX/TX))
-  TinyPpmReader.attach(BROCHE_PPMINPUT); /* Attach TinyPpmReader to PPM_INPUT_PIN pin */
-  //RxChannelPulseMotor.attach(BROCHE_PPMINPUT);//, minimumPulse_US, maximumPulse_US);//initialisation de la voie entree moteur:
+  TinyPpmReader.attach(BROCHE_VOIE_THROTTLE); /* Attach TinyPpmReader to PPM_INPUT_PIN pin */
+  //RxChannelPulseMotor.attach(BROCHE_VOIE_THROTTLE);//, minimumPulse_US, maximumPulse_US);//initialisation de la voie entree moteur:
   //RxChannelPulseAux.attach(BROCHE_VOIE_AUX);//, minimumPulse_US, maximumPulse_US);//initialisation de la voie entree auxiliaire:
   ServoMotor1.attach(BROCHE_SERVO1);
   ServoMotor2.attach(BROCHE_SERVO2);
@@ -311,34 +300,28 @@ void loop()
 
 void readAllEEprom()
 {
-
-/*
-  ms.ID                  = 0x99;//EEPROMWrite(0, 0x99);              //write the ID to indicate valid data
-  ms.centerposServo1     = 1500;//EEPROMWrite(1, 1500);              //mode1 (in address 1&2)
-  ms.centerposServo2     = 1500;//EEPROMWrite(3, 1500);              //mode1 (in address 3&4)
-  ms.idelposServos1      = 1000;//EEPROMWrite(5, 1000);              //mode1 (in address 5&6)
-  ms.idelposServos2      = 1000;//EEPROMWrite(7, 1000);              //mode1 (in address 7&8)
-  ms.responseTime        = 2   ;//EEPROM.update(9, 2);               //mode2 (= a TAUX_DE_MOYENNAGE) (in address 9&10)
-  ms.fullThrottle        = 2000;//EEPROMWrite(11, 2000);             //mode1 (in address 11&12)
-  ms.beginSynchro        = 1250;//EEPROMWrite(13, 1250);             //mode1 (in address 13&14)
-  ms.auxChannel          = 1;   //EEPROM.update(15, 1);              //mode2 (in address 15&16)
-  ms.reverseServo1       = 0;   //EEPROM.update(17, 0);              //mode2 (in address 17&18)
-  ms.reverseServo2       = 0;   //EEPROM.update(19, 0);              //mode2 (in address 19&20)
-  ms.diffVitesseErr      = 99;  //EEPROMWrite(42, 99);               //mode2 diffVitesseErr (in address 21&22)
-  ms.minimumPulse_US     = 1000;//EEPROMWrite(23, 1000);             //mode1 (in address 23&24)   
-  ms.maximumPulse_US     = 2000;//EEPROMWrite(25, 2000);             //mode1 (in address 25&26)
-  //ms.telemetryType       = 0; //mode2 0- Rien, 1- FrSky (S-Port), 2- Futaba Sbus, 3- Hitec, 4- Hott, 5- Jeti 6- Spektrum
-  ms.nbPales             = 2;   
-  ms.moduleMasterOrSlave = 0;   
-  ms.fahrenheitDegrees   = 0;
-  ms.minimumSpeed        = 1000;//EEPROMWrite(35, 1000);             //minimum motor rpm
-  ms.maximumSpeed        = 20000;//EEPROMWrite(37, 20000);            //maximum motor rpm
- */
-
-  //byte id = EEPROMRead(0); // read the first byte from the EEPROM
-  if ( ms.ID == 0x99)
+  byte id = EEPROMRead(0); // read the first byte from the EEPROM
+  if ( id == 0x99)
   {
-    EEPROM.get(0, ms);
+    centerposServo1 = EEPROMRead(1);       //mode1 (in address 1&2)
+    centerposServo2 = EEPROMRead(3);       //mode1 (in address 3&4)
+    idelposServos1 = EEPROMRead(5);        //mode1 (in address 5&6)
+    idelposServos2 = EEPROMRead(7);        //mode1 (in address 7&8)
+    responseTime = EEPROM.read(9);          //mode2 (= a TAUX_DE_MOYENNAGE) (in address 9&10)
+    fullThrottle = EEPROMRead(11);         //mode1 (in address 11&12)
+    beginSynchro = EEPROMRead(13);         //mode1 (in address 13&14)
+    auxChannel = EEPROM.read(15);           //mode2 (in address 15&16)
+    reverseServo1 = EEPROM.read(17);        //mode2 (in address 17&18)
+    reverseServo2 = EEPROM.read(19);        //mode2 (in address 19&20)
+    diffVitesseErr = EEPROMRead(42);       //mode2 (in address 21&22)
+    minimumPulse_US = EEPROMRead(23);      //mode1 (in address 23&24)
+    maximumPulse_US = EEPROMRead(25);      //mode1 (in address 25&26)
+    nbPales = EEPROM.read(27);              //mode2 (in address 27)
+//    lcdI2Caddress = EEPROM.read(29);
+    moduleMasterOrSlave = EEPROM.read(31);
+    fahrenheitDegrees = EEPROM.read(33);
+    minimumSpeed = EEPROMRead(35);
+    maximumSpeed = EEPROMRead(37);
     // after address 80, recorder save data and PID
   }
   else
@@ -354,29 +337,29 @@ void readAllEEprom()
 void readAllEEpromOnSerial()
 {
   Serial << F("Chargement valeurs EEPROM ...") << endl;
-  Serial << F("EEprom ID: 0x") << _HEX(ms.ID) << endl;
-  Serial << F("Centre servo1: ") << ms.centerposServo1 << endl;
-  Serial << F("Centre servo2: ") << ms.centerposServo2 << endl;
-  Serial << F("Position Repos servos 1: ") << ms.idelposServos1 << "us" << endl;
-  Serial << F("Position Repos servos 2: ") << ms.idelposServos2 << "us" << endl;
-  Serial << F("Vitesse de reponse: ") << ms.responseTime << endl;
-  Serial << F("Position maxi servos: ") << ms.fullThrottle << "us" << endl;
-  Serial << F("Debut synchro servos: ") << ms.beginSynchro << "us" << endl;
-  Serial << F("Position mini general: ") << ms.minimumPulse_US << "us" << endl;
-  Serial << F("Position maxi general: ") << ms.maximumPulse_US << "us" << endl;
-  if (ms.auxChannel == 1) Serial << F("Connexion Ch AUX: mode ") << ms.auxChannel << F(" (Ch Aux non connecte)") <<  endl;
-  if (ms.auxChannel == 2) Serial << F("Connexion Ch AUX: mode ") << ms.auxChannel << F(" (inter 3 positions) ") <<  endl;
-  if (ms.auxChannel == 3 || ms.auxChannel == 5 || ms.auxChannel == 6) Serial << F("Connexion Ch AUX: mode ") << ms.auxChannel << F(" (inter 2 positions)") <<  endl;
-  if (ms.auxChannel == 4) Serial << F("Connexion Ch AUX: mode ") << ms.auxChannel << F(" (Ch Aux connecte a direction)") << endl;
+  Serial << F("EEprom ID: 0x") << _HEX(EEPROM.read(0)) << endl;
+  Serial << F("Centre servo1: ") << centerposServo1 << endl;
+  Serial << F("Centre servo2: ") << centerposServo2 << endl;
+  Serial << F("Position Repos servos 1: ") << idelposServos1 << "us" << endl;
+  Serial << F("Position Repos servos 2: ") << idelposServos2 << "us" << endl;
+  Serial << F("Vitesse de reponse: ") << responseTime << endl;
+  Serial << F("Position maxi servos: ") << fullThrottle << "us" << endl;
+  Serial << F("Debut synchro servos: ") << beginSynchro << "us" << endl;
+  Serial << F("Position mini general: ") << minimumPulse_US << "us" << endl;
+  Serial << F("Position maxi general: ") << maximumPulse_US << "us" << endl;
+  if (auxChannel == 1) Serial << F("Connexion Ch AUX: mode ") << auxChannel << F(" (Ch Aux non connecte)") <<  endl;
+  if (auxChannel == 2) Serial << F("Connexion Ch AUX: mode ") << auxChannel << F(" (inter 3 positions) ") <<  endl;
+  if (auxChannel == 3 || auxChannel == 5 || auxChannel == 6) Serial << F("Connexion Ch AUX: mode ") << auxChannel << F(" (inter 2 positions)") <<  endl;
+  if (auxChannel == 4) Serial << F("Connexion Ch AUX: mode ") << auxChannel << F(" (Ch Aux connecte a direction)") << endl;
 //  strcpy_P(buff, (char*)pgm_read_word(&(readServoSens[reverseServo1])));
 //  Serial << F("Inversion servo1: ") << buff << endl;
 //  strcpy_P(buff, (char*)pgm_read_word(&(readServoSens[reverseServo2])));
 //  Serial << F("Inversion servo2: ") << buff << endl;
-  Serial << F("Difference vitess Err: ") << ms.diffVitesseErr << endl;
+  Serial << F("Difference vitess Err: ") << diffVitesseErr << endl;
 //  Serial << F("Adresse I2C LCD: ") << lcdI2Caddress << F(" (0x") << _HEX(lcdI2Caddress) << F(")") << endl;
-  Serial << F("Nombre de pales ou d'aimants: ") << _DEC(ms.nbPales) << endl;
+  Serial << F("Nombre de pales ou d'aimants: ") << _DEC(nbPales) << endl;
   Serial << F("Voltage interne : ") <<  _FLOAT(readVcc() / 1000, 3) << F("v") << endl;
-  if (ms.fahrenheitDegrees == 0)
+  if (fahrenheitDegrees == 0)
   {
     Serial << F("Temperature interne : ") <<  GetTemp() << _FILL('°', 1) << F("C") << endl;
   }
@@ -385,8 +368,8 @@ void readAllEEpromOnSerial()
     Serial << F("Temperature interne : ") <<  GetTemp() << _FILL('°', 1) << F("F") << endl;
   }
 
-  Serial << F("Mini Motor : ") <<  ms.minimumSpeed << F(" rpm") << endl;
-  Serial << F("Maxi Motor : ") <<  ms.maximumSpeed << F(" rpm") << endl;
+  Serial << F("Mini Motor : ") <<  minimumSpeed << F(" rpm") << endl;
+  Serial << F("Maxi Motor : ") <<  maximumSpeed << F(" rpm") << endl;
 #ifdef EXTERNALVBATT
   Serial << F("Voltage externe : ") <<  _FLOAT(GetExternalVoltage(), 3) << F("v") << endl;
   battery_Informations();
@@ -396,55 +379,133 @@ void readAllEEpromOnSerial()
 
 void SettingsWriteDefault()
 {
+  EEPROMWrite(0, 0x99);              //write the ID to indicate valid data
+  EEPROMWrite(1, 1500);              //mode1 (in address 1&2)
+  EEPROMWrite(3, 1500);              //mode1 (in address 3&4)
+  EEPROMWrite(5, 1000);              //mode1 (in address 5&6)
+  EEPROMWrite(7, 1000);              //mode1 (in address 7&8)
+  EEPROM.update(9, 2);                  //mode2 (= a TAUX_DE_MOYENNAGE) (in address 9&10)
+  EEPROMWrite(11, 2000);             //mode1 (in address 11&12)
+  EEPROMWrite(13, 1250);             //mode1 (in address 13&14)
+  EEPROM.update(15, 1);                  //mode2 (in address 15&16)
+  EEPROM.update(17, 0);                  //mode2 (in address 17&18)
+  EEPROM.update(19, 0);                  //mode2 (in address 19&20)
+  EEPROMWrite(42, 99);                //mode2 diffVitesseErr (in address 21&22)
+  EEPROMWrite(23, 1000);             //mode1 (in address 23&24)
+  EEPROMWrite(25, 2000);             //mode1 (in address 25&26)
+  EEPROM.update(27, 2);                  //mode2 (in address 27)
+  EEPROM.update(29, 39);                 // (in address 29)
+  EEPROM.update(31, 0);                  //master(0) or slave (1)
+  EEPROM.update(33, 0);                  //fahrenheitDegrees
+  EEPROMWrite(35, 1000);             //minimum motor rpm
+  EEPROMWrite(37, 20000);            //maximum motor rpm
 
-  ms.ID                  = 0x99;//EEPROMWrite(0, 0x99);              //write the ID to indicate valid data
-  ms.centerposServo1     = 1500;//EEPROMWrite(1, 1500);              //mode1 (in address 1&2)
-  ms.centerposServo2     = 1500;//EEPROMWrite(3, 1500);              //mode1 (in address 3&4)
-  ms.idelposServos1      = 1000;//EEPROMWrite(5, 1000);              //mode1 (in address 5&6)
-  ms.idelposServos2      = 1000;//EEPROMWrite(7, 1000);              //mode1 (in address 7&8)
-  ms.responseTime        = 2   ;//EEPROM.update(9, 2);               //mode2 (= a TAUX_DE_MOYENNAGE) (in address 9&10)
-  ms.fullThrottle        = 2000;//EEPROMWrite(11, 2000);             //mode1 (in address 11&12)
-  ms.beginSynchro        = 1250;//EEPROMWrite(13, 1250);             //mode1 (in address 13&14)
-  ms.auxChannel          = 1;   //EEPROM.update(15, 1);              //mode2 (in address 15&16)
-  ms.reverseServo1       = 0;   //EEPROM.update(17, 0);              //mode2 (in address 17&18)
-  ms.reverseServo2       = 0;   //EEPROM.update(19, 0);              //mode2 (in address 19&20)
-  ms.diffVitesseErr      = 99;  //EEPROMWrite(42, 99);               //mode2 diffVitesseErr (in address 21&22)
-  ms.minimumPulse_US     = 1000;//EEPROMWrite(23, 1000);             //mode1 (in address 23&24)   
-  ms.maximumPulse_US     = 2000;//EEPROMWrite(25, 2000);             //mode1 (in address 25&26)
-  //ms.telemetryType       = 0; //mode2 0- Rien, 1- FrSky (S-Port), 2- Futaba Sbus, 3- Hitec, 4- Hott, 5- Jeti 6- Spektrum
-  ms.nbPales             = 2;   
-  ms.moduleMasterOrSlave = 0;   
-  ms.fahrenheitDegrees   = 0;
-  ms.minimumSpeed        = 1000;//EEPROMWrite(35, 1000);             //minimum motor rpm
-  ms.maximumSpeed        = 20000;//EEPROMWrite(37, 20000);            //maximum motor rpm
-                                        //difference de vitesse entre les 2 moteurs en tr/mn toleree
-  EEPROM.put(0, ms);
+}
 
+//This function will write a 2 byte integer to the eeprom at the specified address and address + 1
+//void EEPROMWrite(uint16_t p_address, uint16_t p_value)
+//{
+//  byte lowByte = ((p_value >> 0) & 0xFF);
+//  byte highByte = ((p_value >> 8) & 0xFF);
+//  //#if (ARDUINO <  10602)
+////  EEPROM.write(p_address, lowByte);
+////  EEPROM.write(p_address + 1, highByte);
+//  //#else  /* EEPROM.update ==> 1.6.2+ uniquement */
+//    EEPROM.update(p_address, lowByte);
+//    EEPROM.update(p_address + 1, highByte);
+//  //#endif
+//}
+
+//This function will read a 2 byte integer from the eeprom at the specified address and address + 1
+//Voir http://forum.arduino.cc/index.php/topic,37470.0.html
+//uint16_t EEPROMRead(uint16_t p_address)
+//{
+//  byte lowByte = EEPROM.read(p_address);
+//  byte highByte = EEPROM.read(p_address + 1);
+//  return ((lowByte << 0) & 0xFF) + ((highByte << 8) & 0xFF00);
+//}
+
+//This function will write a 4 byte (32bit) long to the eeprom at
+//the specified address to address + 3.
+//void EEPROMWritelong(int address, long value)
+//{
+//  //Decomposition from a long to 4 bytes by using bitshift.
+//  //One = Most significant -> Four = Least significant byte
+//  byte four = (value & 0xFF);
+//  byte three = ((value >> 8) & 0xFF);
+//  byte two = ((value >> 16) & 0xFF);
+//  byte one = ((value >> 24) & 0xFF);
+//  
+//  //Write the 4 bytes into the eeprom memory.
+//  EEPROM.update(address, four);
+//  EEPROM.update(address + 1, three);
+//  EEPROM.update(address + 2, two);
+//  EEPROM.update(address + 3, one);
+//}
+
+//This function will return a 4 byte (32bit) long from the eeprom
+//at the specified address to address + 3.
+//long EEPROMReadlong(long address)
+//{
+//  //Read the 4 bytes from the eeprom memory.
+//  long four = EEPROM.read(address);
+//  long three = EEPROM.read(address + 1);
+//  long two = EEPROM.read(address + 2);
+//  long one = EEPROM.read(address + 3);
+//  
+//  //Return the recomposed long by using bitshift.
+//  return ((four << 0) & 0xFF) + ((three << 8) & 0xFFFF) + ((two << 16) & 0xFFFFFF) + ((one << 24) & 0xFFFFFFFF);
+//}
+
+// ************************************************
+// Write floating point values to EEPROM
+// ************************************************
+void EEPROMWrite(int address, double value)
+{
+   byte* p = (byte*)(void*)&value;
+   for (int i = 0; i < sizeof(value); i++)
+   {
+      EEPROM.update(address++, *p++);
+   }
+}
+ 
+// ************************************************
+// Read floating point values from EEPROM
+// ************************************************
+double EEPROMRead(int address)
+{
+   double value = 0.0;
+   byte* p = (byte*)(void*)&value;
+   for (int i = 0; i < sizeof(value); i++)
+   {
+      *p++ = EEPROM.read(address++);
+   }
+   return value;
 }
 
 #ifdef PIDCONTROL
 // ************************************************
 // Save PID parameter changes to EEPROM
 // ************************************************
-//void SaveParameters()
-//{
-//   if (diffVitesseErr != EEPROMRead(SpAddress))
-//   {
-//      EEPROMWrite(SpAddress, diffVitesseErr);
-//   }
-//   if (consKp != EEPROMRead(KpAddress))
-//   {
-//      EEPROMWrite(KpAddress, consKp);
-//   }
-//   if (consKi != EEPROMRead(KiAddress))
-//   {
-//      EEPROMWrite(KiAddress, consKi);
-//   }
-//   if (consKd != EEPROMRead(KdAddress))
-//   {
-//      EEPROMWrite(KdAddress, consKd);
-//   }
-//}
+void SaveParameters()
+{
+   if (diffVitesseErr != EEPROMRead(SpAddress))
+   {
+      EEPROMWrite(SpAddress, diffVitesseErr);
+   }
+   if (consKp != EEPROMRead(KpAddress))
+   {
+      EEPROMWrite(KpAddress, consKp);
+   }
+   if (consKi != EEPROMRead(KiAddress))
+   {
+      EEPROMWrite(KiAddress, consKi);
+   }
+   if (consKd != EEPROMRead(KdAddress))
+   {
+      EEPROMWrite(KdAddress, consKd);
+   }
+}
 #endif
 
 void clearEEprom()// write a 0 to all 512 bytes of the EEPROM
@@ -459,25 +520,25 @@ void clearEEprom()// write a 0 to all 512 bytes of the EEPROM
 void sendConfigToSerial()
 {
   Serial << F("LLA");
-  Serial << ms.centerposServo1 << F("|");//array(0)
-  Serial << ms.centerposServo2 << F("|");//array(1)
-  Serial << ms.idelposServos1 << F("|");//array(2)
-  Serial << ms.idelposServos2 << F("|");//array(3)
-  Serial << ms.responseTime << F("|");//array(4)
-  Serial << ms.fullThrottle << F("|");//array(5)
-  Serial << ms.beginSynchro << F("|");//array(6)
-  Serial << ms.minimumPulse_US << F("|");//array(7)
-  Serial << ms.maximumPulse_US << F("|");//array(8)
-  Serial << ms.auxChannel << F("|");//array(9)
-  Serial << ms.reverseServo1 << F("|");//array(10)
-  Serial << ms.reverseServo2 << F("|");//array(11)
-  Serial << ms.diffVitesseErr << F("|");//array(12)
+  Serial << centerposServo1 << F("|");//array(0)
+  Serial << centerposServo2 << F("|");//array(1)
+  Serial << idelposServos1 << F("|");//array(2)
+  Serial << idelposServos2 << F("|");//array(3)
+  Serial << responseTime << F("|");//array(4)
+  Serial << fullThrottle << F("|");//array(5)
+  Serial << beginSynchro << F("|");//array(6)
+  Serial << minimumPulse_US << F("|");//array(7)
+  Serial << maximumPulse_US << F("|");//array(8)
+  Serial << auxChannel << F("|");//array(9)
+  Serial << reverseServo1 << F("|");//array(10)
+  Serial << reverseServo2 << F("|");//array(11)
+  Serial << diffVitesseErr << F("|");//array(12)
 #ifdef LCDON
-  Serial << ms.lcdI2Caddress << F("|");//array(13)
+  Serial << lcdI2Caddress << F("|");//array(13)
 #else
   Serial << F("NOTUSED|");//array(13)
 #endif
-  Serial << _DEC(ms.nbPales) << F("|"); //array(14)
+  Serial << _DEC(nbPales) << F("|"); //array(14)
   Serial << 0 << F("|");//switchState (don't used in LCD version -- array(15))
   Serial << _FLOAT(readVcc() / 1000, 3) << F("|"); //array(16)
   Serial <<  GetTemp() << F("|");//array(17)
@@ -486,10 +547,10 @@ void sendConfigToSerial()
 #else
   Serial << F("NOTUSED|");//array(18)
 #endif
-  Serial << ms.moduleMasterOrSlave << F("|");//array(19)
-  Serial << ms.fahrenheitDegrees << F("|");//array(20)
-  Serial << ms.minimumSpeed << F("|");//array(21)
-  Serial << ms.maximumSpeed << endl;//array(22)
+  Serial << moduleMasterOrSlave << F("|");//array(19)
+  Serial << fahrenheitDegrees << F("|");//array(20)
+  Serial << minimumSpeed << F("|");//array(21)
+  Serial << maximumSpeed << endl;//array(22)
   Serial.flush(); // clear serial port
 }
 

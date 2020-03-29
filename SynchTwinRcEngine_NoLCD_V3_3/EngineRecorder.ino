@@ -39,7 +39,7 @@ void setupRecorder()
 uint8_t m = 1;
 void loopRecorder()
 {
-  ang = map(Width_us,minimumPulse_US, maximumPulse_US,1,179);
+  ang = map(Width_us, ms.minimumPulse_US, ms.maximumPulse_US, 1, 179);
 
   switch(m)
   {
