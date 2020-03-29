@@ -22,6 +22,7 @@
 //#define SDDATALOGGER            /* Use SD card for save speeds */
 //#define I2CSLAVEFOUND           /* for command a second module by the I2C port */
 #define INT_REF                 /* internal 1.1v reference */
+#define RECORDER
 
 /*
 0     INPUT PPM
@@ -155,9 +156,7 @@ const int KdAddress = 74;//24
 uint16_t Width_us = 1000;
 uint16_t WidthAux_us = 1000;
 
-/* Creation des objets entree RX et sorties servos */
-//SoftRcPulseIn  RxChannelPulseMotor;       /* Rx Pulse Engine channel */
-//SoftRcPulseIn  RxChannelPulseAux;         /* Rx Pulse AUX channel (Use or not use an Switch 2 or positions on your RC Transmitter) */
+/* Creation des objets Sorties servos */
 SoftRcPulseOut ServoMotor1;               /* Servo Engine 1 */
 SoftRcPulseOut ServoMotor2;               /* Servo Engine 2 */
 

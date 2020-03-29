@@ -5,6 +5,10 @@
 #define COURANT_DEM     100   // en % courant moteur à l'arrêt pour démarrage
 #define COURANT_TRN     60    // en % courant moteur tournant
 #define VITESSE_GAZ     60    // 60 µS pour 20 ms (20ms = période impulsion RX)
+uint8_t variation, pwm_chauffe, pos_coupure;
+unsigned long timer_chauffe, temps_ms;
+bool cmd_chauffe, moteur_marche;
+int tpulse_0, tpulse_1, tpulse;
 
 void glowSetup()
 {
