@@ -2,17 +2,63 @@
 void mode0()//run mode
 {   
   readCaptorTransitions();/* read sensors */
-  
+
 //#ifdef SERIALPLOTTER /* You can read the battery voltage, speeds and throttle and auxiliary pulses with the Serial Plotter (IDE >= 1.6.6) */
 //   Serial << ((GetExternalVoltage()>1)?GetExternalVoltage()*1000:0) << "," << Width_us << "," << WidthAux_us << "," << vitesse1 << "," << vitesse2 << endl;
 //#endif
 
   /* Receiver pulse acquisition and command of 2 servos */
-  //PPM = 1.Direction, 2.Profondeur, 3.Moteur, 4.Ailerons
-  if ((int)TinyPpmReader.detectedChannelNb() > 0)//if(RxChannelPulseMotor.available())
+  //1.Direction, 2.Profondeur, 3.Moteur, 4.Ailerons
+  if (ms.InputMode == 0)//PPM
   {
-    Width_us = TinyPpmReader.width_us(3);//AVERAGE(Width_us,RxChannelPulseMotor.width_us(), responseTime);/* average */
+    if (TinyPpmReader.isSynchro())
+    {
+      InputSignalExist = true;
+      Width_us    = TinyPpmReader.width_us(ms.MotorNbChannel);//AVERAGE(Width_us,RxChannelPulseMotor.width_us(), responseTime);/* average */
+      WidthAux_us = TinyPpmReader.width_us(ms.AuxiliaryNbChannel);
+      WidthRud_us = TinyPpmReader.width_us(ms.RudderNbChannel);
+      WidthAil_us = TinyPpmReader.width_us(ms.AileronNbChannel);      
+    }
+  }
+  else if (ms.InputMode == 1)//SBUS
+  {
+    recupSbusdata();// conversion des données SBUS pour les 16 Voies
+    while ( Serial.available() ) { // tant qu'un octet arrive sur le SBUS
+      int val = Serial.read();  // lecture de l'octet
+      if  (( memread == 0 ) and ( val == 15)) { // detection de la fin et debut de la trame SBUS (une trame fini par 0 et commence par 15)
+        cpt = 0; // remise a zero du compteur dans la trame
+      }
+      memread = val; // memorisation de la dernière valeur reçu
+      buf[cpt] = val; // stock la valeur reçu dans le buffer
+      cpt +=1;        // incrémente le compteur
+      if (cpt == 26) {cpt=0;} // au cas ou on aurait pas reçu les caractères de synchro on reset le compteur
+    } // fin du while
 
+    Width_us    = map(voie[ms.MotorNbChannel], -100, +100, 900, 2100);
+    WidthAux_us = map(voie[ms.AuxiliaryNbChannel], -100, +100, 900, 2100);
+    WidthRud_us = map(voie[ms.RudderNbChannel], -100, +100, 900, 2100);
+    WidthAil_us = map(voie[ms.AileronNbChannel], -100, +100, 900, 2100);
+  }
+  else if (ms.InputMode == 2)//IBUS
+  {
+    IBus.loop();
+    if (IBus.readChannel(0) > 0)
+    {
+      InputSignalExist = true;
+      Width_us    = IBus.readChannel(ms.MotorNbChannel-1);
+      WidthAux_us = IBus.readChannel(ms.AuxiliaryNbChannel-1);
+      WidthRud_us = IBus.readChannel(ms.RudderNbChannel-1);
+      WidthAil_us = IBus.readChannel(ms.AileronNbChannel-1);
+    }
+  }
+  else
+  {
+    InputSignalExist = false;
+  }
+
+  
+  if (InputSignalExist == true)
+  {    
 #ifdef SECURITYENGINE/* Security motors */    
     if (SecurityIsON == true && Width_us >= (ms.fullThrottle - 100))
     {
@@ -138,6 +184,7 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
         ms.minimumSpeed    = atoi(StrTbl[17]);//minimum motor rpm
         ms.maximumSpeed    = atoi(StrTbl[18]);//maximum motor rpm (need 37 to 40)
         StrSplitRestore(",", StrTbl, SeparFound);//Imperatif SeparFound <= SUB_STRING_NB_MAX
+        EEPROM.put(0,ms);
         ledFlashSaveInEEProm(20);
         Serial.flush(); // clear serial port
       }
@@ -386,3 +433,44 @@ int8_t MsgDisponible(void)/* merci a LOUSSOUARN Philippe pour ce code */
   return(Ret); 
 }
 #endif
+
+void recupSbusdata(void){
+// récuperation des données SBUS et conversion dans le tableau des voies
+// les données SBUS sont sur 8 bits et les données des voies sont sur 11 bits
+// il faut donc jouer a cheval sur les octets pour calculer les voies.
+
+  voie[1]  = ((buf[1]|buf[2]<< 8) & 0x07FF);
+  voie[2]  = ((buf[2]>>3|buf[3]<<5) & 0x07FF);
+  voie[3]  = ((buf[3]>>6|buf[4]<<2|buf[5]<<10) & 0x07FF);
+  voie[4]  = ((buf[5]>>1|buf[6]<<7) & 0x07FF);
+  voie[5]  = ((buf[6]>>4|buf[7]<<4) & 0x07FF);
+  voie[6]  = ((buf[7]>>7|buf[8]<<1|buf[9]<<9) & 0x07FF);
+  voie[7]  = ((buf[9]>>2|buf[10]<<6) & 0x07FF);
+  voie[8]  = ((buf[10]>>5|buf[11]<<3) & 0x07FF);
+ 
+  voie[9]  = ((buf[12]|buf[13]<< 8) & 0x07FF);
+  voie[10]  = ((buf[13]>>3|buf[14]<<5) & 0x07FF);
+  voie[11] = ((buf[14]>>6|buf[15]<<2|buf[16]<<10) & 0x07FF);
+  voie[12] = ((buf[16]>>1|buf[17]<<7) & 0x07FF);
+  voie[13] = ((buf[17]>>4|buf[18]<<4) & 0x07FF);
+  voie[14] = ((buf[18]>>7|buf[19]<<1|buf[20]<<9) & 0x07FF);
+  voie[15] = ((buf[20]>>2|buf[21]<<6) & 0x07FF);
+  voie[16] = ((buf[21]>>5|buf[22]<<3) & 0x07FF);
+ 
+  ((buf[23]) & 1 )      ? voie[17] = 2047 : voie[17] = 0 ;
+  ((buf[23] >> 1) & 1 ) ? voie[18] = 2047 : voie[17] = 0 ;
+ 
+  // detection du failsafe
+  if ((buf[23] >> 3) & 1) {
+    voie[0] = 0; // Failsafe
+  }
+  else
+  {
+    voie[0] = 1; // Normal
+    InputSignalExist = true;
+  }
+  for(int x = 1; x<19 ; x++)
+  {
+    voie[x]= (lround(voie[x]/9.92) - 100);
+  }
+}

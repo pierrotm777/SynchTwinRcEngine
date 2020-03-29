@@ -8,19 +8,21 @@
 #include <TinyPpmReader.h>      /* Librairie utilisee pour lire un signal ppm en entree */
 #include <Rcul.h>
 
+#include <FlySkyIBus.h>
+
 #define FirmwareVersion 0.5
 
 //#define DEBUG
 //#define SERIALPLOTTER           /* Multi plot in IDE (don't use this option with ARDUINO2PC) */
 #define ARDUINO2PC              /* PC interface (!!!!!! don't use this option with SERIALPLOTTER or READ_Button_AnalogPin !!!!!!) */
-#define EXTERNALVBATT           /* Read external battery voltage */
-#define GLOWMANAGER             /* Glow driver */
-#define SECURITYENGINE          /* Engines security On/off */
-#define PIDCONTROL              /* Use PID control for define the variable stepMotor in SynchroMotors */
+//#define EXTERNALVBATT           /* Read external battery voltage */
+//#define GLOWMANAGER             /* Glow driver */
+//#define SECURITYENGINE          /* Engines security On/off */
+//#define PIDCONTROL              /* Use PID control for define the variable stepMotor in SynchroMotors */
 //#define SDDATALOGGER            /* Use SD card for save speeds */
 //#define I2CSLAVEFOUND           /* for command a second module by the I2C port */
-#define INT_REF                 /* internal 1.1v reference */
-#define RECORDER
+//#define INT_REF                 /* internal 1.1v reference */
+//#define RECORDER
 
 /*
 0     INPUT PPM
@@ -59,7 +61,7 @@ const int chipSelect = 10;
 #endif
 
 //affectation des pins des entrees RX et sorties servos
-#define BROCHE_PPMINPUT    0   /* Multiplex RX pinout 2 */
+#define BROCHE_PPMINPUT         0    /* Multiplex RX pinout 2 */
 #define BROCHE_SENSOR1          2    /* Hall or IR motor 1 */
 #define BROCHE_SENSOR2          3    /* Hall or IR motor 2 */
 #define BROCHE_SERVO1           4    /* Servo motor 1 */
@@ -95,12 +97,41 @@ uint32_t BeginSecurityMs;//=millis();
 uint32_t LedStartMs;//=millis();
 uint32_t SendMotorsToVBMs;//=millis();
 
+enum { CPPM=0, SBUS, IBUS };
+bool InputSignalExist = false;
+
+//SBUS variables
+int buf[25];
+int voie[18];
+int memread;
+int cpt;
+int s1,s2,s3,s4;
+
+/*
+#define RC_CHANS  12
+enum rc {ROLL,PITCH,YAW ,THROTTLE,AUX1,AUX2,
+         AUX3,AUX4 ,AUX5,AUX6    ,AUX7,AUX8};
+         
+//#define SERIAL_SUM_PPM         PITCH,YAW,THROTTLE,ROLL,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For Graupner/Spektrum
+#define SERIAL_SUM_PPM         ROLL,PITCH,THROTTLE,YAW,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For Robe/Hitec/Futaba
+//#define SERIAL_SUM_PPM         ROLL,PITCH,YAW,THROTTLE,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For Multiplex
+//#define SERIAL_SUM_PPM         PITCH,ROLL,THROTTLE,YAW,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For some Hitec/Sanwa/Others
+
+#if defined(SERIAL_SUM_PPM) //Channel order for PPM SUM RX Configs
+  static uint8_t rcChannel[RC_CHANS] = {SERIAL_SUM_PPM};
+#endif
+*/
 
 /** La structure permettant de stocker les données */
 //https://www.carnetdumaker.net/articles/stocker-des-donnees-en-memoire-eeprom-avec-une-carte-arduino-genuino/
 struct MaStructure {
   /* Valeurs par defaut dans EEprom */
-  byte ID;                                         //mode1 (in address 0)
+  byte ID;
+  uint8_t InputMode;                               //0-PPM, 1-SBUS, 2,IBUS
+  uint8_t MotorNbChannel;
+  uint8_t AuxiliaryNbChannel;                      //channel number (default is 5)
+  uint8_t RudderNbChannel;
+  uint8_t AileronNbChannel;
   uint16_t centerposServo1;                        //mode1 (in address 1)
   uint16_t centerposServo2;                        //mode1 (in address 2)
   uint16_t idelposServos1;//600                    //mode1 (in address 3)
@@ -154,12 +185,13 @@ const int KiAddress = 66;//16
 const int KdAddress = 74;//24
 #endif
 
-
 /* ******************************************************************************
  * !!!!!! DOIT ETRE AU MINIMUM POUR BLOQUER LES HELICES SI PAS DE SIGNAL !!!!!! *
  ********************************************************************************  */
 uint16_t Width_us = 1000;
 uint16_t WidthAux_us = 1000;
+uint16_t WidthRud_us = 1000;
+uint16_t WidthAil_us = 1000;
 
 /* Creation des objets Sorties servos */
 SoftRcPulseOut ServoMotor1;               /* Servo Engine 1 */
@@ -242,40 +274,34 @@ void setup()
   TinyPinChange_EnablePin(BROCHE_SENSOR2);
   
   readAllEEprom();//read all settings from EEprom (save default's values in first start)
-  //switchState = readModeInStart();//lread switch position
 
 #ifdef EXTERNALVBATT
   vRef.begin();
 #endif
 
-//  switch (switchState)
-//  {
-//    case 0://main mode (VB.NET interface use this mode)
-//      break;
-//    case 1://recorder mode
-//      break;
-//    case 2://servo test mode
-//      break;
-//    case 3://reset settings in eeprom
-//      saveSettings = false;
-//      clearEEprom();SettingsWriteDefault();
-//      saveSettings = false;
-//      break;
-//  }
-
 
 #ifdef DEBUG
   Serial << F("SynchTwinRcEngine est demarre") << endl;
-  Serial << F("Librairies Asynchrones: V") << SOFT_RC_PULSE_IN_VERSION << F(".") << SOFT_RC_PULSE_IN_REVISION << endl << endl;
+  //Serial << F("Librairies Asynchrones: V") << SOFT_RC_PULSE_IN_VERSION << F(".") << SOFT_RC_PULSE_IN_REVISION << endl << endl;
   readAllEEpromOnSerial();//lecture configuration du module dans le terminal serie
 #endif//endif DEBUG
-  //Serial << F("Voies dans PPM = ") << (int)TinyPpmReader.detectedChannelNb() << endl;
-  //waitMs(250);
-  Serial.end();
-  //initialisation des voies moteur et auxiliaire: (minimumPulse_US = 600 et maximumPulse_US = 2400 (depend de la marque RX/TX))
-  TinyPpmReader.attach(BROCHE_PPMINPUT); /* Attach TinyPpmReader to PPM_INPUT_PIN pin */
-  //RxChannelPulseMotor.attach(BROCHE_PPMINPUT);//, minimumPulse_US, maximumPulse_US);//initialisation de la voie entree moteur:
-  //RxChannelPulseAux.attach(BROCHE_VOIE_AUX);//, minimumPulse_US, maximumPulse_US);//initialisation de la voie entree auxiliaire:
+
+  switch (ms.InputMode)//CPPM,SBUS or IBUS
+  {
+    case CPPM:
+      Serial.end();
+      TinyPpmReader.attach(BROCHE_PPMINPUT); // Attach TinyPpmReader to SIGNAL_INPUT_PIN pin 
+      break;
+    case SBUS:
+      Serial.flush();delay(500); // wait for last transmitted data to be sent
+      Serial.begin(100000, SERIAL_8E2);// Choose your serial first: SBUS works at 100 000 bauds 
+      break;
+    case IBUS:
+      Serial.end();
+      IBus.begin(Serial);
+      break;
+  }
+
   ServoMotor1.attach(BROCHE_SERVO1);
   ServoMotor2.attach(BROCHE_SERVO2);
   
@@ -283,16 +309,16 @@ void setup()
 #ifdef SECURITYENGINE
   /* two servos always on idle positions on start */
   SecurityIsON = true;//security is set always ON on start
-//  if (reverseServo1 == 0) {
-//    ServoMotor1.write_us(idelposServos1);
-//  } else {
-//    ServoMotor1.write_us((centerposServo1 * 2) - idelposServos1);
-//  }
-//  if (reverseServo2 == 0) {
-//    ServoMotor2.write_us(idelposServos2);
-//  } else {
-//    ServoMotor2.write_us((centerposServo2 * 2) - idelposServos2);
-//  }
+  if (ms.reverseServo1 == 0) {
+    ServoMotor1.write_us(ms.idelposServos1);
+  } else {
+    ServoMotor1.write_us((ms.centerposServo1 * 2) - ms.idelposServos1);
+  }
+  if (ms.reverseServo2 == 0) {
+    ServoMotor2.write_us(ms.idelposServos2);
+  } else {
+    ServoMotor2.write_us((ms.centerposServo2 * 2) - ms.idelposServos2);
+  }
 #endif
 
   ledFlashInRunMode();
@@ -314,6 +340,11 @@ void readAllEEprom()
 
 /*
   ms.ID                  = 0x99;//EEPROMWrite(0, 0x99);              //write the ID to indicate valid data
+  ms.InputMode           = 0;  //0-PPM, 1-SBUS, 2,IBUS
+  ms.MotorNbChannel      = 3;
+  ms.AuxiliaryNbChannel  = 5;
+  ms.RudderNbChannel     = 1;
+  ms.AileronNbChannel    = 4;
   ms.centerposServo1     = 1500;//EEPROMWrite(1, 1500);              //mode1 (in address 1&2)
   ms.centerposServo2     = 1500;//EEPROMWrite(3, 1500);              //mode1 (in address 3&4)
   ms.idelposServos1      = 1000;//EEPROMWrite(5, 1000);              //mode1 (in address 5&6)
@@ -355,6 +386,13 @@ void readAllEEpromOnSerial()
 {
   Serial << F("Chargement valeurs EEPROM ...") << endl;
   Serial << F("EEprom ID: 0x") << _HEX(ms.ID) << endl;
+  if (ms.InputMode == 0) Serial << F("PPM mode") << endl;
+  if (ms.InputMode == 1) Serial << F("SBUS mode") << endl;
+  if (ms.InputMode == 2) Serial << F("IBUS mode") << endl;
+  Serial << F("Motor Nb Channel: ") << ms.MotorNbChannel << endl;
+  Serial << F("Auxiliary Nb Channel: ") << ms.AuxiliaryNbChannel << endl;
+  Serial << F("Rudder Nb Channel: ") << ms.RudderNbChannel << endl;
+  Serial << F("Aileron Nb Channel: ") << ms.AileronNbChannel << endl;
   Serial << F("Centre servo1: ") << ms.centerposServo1 << endl;
   Serial << F("Centre servo2: ") << ms.centerposServo2 << endl;
   Serial << F("Position Repos servos 1: ") << ms.idelposServos1 << "us" << endl;
@@ -398,6 +436,10 @@ void SettingsWriteDefault()
 {
 
   ms.ID                  = 0x99;//EEPROMWrite(0, 0x99);              //write the ID to indicate valid data
+  ms.MotorNbChannel      = 3;
+  ms.AuxiliaryNbChannel  = 5;
+  ms.RudderNbChannel     = 1;
+  ms.AileronNbChannel    = 4;
   ms.centerposServo1     = 1500;//EEPROMWrite(1, 1500);              //mode1 (in address 1&2)
   ms.centerposServo2     = 1500;//EEPROMWrite(3, 1500);              //mode1 (in address 3&4)
   ms.idelposServos1      = 1000;//EEPROMWrite(5, 1000);              //mode1 (in address 5&6)
@@ -587,28 +629,6 @@ void ledFlashSaveInEEProm(uint8_t nTime)//leds flash 20 fois rapidement
 //PIN_LOW(B,5);  
 }
 
-// used for flashing a pin
-//void strobeBlinkPin(int pin, int count, int onInterval, int offInterval)
-//{
-//  byte i;
-//  for (i = 0; i < count; i++) 
-//  {
-//    waitMs(offInterval);
-//    if(pin == 0 || pin == 1)
-//    {
-//      PIN_HIGH(B, pin);
-//      waitMs(onInterval);
-//      PIN_LOW(B, pin);    
-//    }
-//    else if (pin == 2 || pin == 3)
-//    {
-//      PIN_HIGH(C, pin);
-//      waitMs(onInterval);
-//      PIN_LOW(C, pin);     
-//    }
-//  }
-//}
-
 
 #ifdef I2CSLAVEFOUND
 /* I2C Slave DATA */
@@ -661,27 +681,3 @@ int ADC_read_conversion(){
 }
 //End of ADC management functions
 #endif
-
-/*
- * Lecture du codeur de reglage.
- * Retourne -1 si aucun mode n'est selectionne et
- * le numero du mode de 0 a 15 si un mode est selectionne
- * Chaque pin doit avoir un pull up de definit (ici en interne)
- * Le commun est cable au GND.
- */
-//int readModeInStart()
-//{
-//  // initialise contacteur rotatif (initialise les pull up internes sur A2 a A5)
-//  pinMode(switchPin1, INPUT_PULLUP);
-//  pinMode(switchPin2, INPUT_PULLUP);
-//
-//  static int modeSettings =
-////    (! digitalRead(switchPin8)) << 3 |
-////    (! digitalRead(switchPin4)) << 2 | 
-//    (! digitalRead(switchPin2)) << 1 |
-//    (! digitalRead(switchPin1));//conversion du code BCD Hexa en une valeur de 0 a 15
-////  modeSettings = (modeSettings >= 0 && modeSettings <= 15)?modeSettings=modeSettings:modeSettings=-1; 
-////  modeSettings = (modeSettings >= 0 && modeSettings <= 7)?modeSettings=modeSettings:modeSettings=-1; 
-//  modeSettings = (modeSettings >= 0 && modeSettings <= 3)?modeSettings=modeSettings:modeSettings=-1; 
-//  return  modeSettings;
-//}

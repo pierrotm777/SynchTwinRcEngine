@@ -16,10 +16,10 @@ void readAuxiliaryChannel()
   
 //  Serial <<  "1/5 " << OneFifthThrottle << "| 1/3 " << OneThirdThrottle << "| 2/3 " << TwoThirdThrottle << "| Middle " << MiddleThrottle << endl;
   
-  if((int)TinyPpmReader.detectedChannelNb() > 0)//verifie si Ch Aux est actif !!!
-  {
-    WidthAux_us =  TinyPpmReader.width_us(5);//AVERAGE(WidthAux_us,RxChannelPulseAux.width_us(), responseTime);
-  }
+//  if((int)TinyPpmReader.detectedChannelNb() > 0)//verifie si Ch Aux est actif !!!
+//  {
+//    WidthAux_us =  TinyPpmReader.width_us(5);//AVERAGE(WidthAux_us,RxChannelPulseAux.width_us(), responseTime);
+//  }
 
   if(Width_us >= OneFifthThrottle){PIN_HIGH(B,3);}else{PIN_LOW(B,3);}
 
