@@ -11,7 +11,7 @@ void mode0()//run mode
   //PPM = 1.Direction, 2.Profondeur, 3.Moteur, 4.Ailerons
   if ((int)TinyPpmReader.detectedChannelNb() > 0)//if(RxChannelPulseMotor.available())
   {
-    Width_us = TinyPpmReader.width_us(4);//AVERAGE(Width_us,RxChannelPulseMotor.width_us(), responseTime);/* average */
+    Width_us = TinyPpmReader.width_us(3);//AVERAGE(Width_us,RxChannelPulseMotor.width_us(), responseTime);/* average */
 
 #ifdef SECURITYENGINE/* Security motors */    
     if (SecurityIsON == true && Width_us >= (fullThrottle - 100))
@@ -74,7 +74,8 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
       if( (pos >= 0) && (pos <= 180))//reception curseur VB 'servos'
       { 
         //if(pos<=1) {pos=2;} //Servo making noise at 0 and 1. Need to be at least 2.
-        if (!RxChannelPulseMotor.available() && simulateSpeed == true)//verifie si Ch Moteur est inactif !!!
+        //if (!RxChannelPulseMotor.available() && simulateSpeed == true)//verifie si Ch Moteur est inactif !!!
+        if (!TinyPpmReader.isSynchro() && simulateSpeed == true)//verifie si Ch Moteur est inactif !!!
         {
           PIN_TOGGLE(B,0);
           posInUs = map(pos,0,180,minimumPulse_US,maximumPulse_US);
@@ -86,7 +87,8 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
       }
       else if( (pos >= minimumPulse_US) && (pos <= maximumPulse_US))//reception VB en uS 'servos'
       {        
-        if (!RxChannelPulseMotor.available() && simulateSpeed == true)//verifie si Ch Moteur est inactif !!!
+        //if (!RxChannelPulseMotor.available() && simulateSpeed == true)//verifie si Ch Moteur est inactif !!!
+        if (!TinyPpmReader.isSynchro() && simulateSpeed == true)//verifie si Ch Moteur est inactif !!!
         {
           PIN_TOGGLE(B,0);
           //posInUs = map(pos,0,180,minimumPulse_US,maximumPulse_US);
@@ -116,25 +118,25 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
       else if(CountChar(Message,',')==18)//reception settings from VB
       {//format received: 1500,1500,1000,1000,2,2000,1250,1200,1900,1,0,0,99.00,2,0,0,0,1000,20000
         StrSplit(Message, ",",  StrTbl, SUB_STRING_NB_MAX, &SeparFound);     
-        EEPROMWriteInt(1, atoi(StrTbl[0]));//centerposServo1
-        EEPROMWriteInt(3, atoi(StrTbl[1]));//centerposServo2
-        EEPROMWriteInt(5, atoi(StrTbl[2]));//idelposServos1
-        EEPROMWriteInt(7, atoi(StrTbl[3]));//idelposServos2
+        EEPROMWrite(1, atoi(StrTbl[0]));//centerposServo1
+        EEPROMWrite(3, atoi(StrTbl[1]));//centerposServo2
+        EEPROMWrite(5, atoi(StrTbl[2]));//idelposServos1
+        EEPROMWrite(7, atoi(StrTbl[3]));//idelposServos2
         EEPROM.update(9, atoi(StrTbl[4]));//responseTime
-        EEPROMWriteInt(11, atoi(StrTbl[5]));//fullThrottle
-        EEPROMWriteInt(13, atoi(StrTbl[6]));//beginSynchro
-        EEPROMWriteInt(23, atoi(StrTbl[7]));//minimumPulse_US
-        EEPROMWriteInt(25, atoi(StrTbl[8]));//maximumPulse_US
+        EEPROMWrite(11, atoi(StrTbl[5]));//fullThrottle
+        EEPROMWrite(13, atoi(StrTbl[6]));//beginSynchro
+        EEPROMWrite(23, atoi(StrTbl[7]));//minimumPulse_US
+        EEPROMWrite(25, atoi(StrTbl[8]));//maximumPulse_US
         EEPROM.update(15, atoi(StrTbl[9]));//auxChannel
         EEPROM.update(17, atoi(StrTbl[10]));//reverseServo1
         EEPROM.update(19, atoi(StrTbl[11]));//reverseServo2
-        EEPROMWriteInt(42, atoi(StrTbl[12]));//diffVitesseErr (42 used because 21 return error !)
+        EEPROMWrite(42, atoi(StrTbl[12]));//diffVitesseErr (42 used because 21 return error !)
         EEPROM.update(27, atoi(StrTbl[13]));//nbPales
         EEPROM.update(29, atoi(StrTbl[14]));//LCD adresse
         EEPROM.update(31, atoi(StrTbl[15]));//moduleMasterOrSlave
         EEPROM.update(33, atoi(StrTbl[16]));//fahrenheitDegrees
-        EEPROMWriteInt(35, atoi(StrTbl[17]));//minimum motor rpm
-        EEPROMWritelong(37, atoi(StrTbl[18]));//maximum motor rpm (need 37 to 40)
+        EEPROMWrite(35, atoi(StrTbl[17]));//minimum motor rpm
+        EEPROMWrite(37, atoi(StrTbl[18]));//maximum motor rpm (need 37 to 40)
         StrSplitRestore(",", StrTbl, SeparFound);//Imperatif SeparFound <= SUB_STRING_NB_MAX
         ledFlashSaveInEEProm(20);
         Serial.flush(); // clear serial port
@@ -205,9 +207,9 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
             consKd = strtod(StrTbl[3],NULL);
             //Serial << StrTbl[1] << F("|") << StrTbl[2] << F("|") << StrTbl[3] << endl;
             //EEPROMWriteDouble(50, diffVitesseErr);
-            EEPROMWriteDouble(58, consKp);
-            EEPROMWriteDouble(66, consKi);
-            EEPROMWriteDouble(74, consKd);
+            EEPROMWrite(58, consKp);
+            EEPROMWrite(66, consKi);
+            EEPROMWrite(74, consKd);
             ledFlashSaveInEEProm(5);
             break;
           case 888://888,v1,v2,consigne

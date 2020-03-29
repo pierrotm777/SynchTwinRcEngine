@@ -7,21 +7,21 @@
 #include <SoftRcPulseOut.h>     /* Librairie utilisee pour creer un signal pwm en sortie */
 //#include <TinyPinChange.h>      /* Permet detecter en interruption les changements d'etat */
 #include "Macros.h"
-#include <TinyPpmReader.h>
+#include <TinyPpmReader.h>      /* Librairie utilisee pour lire un signal ppm en entree */
 #include <Rcul.h>
 
-#define FirmwareVersion 0.4
+#define FirmwareVersion 0.5
 
 //#define DEBUG
 //#define SERIALPLOTTER           /* Multi plot in IDE (don't use this option with ARDUINO2PC) */
-//#define ARDUINO2PC              /* PC interface (!!!!!! don't use this option with SERIALPLOTTER or READ_Button_AnalogPin !!!!!!) */
-//#define EXTERNALVBATT           /* Read external battery voltage */
-//#define GLOWMANAGER             /* Glow driver */
-//#define SECURITYENGINE          /* Engines security On/off */
-//#define PIDCONTROL              /* Use PID control for define the variable stepMotor in SynchroMotors */
+#define ARDUINO2PC              /* PC interface (!!!!!! don't use this option with SERIALPLOTTER or READ_Button_AnalogPin !!!!!!) */
+#define EXTERNALVBATT           /* Read external battery voltage */
+#define GLOWMANAGER             /* Glow driver */
+#define SECURITYENGINE          /* Engines security On/off */
+#define PIDCONTROL              /* Use PID control for define the variable stepMotor in SynchroMotors */
 //#define SDDATALOGGER            /* Use SD card for save speeds */
 //#define I2CSLAVEFOUND           /* for command a second module by the I2C port */
-//#define INT_REF                 /* internal 1.1v reference */
+#define INT_REF                 /* internal 1.1v reference */
 
 /*
 0     INPUT PPM
@@ -273,7 +273,7 @@ void setup()
   //RxChannelPulseAux.attach(BROCHE_VOIE_AUX);//, minimumPulse_US, maximumPulse_US);//initialisation de la voie entree auxiliaire:
   ServoMotor1.attach(BROCHE_SERVO1);
   ServoMotor2.attach(BROCHE_SERVO2);
-
+  
 
 #ifdef SECURITYENGINE
   /* two servos always on idle positions on start */
