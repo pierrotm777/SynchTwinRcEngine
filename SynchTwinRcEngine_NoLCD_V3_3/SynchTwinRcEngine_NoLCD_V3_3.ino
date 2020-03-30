@@ -31,10 +31,10 @@
 3     Hall or IR motor 2 
 4     Servo motor 1 
 5     Servo motor 2 
-6     Glow driver motor 1 
-7     Glow driver motor 2
-8     Led Green
-9     Led Green
+6     Servo rudder 
+7     Glow driver motor 1
+8     Glow driver motor 2
+9     
 SD card attached to SPI bus as follows:
 10    CS
 11    MOSI
@@ -64,12 +64,13 @@ const int chipSelect = 10;
 #define BROCHE_PPMINPUT         0    /* Multiplex RX pinout 2 */
 #define BROCHE_SENSOR1          2    /* Hall or IR motor 1 */
 #define BROCHE_SENSOR2          3    /* Hall or IR motor 2 */
-#define BROCHE_SERVO1           4    /* Servo motor 1 */
-#define BROCHE_SERVO2           5    /* Servo motor 2 */
+#define BROCHE_MOTOR1           4    /* Servo motor 1 */
+#define BROCHE_MOTOR2           5    /* Servo motor 2 */
+#define BROCHE_RUDDER           6    /* Servo rudder */
 
 #ifdef GLOWMANAGER
-#define BROCHE_GLOW1            6  /* Glow driver motor 1 */
-#define BROCHE_GLOW2            7  /* Glow driver motor 2 */
+#define BROCHE_GLOW1            7  /* Glow driver motor 1 */
+#define BROCHE_GLOW2            8  /* Glow driver motor 2 */
 #endif
 
 
@@ -152,9 +153,16 @@ struct MaStructure {
   uint16_t minimumSpeed;
   uint16_t maximumSpeed;
   //PID variables
-  double aggKp=100, aggKi=0.2, aggKd=1;//aggressive
-  double consKp=1, consKi=0.05, consKd=0.25;//conservative
-
+  double aggKp;//aggressive
+  double aggKi;//aggressive
+  double aggKd;//aggressive
+  double consKp; //conservative 
+  double consKi;  //conservative
+  double consKd; //conservative
+  int SpAddress;//0
+  int KpAddress;//8
+  int KiAddress;//16
+  int KdAddress;//24
 }; // Ne pas oublier le point virgule !
 
 MaStructure ms;
@@ -179,10 +187,10 @@ int index = 0;
 //double consKp=1, consKi=0.05, consKd=0.25;//conservative
 PID myPID(&diffVitesse, &stepMotor, &ms.diffVitesseErr, ms.consKp, ms.consKi, ms.consKd, DIRECT);
 // EEPROM addresses for persisted data
-const int SpAddress = 50;//0
-const int KpAddress = 58;//8
-const int KiAddress = 66;//16
-const int KdAddress = 74;//24
+//const int SpAddress = 50;//0
+//const int KpAddress = 58;//8
+//const int KiAddress = 66;//16
+//const int KdAddress = 74;//24
 #endif
 
 /* ******************************************************************************
@@ -196,6 +204,7 @@ uint16_t WidthAil_us = 1000;
 /* Creation des objets Sorties servos */
 SoftRcPulseOut ServoMotor1;               /* Servo Engine 1 */
 SoftRcPulseOut ServoMotor2;               /* Servo Engine 2 */
+SoftRcPulseOut ServoRudder;
 
 #define SERIALBAUD         115200         /* 115200 is need for use BlueSmirF BT module */
 #ifdef ARDUINO2PC
@@ -302,8 +311,8 @@ void setup()
       break;
   }
 
-  ServoMotor1.attach(BROCHE_SERVO1);
-  ServoMotor2.attach(BROCHE_SERVO2);
+  ServoMotor1.attach(BROCHE_MOTOR1);
+  ServoMotor2.attach(BROCHE_MOTOR2);
   
 
 #ifdef SECURITYENGINE
@@ -450,7 +459,7 @@ void SettingsWriteDefault()
   ms.auxChannel          = 1;   //EEPROM.update(15, 1);              //mode2 (in address 15&16)
   ms.reverseServo1       = 0;   //EEPROM.update(17, 0);              //mode2 (in address 17&18)
   ms.reverseServo2       = 0;   //EEPROM.update(19, 0);              //mode2 (in address 19&20)
-  ms.diffVitesseErr      = 99;  //EEPROMWrite(42, 99);               //mode2 diffVitesseErr (in address 21&22)
+  ms.diffVitesseErr      = 99;  //EEPROMWrite(42, 99);               //mode2 diffVitesseErr (in address 21&22) //difference de vitesse entre les 2 moteurs en tr/mn toleree
   ms.minimumPulse_US     = 1000;//EEPROMWrite(23, 1000);             //mode1 (in address 23&24)   
   ms.maximumPulse_US     = 2000;//EEPROMWrite(25, 2000);             //mode1 (in address 25&26)
   //ms.telemetryType       = 0; //mode2 0- Rien, 1- FrSky (S-Port), 2- Futaba Sbus, 3- Hitec, 4- Hott, 5- Jeti 6- Spektrum
@@ -458,8 +467,15 @@ void SettingsWriteDefault()
   ms.moduleMasterOrSlave = 0;   
   ms.fahrenheitDegrees   = 0;
   ms.minimumSpeed        = 1000;//EEPROMWrite(35, 1000);             //minimum motor rpm
-  ms.maximumSpeed        = 20000;//EEPROMWrite(37, 20000);            //maximum motor rpm
-                                        //difference de vitesse entre les 2 moteurs en tr/mn toleree
+  ms.maximumSpeed        = 20000;//EEPROMWrite(37, 20000);           //maximum motor rpm
+  //PID
+  ms.aggKp=100;//aggressive
+  ms.aggKi=0.2;//aggressive
+  ms.aggKd=1;//aggressive
+  ms.consKp=1;//conservative
+  ms.consKi=0.05;//conservative
+  ms.consKd=0.25;//conservative
+                                          
   EEPROM.put(0, ms);
 
 }
@@ -468,25 +484,25 @@ void SettingsWriteDefault()
 // ************************************************
 // Save PID parameter changes to EEPROM
 // ************************************************
-//void SaveParameters()
-//{
-//   if (diffVitesseErr != EEPROMRead(SpAddress))
-//   {
-//      EEPROMWrite(SpAddress, diffVitesseErr);
-//   }
-//   if (consKp != EEPROMRead(KpAddress))
-//   {
-//      EEPROMWrite(KpAddress, consKp);
-//   }
-//   if (consKi != EEPROMRead(KiAddress))
-//   {
-//      EEPROMWrite(KiAddress, consKi);
-//   }
-//   if (consKd != EEPROMRead(KdAddress))
-//   {
-//      EEPROMWrite(KdAddress, consKd);
-//   }
-//}
+void SaveParameters()
+{
+   if (diffVitesseErr != EEPROMRead(SpAddress))
+   {
+      EEPROMWrite(SpAddress, diffVitesseErr);
+   }
+   if (consKp != EEPROMRead(KpAddress))
+   {
+      EEPROMWrite(KpAddress, consKp);
+   }
+   if (consKi != EEPROMRead(KiAddress))
+   {
+      EEPROMWrite(KiAddress, consKi);
+   }
+   if (consKd != EEPROMRead(KdAddress))
+   {
+      EEPROMWrite(KdAddress, consKd);
+   }
+}
 #endif
 
 void clearEEprom()// write a 0 to all 512 bytes of the EEPROM
