@@ -37,6 +37,10 @@ Partial Class Form1
         Me.PictureBoxConnectedOK = New System.Windows.Forms.PictureBox()
         Me.Button_Connect = New System.Windows.Forms.Button()
         Me.GroupBoxSettings = New System.Windows.Forms.GroupBox()
+        Me.ButtonRcRadioMode = New System.Windows.Forms.Button()
+        Me.Label17 = New System.Windows.Forms.Label()
+        Me.labelModeRcRadio = New System.Windows.Forms.Label()
+        Me.LabelSignalType = New System.Windows.Forms.Label()
         Me.ButtonClear = New System.Windows.Forms.Button()
         Me.ProgressBarSaveSettings = New System.Windows.Forms.ProgressBar()
         Me.labelExtervalVoltageUsed = New System.Windows.Forms.Label()
@@ -45,7 +49,6 @@ Partial Class Form1
         Me.labelCenterServo1 = New System.Windows.Forms.Label()
         Me.ButtonSettingsHelp = New System.Windows.Forms.Button()
         Me.labelCenterServo2 = New System.Windows.Forms.Label()
-        Me.labelLCDNotUsed = New System.Windows.Forms.Label()
         Me.ButtonReadCenter2 = New System.Windows.Forms.Button()
         Me.buttonResetArduino = New System.Windows.Forms.Button()
         Me.ButtonReadCenter1 = New System.Windows.Forms.Button()
@@ -54,8 +57,6 @@ Partial Class Form1
         Me.textCentreServo2 = New System.Windows.Forms.TextBox()
         Me.Label12 = New System.Windows.Forms.Label()
         Me.Label11 = New System.Windows.Forms.Label()
-        Me.ProgressBarThrottleAuxiliary = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
-        Me.ProgressBarThrottleMotors = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
         Me.ButtonDiffSpeedSimuConsigne = New System.Windows.Forms.Label()
         Me.TextBoxDiffSpeedSimuConsigne = New System.Windows.Forms.TextBox()
         Me.textMaxiMotorRPM = New System.Windows.Forms.TextBox()
@@ -94,7 +95,6 @@ Partial Class Form1
         Me.TextTempInterne = New System.Windows.Forms.TextBox()
         Me.TextVoltageInterne = New System.Windows.Forms.TextBox()
         Me.textNombrePales = New System.Windows.Forms.TextBox()
-        Me.textAddresseI2C = New System.Windows.Forms.TextBox()
         Me.textAuxiliaireMode = New System.Windows.Forms.TextBox()
         Me.textMaxiGenerale = New System.Windows.Forms.TextBox()
         Me.textMiniGenerale = New System.Windows.Forms.TextBox()
@@ -103,11 +103,11 @@ Partial Class Form1
         Me.textTempsReponse = New System.Windows.Forms.TextBox()
         Me.textIdleServo2 = New System.Windows.Forms.TextBox()
         Me.textIdleServo1 = New System.Windows.Forms.TextBox()
-        Me.Label20 = New System.Windows.Forms.Label()
+        Me.LabelExternalVoltage = New System.Windows.Forms.Label()
         Me.Label19 = New System.Windows.Forms.Label()
         Me.labelInternalVoltage = New System.Windows.Forms.Label()
         Me.labelNbrBlades = New System.Windows.Forms.Label()
-        Me.labelAddrLCD = New System.Windows.Forms.Label()
+        Me.labelMode = New System.Windows.Forms.Label()
         Me.labelReverseServo2 = New System.Windows.Forms.Label()
         Me.labelReverseServo1 = New System.Windows.Forms.Label()
         Me.labelAuxiMode = New System.Windows.Forms.Label()
@@ -183,8 +183,6 @@ Partial Class Form1
         Me.TrackBarRudder = New System.Windows.Forms.TrackBar()
         Me.Label4 = New System.Windows.Forms.Label()
         Me.Label13 = New System.Windows.Forms.Label()
-        Me.UcV_ProgressBar1 = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
-        Me.UcV_ProgressBar2 = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
         Me.labelAuxRudderSimulation = New System.Windows.Forms.Label()
         Me.PictureBoxGlowPlugOnOff = New System.Windows.Forms.PictureBox()
         Me.ButtonServoTest = New System.Windows.Forms.Button()
@@ -276,6 +274,10 @@ Partial Class Form1
         Me.TimerChrono = New System.Windows.Forms.Timer(Me.components)
         Me.BackgroundWorkerThrottle = New System.ComponentModel.BackgroundWorker()
         Me.BackgroundWorkerAuxiliary = New System.ComponentModel.BackgroundWorker()
+        Me.ProgressBarThrottleAuxiliary = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
+        Me.ProgressBarThrottleMotors = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
+        Me.UcV_ProgressBar1 = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
+        Me.UcV_ProgressBar2 = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBoxSerialPort.SuspendLayout()
         CType(Me.PictureBoxConnectedOK, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -443,6 +445,10 @@ Partial Class Form1
         '
         'GroupBoxSettings
         '
+        Me.GroupBoxSettings.Controls.Add(Me.ButtonRcRadioMode)
+        Me.GroupBoxSettings.Controls.Add(Me.Label17)
+        Me.GroupBoxSettings.Controls.Add(Me.labelModeRcRadio)
+        Me.GroupBoxSettings.Controls.Add(Me.LabelSignalType)
         Me.GroupBoxSettings.Controls.Add(Me.ButtonClear)
         Me.GroupBoxSettings.Controls.Add(Me.ProgressBarSaveSettings)
         Me.GroupBoxSettings.Controls.Add(Me.labelExtervalVoltageUsed)
@@ -451,7 +457,6 @@ Partial Class Form1
         Me.GroupBoxSettings.Controls.Add(Me.labelCenterServo1)
         Me.GroupBoxSettings.Controls.Add(Me.ButtonSettingsHelp)
         Me.GroupBoxSettings.Controls.Add(Me.labelCenterServo2)
-        Me.GroupBoxSettings.Controls.Add(Me.labelLCDNotUsed)
         Me.GroupBoxSettings.Controls.Add(Me.ButtonReadCenter2)
         Me.GroupBoxSettings.Controls.Add(Me.buttonResetArduino)
         Me.GroupBoxSettings.Controls.Add(Me.ButtonReadCenter1)
@@ -502,7 +507,6 @@ Partial Class Form1
         Me.GroupBoxSettings.Controls.Add(Me.TextTempInterne)
         Me.GroupBoxSettings.Controls.Add(Me.TextVoltageInterne)
         Me.GroupBoxSettings.Controls.Add(Me.textNombrePales)
-        Me.GroupBoxSettings.Controls.Add(Me.textAddresseI2C)
         Me.GroupBoxSettings.Controls.Add(Me.textAuxiliaireMode)
         Me.GroupBoxSettings.Controls.Add(Me.textMaxiGenerale)
         Me.GroupBoxSettings.Controls.Add(Me.textMiniGenerale)
@@ -511,11 +515,11 @@ Partial Class Form1
         Me.GroupBoxSettings.Controls.Add(Me.textTempsReponse)
         Me.GroupBoxSettings.Controls.Add(Me.textIdleServo2)
         Me.GroupBoxSettings.Controls.Add(Me.textIdleServo1)
-        Me.GroupBoxSettings.Controls.Add(Me.Label20)
+        Me.GroupBoxSettings.Controls.Add(Me.LabelExternalVoltage)
         Me.GroupBoxSettings.Controls.Add(Me.Label19)
         Me.GroupBoxSettings.Controls.Add(Me.labelInternalVoltage)
         Me.GroupBoxSettings.Controls.Add(Me.labelNbrBlades)
-        Me.GroupBoxSettings.Controls.Add(Me.labelAddrLCD)
+        Me.GroupBoxSettings.Controls.Add(Me.labelMode)
         Me.GroupBoxSettings.Controls.Add(Me.labelReverseServo2)
         Me.GroupBoxSettings.Controls.Add(Me.labelReverseServo1)
         Me.GroupBoxSettings.Controls.Add(Me.labelAuxiMode)
@@ -534,6 +538,43 @@ Partial Class Form1
         Me.GroupBoxSettings.TabIndex = 26
         Me.GroupBoxSettings.TabStop = False
         Me.GroupBoxSettings.Text = "Configuration"
+        '
+        'ButtonRcRadioMode
+        '
+        Me.ButtonRcRadioMode.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonRcRadioMode.Location = New System.Drawing.Point(385, 77)
+        Me.ButtonRcRadioMode.Name = "ButtonRcRadioMode"
+        Me.ButtonRcRadioMode.Size = New System.Drawing.Size(58, 20)
+        Me.ButtonRcRadioMode.TabIndex = 151
+        Me.ButtonRcRadioMode.Text = "Mode"
+        Me.ButtonRcRadioMode.UseVisualStyleBackColor = True
+        '
+        'Label17
+        '
+        Me.Label17.AutoSize = True
+        Me.Label17.Location = New System.Drawing.Point(331, 81)
+        Me.Label17.Name = "Label17"
+        Me.Label17.Size = New System.Drawing.Size(12, 13)
+        Me.Label17.TabIndex = 150
+        Me.Label17.Text = "/"
+        '
+        'labelModeRcRadio
+        '
+        Me.labelModeRcRadio.AutoSize = True
+        Me.labelModeRcRadio.Location = New System.Drawing.Point(319, 81)
+        Me.labelModeRcRadio.Name = "labelModeRcRadio"
+        Me.labelModeRcRadio.Size = New System.Drawing.Size(13, 13)
+        Me.labelModeRcRadio.TabIndex = 149
+        Me.labelModeRcRadio.Text = "0"
+        '
+        'LabelSignalType
+        '
+        Me.LabelSignalType.AutoSize = True
+        Me.LabelSignalType.Location = New System.Drawing.Point(342, 81)
+        Me.LabelSignalType.Name = "LabelSignalType"
+        Me.LabelSignalType.Size = New System.Drawing.Size(37, 13)
+        Me.LabelSignalType.TabIndex = 148
+        Me.LabelSignalType.Text = "CPPM"
         '
         'ButtonClear
         '
@@ -556,7 +597,7 @@ Partial Class Form1
         '
         Me.labelExtervalVoltageUsed.AutoSize = True
         Me.labelExtervalVoltageUsed.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.labelExtervalVoltageUsed.Location = New System.Drawing.Point(424, 170)
+        Me.labelExtervalVoltageUsed.Location = New System.Drawing.Point(424, 126)
         Me.labelExtervalVoltageUsed.Name = "labelExtervalVoltageUsed"
         Me.labelExtervalVoltageUsed.Size = New System.Drawing.Size(60, 13)
         Me.labelExtervalVoltageUsed.TabIndex = 145
@@ -565,7 +606,7 @@ Partial Class Form1
         'PictureBoxReadHardwareOnOff
         '
         Me.PictureBoxReadHardwareOnOff.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.PictureBoxReadHardwareOnOff.Location = New System.Drawing.Point(520, 169)
+        Me.PictureBoxReadHardwareOnOff.Location = New System.Drawing.Point(520, 126)
         Me.PictureBoxReadHardwareOnOff.Name = "PictureBoxReadHardwareOnOff"
         Me.PictureBoxReadHardwareOnOff.Size = New System.Drawing.Size(13, 16)
         Me.PictureBoxReadHardwareOnOff.TabIndex = 144
@@ -580,7 +621,7 @@ Partial Class Form1
         Me.RichTextBoxSettingsHelp.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical
         Me.RichTextBoxSettingsHelp.Size = New System.Drawing.Size(19, 29)
         Me.RichTextBoxSettingsHelp.TabIndex = 143
-        Me.RichTextBoxSettingsHelp.Text = ""
+        Me.RichTextBoxSettingsHelp.Text = "Help"
         '
         'labelCenterServo1
         '
@@ -609,19 +650,9 @@ Partial Class Form1
         Me.labelCenterServo2.TabIndex = 57
         Me.labelCenterServo2.Text = "Centre servo2: "
         '
-        'labelLCDNotUsed
-        '
-        Me.labelLCDNotUsed.AutoSize = True
-        Me.labelLCDNotUsed.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.labelLCDNotUsed.Location = New System.Drawing.Point(424, 81)
-        Me.labelLCDNotUsed.Name = "labelLCDNotUsed"
-        Me.labelLCDNotUsed.Size = New System.Drawing.Size(88, 13)
-        Me.labelLCDNotUsed.TabIndex = 141
-        Me.labelLCDNotUsed.Text = "LCD Not Used"
-        '
         'ButtonReadCenter2
         '
-        Me.ButtonReadCenter2.Location = New System.Drawing.Point(205, 100)
+        Me.ButtonReadCenter2.Location = New System.Drawing.Point(200, 100)
         Me.ButtonReadCenter2.Name = "ButtonReadCenter2"
         Me.ButtonReadCenter2.Size = New System.Drawing.Size(44, 20)
         Me.ButtonReadCenter2.TabIndex = 105
@@ -639,7 +670,7 @@ Partial Class Form1
         '
         'ButtonReadCenter1
         '
-        Me.ButtonReadCenter1.Location = New System.Drawing.Point(205, 78)
+        Me.ButtonReadCenter1.Location = New System.Drawing.Point(200, 78)
         Me.ButtonReadCenter1.Name = "ButtonReadCenter1"
         Me.ButtonReadCenter1.Size = New System.Drawing.Size(44, 20)
         Me.ButtonReadCenter1.TabIndex = 19
@@ -648,7 +679,7 @@ Partial Class Form1
         '
         'textCentreServo1
         '
-        Me.textCentreServo1.Location = New System.Drawing.Point(163, 78)
+        Me.textCentreServo1.Location = New System.Drawing.Point(158, 78)
         Me.textCentreServo1.Name = "textCentreServo1"
         Me.textCentreServo1.Size = New System.Drawing.Size(39, 20)
         Me.textCentreServo1.TabIndex = 75
@@ -665,7 +696,7 @@ Partial Class Form1
         '
         'textCentreServo2
         '
-        Me.textCentreServo2.Location = New System.Drawing.Point(163, 100)
+        Me.textCentreServo2.Location = New System.Drawing.Point(158, 100)
         Me.textCentreServo2.Name = "textCentreServo2"
         Me.textCentreServo2.Size = New System.Drawing.Size(39, 20)
         Me.textCentreServo2.TabIndex = 76
@@ -691,44 +722,18 @@ Partial Class Form1
         Me.Label11.TabIndex = 137
         Me.Label11.Text = "Thr"
         '
-        'ProgressBarThrottleAuxiliary
-        '
-        Me.ProgressBarThrottleAuxiliary._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
-        Me.ProgressBarThrottleAuxiliary._Maxi = 100
-        Me.ProgressBarThrottleAuxiliary._Mini = 0
-        Me.ProgressBarThrottleAuxiliary._Value = 50
-        Me.ProgressBarThrottleAuxiliary.BackColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.ProgressBarThrottleAuxiliary.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.ProgressBarThrottleAuxiliary.Location = New System.Drawing.Point(567, 37)
-        Me.ProgressBarThrottleAuxiliary.Name = "ProgressBarThrottleAuxiliary"
-        Me.ProgressBarThrottleAuxiliary.Size = New System.Drawing.Size(19, 241)
-        Me.ProgressBarThrottleAuxiliary.TabIndex = 136
-        '
-        'ProgressBarThrottleMotors
-        '
-        Me.ProgressBarThrottleMotors._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
-        Me.ProgressBarThrottleMotors._Maxi = 100
-        Me.ProgressBarThrottleMotors._Mini = 0
-        Me.ProgressBarThrottleMotors._Value = 50
-        Me.ProgressBarThrottleMotors.BackColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.ProgressBarThrottleMotors.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.ProgressBarThrottleMotors.Location = New System.Drawing.Point(536, 37)
-        Me.ProgressBarThrottleMotors.Name = "ProgressBarThrottleMotors"
-        Me.ProgressBarThrottleMotors.Size = New System.Drawing.Size(19, 241)
-        Me.ProgressBarThrottleMotors.TabIndex = 135
-        '
         'ButtonDiffSpeedSimuConsigne
         '
         Me.ButtonDiffSpeedSimuConsigne.AutoSize = True
-        Me.ButtonDiffSpeedSimuConsigne.Location = New System.Drawing.Point(268, 214)
+        Me.ButtonDiffSpeedSimuConsigne.Location = New System.Drawing.Point(249, 214)
         Me.ButtonDiffSpeedSimuConsigne.Name = "ButtonDiffSpeedSimuConsigne"
-        Me.ButtonDiffSpeedSimuConsigne.Size = New System.Drawing.Size(91, 13)
+        Me.ButtonDiffSpeedSimuConsigne.Size = New System.Drawing.Size(85, 13)
         Me.ButtonDiffSpeedSimuConsigne.TabIndex = 134
-        Me.ButtonDiffSpeedSimuConsigne.Text = "Vitesse Error (µS):"
+        Me.ButtonDiffSpeedSimuConsigne.Text = "Vitesse Error µS:"
         '
         'TextBoxDiffSpeedSimuConsigne
         '
-        Me.TextBoxDiffSpeedSimuConsigne.Location = New System.Drawing.Point(426, 212)
+        Me.TextBoxDiffSpeedSimuConsigne.Location = New System.Drawing.Point(375, 212)
         Me.TextBoxDiffSpeedSimuConsigne.Name = "TextBoxDiffSpeedSimuConsigne"
         Me.TextBoxDiffSpeedSimuConsigne.Size = New System.Drawing.Size(35, 20)
         Me.TextBoxDiffSpeedSimuConsigne.TabIndex = 133
@@ -736,7 +741,7 @@ Partial Class Form1
         '
         'textMaxiMotorRPM
         '
-        Me.textMaxiMotorRPM.Location = New System.Drawing.Point(467, 190)
+        Me.textMaxiMotorRPM.Location = New System.Drawing.Point(463, 190)
         Me.textMaxiMotorRPM.Name = "textMaxiMotorRPM"
         Me.textMaxiMotorRPM.Size = New System.Drawing.Size(42, 20)
         Me.textMaxiMotorRPM.TabIndex = 131
@@ -744,7 +749,7 @@ Partial Class Form1
         '
         'textMiniMotorRPM
         '
-        Me.textMiniMotorRPM.Location = New System.Drawing.Point(426, 190)
+        Me.textMiniMotorRPM.Location = New System.Drawing.Point(422, 190)
         Me.textMiniMotorRPM.Name = "textMiniMotorRPM"
         Me.textMiniMotorRPM.Size = New System.Drawing.Size(35, 20)
         Me.textMiniMotorRPM.TabIndex = 130
@@ -753,7 +758,7 @@ Partial Class Form1
         'labelSpeedMinMaxRPM
         '
         Me.labelSpeedMinMaxRPM.AutoSize = True
-        Me.labelSpeedMinMaxRPM.Location = New System.Drawing.Point(268, 192)
+        Me.labelSpeedMinMaxRPM.Location = New System.Drawing.Point(249, 192)
         Me.labelSpeedMinMaxRPM.Name = "labelSpeedMinMaxRPM"
         Me.labelSpeedMinMaxRPM.Size = New System.Drawing.Size(123, 13)
         Me.labelSpeedMinMaxRPM.TabIndex = 129
@@ -764,7 +769,7 @@ Partial Class Form1
         Me.textGeneralMinMaxStopWatch.AutoSize = True
         Me.textGeneralMinMaxStopWatch.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.textGeneralMinMaxStopWatch.ForeColor = System.Drawing.Color.Red
-        Me.textGeneralMinMaxStopWatch.Location = New System.Drawing.Point(205, 59)
+        Me.textGeneralMinMaxStopWatch.Location = New System.Drawing.Point(200, 59)
         Me.textGeneralMinMaxStopWatch.Name = "textGeneralMinMaxStopWatch"
         Me.textGeneralMinMaxStopWatch.Size = New System.Drawing.Size(14, 13)
         Me.textGeneralMinMaxStopWatch.TabIndex = 128
@@ -773,7 +778,7 @@ Partial Class Form1
         'labelReverseAuxi
         '
         Me.labelReverseAuxi.AutoSize = True
-        Me.labelReverseAuxi.Location = New System.Drawing.Point(268, 259)
+        Me.labelReverseAuxi.Location = New System.Drawing.Point(266, 259)
         Me.labelReverseAuxi.Name = "labelReverseAuxi"
         Me.labelReverseAuxi.Size = New System.Drawing.Size(74, 13)
         Me.labelReverseAuxi.TabIndex = 127
@@ -782,7 +787,7 @@ Partial Class Form1
         'CheckBoxInversionAux
         '
         Me.CheckBoxInversionAux.AutoSize = True
-        Me.CheckBoxInversionAux.Location = New System.Drawing.Point(358, 258)
+        Me.CheckBoxInversionAux.Location = New System.Drawing.Point(356, 258)
         Me.CheckBoxInversionAux.Name = "CheckBoxInversionAux"
         Me.CheckBoxInversionAux.Size = New System.Drawing.Size(46, 17)
         Me.CheckBoxInversionAux.TabIndex = 126
@@ -801,7 +806,7 @@ Partial Class Form1
         'CheckBoxFahrenheitDegrees
         '
         Me.CheckBoxFahrenheitDegrees.AutoSize = True
-        Me.CheckBoxFahrenheitDegrees.Location = New System.Drawing.Point(491, 148)
+        Me.CheckBoxFahrenheitDegrees.Location = New System.Drawing.Point(426, 149)
         Me.CheckBoxFahrenheitDegrees.Name = "CheckBoxFahrenheitDegrees"
         Me.CheckBoxFahrenheitDegrees.Size = New System.Drawing.Size(36, 17)
         Me.CheckBoxFahrenheitDegrees.TabIndex = 123
@@ -820,7 +825,7 @@ Partial Class Form1
         '
         'ButtonReadTempVoltage
         '
-        Me.ButtonReadTempVoltage.Location = New System.Drawing.Point(475, 167)
+        Me.ButtonReadTempVoltage.Location = New System.Drawing.Point(475, 124)
         Me.ButtonReadTempVoltage.Name = "ButtonReadTempVoltage"
         Me.ButtonReadTempVoltage.Size = New System.Drawing.Size(44, 20)
         Me.ButtonReadTempVoltage.TabIndex = 122
@@ -830,7 +835,7 @@ Partial Class Form1
         'PictureBoxTimer2OnOff
         '
         Me.PictureBoxTimer2OnOff.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.PictureBoxTimer2OnOff.Location = New System.Drawing.Point(254, 257)
+        Me.PictureBoxTimer2OnOff.Location = New System.Drawing.Point(252, 257)
         Me.PictureBoxTimer2OnOff.Name = "PictureBoxTimer2OnOff"
         Me.PictureBoxTimer2OnOff.Size = New System.Drawing.Size(13, 16)
         Me.PictureBoxTimer2OnOff.TabIndex = 121
@@ -847,7 +852,7 @@ Partial Class Form1
         '
         'ButtonReadAuxiliairePulse
         '
-        Me.ButtonReadAuxiliairePulse.Location = New System.Drawing.Point(205, 255)
+        Me.ButtonReadAuxiliairePulse.Location = New System.Drawing.Point(200, 255)
         Me.ButtonReadAuxiliairePulse.Name = "ButtonReadAuxiliairePulse"
         Me.ButtonReadAuxiliairePulse.Size = New System.Drawing.Size(44, 20)
         Me.ButtonReadAuxiliairePulse.TabIndex = 119
@@ -856,7 +861,7 @@ Partial Class Form1
         '
         'TextBoxAuxiliairePulse
         '
-        Me.TextBoxAuxiliairePulse.Location = New System.Drawing.Point(163, 255)
+        Me.TextBoxAuxiliairePulse.Location = New System.Drawing.Point(158, 255)
         Me.TextBoxAuxiliairePulse.Name = "TextBoxAuxiliairePulse"
         Me.TextBoxAuxiliairePulse.Size = New System.Drawing.Size(39, 20)
         Me.TextBoxAuxiliairePulse.TabIndex = 118
@@ -874,7 +879,7 @@ Partial Class Form1
         'LabelInterType
         '
         Me.LabelInterType.AutoSize = True
-        Me.LabelInterType.Location = New System.Drawing.Point(255, 237)
+        Me.LabelInterType.Location = New System.Drawing.Point(248, 237)
         Me.LabelInterType.Name = "LabelInterType"
         Me.LabelInterType.Size = New System.Drawing.Size(88, 13)
         Me.LabelInterType.TabIndex = 112
@@ -882,7 +887,7 @@ Partial Class Form1
         '
         'ButtonMiniMaxGeneral
         '
-        Me.ButtonMiniMaxGeneral.Location = New System.Drawing.Point(205, 34)
+        Me.ButtonMiniMaxGeneral.Location = New System.Drawing.Point(200, 34)
         Me.ButtonMiniMaxGeneral.Name = "ButtonMiniMaxGeneral"
         Me.ButtonMiniMaxGeneral.Size = New System.Drawing.Size(44, 20)
         Me.ButtonMiniMaxGeneral.TabIndex = 110
@@ -891,7 +896,7 @@ Partial Class Form1
         '
         'ButtonDebutSynchro
         '
-        Me.ButtonDebutSynchro.Location = New System.Drawing.Point(205, 210)
+        Me.ButtonDebutSynchro.Location = New System.Drawing.Point(200, 210)
         Me.ButtonDebutSynchro.Name = "ButtonDebutSynchro"
         Me.ButtonDebutSynchro.Size = New System.Drawing.Size(44, 20)
         Me.ButtonDebutSynchro.TabIndex = 109
@@ -900,7 +905,7 @@ Partial Class Form1
         '
         'ButtonMaxiMoteurs
         '
-        Me.ButtonMaxiMoteurs.Location = New System.Drawing.Point(205, 188)
+        Me.ButtonMaxiMoteurs.Location = New System.Drawing.Point(200, 188)
         Me.ButtonMaxiMoteurs.Name = "ButtonMaxiMoteurs"
         Me.ButtonMaxiMoteurs.Size = New System.Drawing.Size(44, 20)
         Me.ButtonMaxiMoteurs.TabIndex = 108
@@ -909,7 +914,7 @@ Partial Class Form1
         '
         'ButtonIdleMoteur2
         '
-        Me.ButtonIdleMoteur2.Location = New System.Drawing.Point(205, 144)
+        Me.ButtonIdleMoteur2.Location = New System.Drawing.Point(200, 144)
         Me.ButtonIdleMoteur2.Name = "ButtonIdleMoteur2"
         Me.ButtonIdleMoteur2.Size = New System.Drawing.Size(44, 20)
         Me.ButtonIdleMoteur2.TabIndex = 107
@@ -918,7 +923,7 @@ Partial Class Form1
         '
         'ButtonIdleMoteur1
         '
-        Me.ButtonIdleMoteur1.Location = New System.Drawing.Point(205, 122)
+        Me.ButtonIdleMoteur1.Location = New System.Drawing.Point(200, 122)
         Me.ButtonIdleMoteur1.Name = "ButtonIdleMoteur1"
         Me.ButtonIdleMoteur1.Size = New System.Drawing.Size(44, 20)
         Me.ButtonIdleMoteur1.TabIndex = 106
@@ -936,7 +941,7 @@ Partial Class Form1
         '
         'ButtonPlusNombrePales
         '
-        Me.ButtonPlusNombrePales.Location = New System.Drawing.Point(502, 99)
+        Me.ButtonPlusNombrePales.Location = New System.Drawing.Point(479, 99)
         Me.ButtonPlusNombrePales.Name = "ButtonPlusNombrePales"
         Me.ButtonPlusNombrePales.Size = New System.Drawing.Size(19, 20)
         Me.ButtonPlusNombrePales.TabIndex = 103
@@ -945,7 +950,7 @@ Partial Class Form1
         '
         'ButtonMoinsNombrePales
         '
-        Me.ButtonMoinsNombrePales.Location = New System.Drawing.Point(477, 99)
+        Me.ButtonMoinsNombrePales.Location = New System.Drawing.Point(453, 99)
         Me.ButtonMoinsNombrePales.Name = "ButtonMoinsNombrePales"
         Me.ButtonMoinsNombrePales.Size = New System.Drawing.Size(19, 20)
         Me.ButtonMoinsNombrePales.TabIndex = 100
@@ -954,7 +959,7 @@ Partial Class Form1
         '
         'ButtonPlusModeAuxiliaire
         '
-        Me.ButtonPlusModeAuxiliaire.Location = New System.Drawing.Point(230, 232)
+        Me.ButtonPlusModeAuxiliaire.Location = New System.Drawing.Point(225, 232)
         Me.ButtonPlusModeAuxiliaire.Name = "ButtonPlusModeAuxiliaire"
         Me.ButtonPlusModeAuxiliaire.Size = New System.Drawing.Size(19, 20)
         Me.ButtonPlusModeAuxiliaire.TabIndex = 99
@@ -963,7 +968,7 @@ Partial Class Form1
         '
         'ButtonMoinsModeAuxiliaire
         '
-        Me.ButtonMoinsModeAuxiliaire.Location = New System.Drawing.Point(205, 232)
+        Me.ButtonMoinsModeAuxiliaire.Location = New System.Drawing.Point(200, 232)
         Me.ButtonMoinsModeAuxiliaire.Name = "ButtonMoinsModeAuxiliaire"
         Me.ButtonMoinsModeAuxiliaire.Size = New System.Drawing.Size(19, 20)
         Me.ButtonMoinsModeAuxiliaire.TabIndex = 98
@@ -972,7 +977,7 @@ Partial Class Form1
         '
         'ButtonPlusVitesseReponse
         '
-        Me.ButtonPlusVitesseReponse.Location = New System.Drawing.Point(230, 165)
+        Me.ButtonPlusVitesseReponse.Location = New System.Drawing.Point(225, 165)
         Me.ButtonPlusVitesseReponse.Name = "ButtonPlusVitesseReponse"
         Me.ButtonPlusVitesseReponse.Size = New System.Drawing.Size(19, 20)
         Me.ButtonPlusVitesseReponse.TabIndex = 97
@@ -981,7 +986,7 @@ Partial Class Form1
         '
         'ButtonMoinsVitesseReponse
         '
-        Me.ButtonMoinsVitesseReponse.Location = New System.Drawing.Point(205, 165)
+        Me.ButtonMoinsVitesseReponse.Location = New System.Drawing.Point(200, 165)
         Me.ButtonMoinsVitesseReponse.Name = "ButtonMoinsVitesseReponse"
         Me.ButtonMoinsVitesseReponse.Size = New System.Drawing.Size(19, 20)
         Me.ButtonMoinsVitesseReponse.TabIndex = 96
@@ -1016,7 +1021,7 @@ Partial Class Form1
         'CheckBoxInversionServo2
         '
         Me.CheckBoxInversionServo2.AutoSize = True
-        Me.CheckBoxInversionServo2.Location = New System.Drawing.Point(358, 58)
+        Me.CheckBoxInversionServo2.Location = New System.Drawing.Point(346, 58)
         Me.CheckBoxInversionServo2.Name = "CheckBoxInversionServo2"
         Me.CheckBoxInversionServo2.Size = New System.Drawing.Size(46, 17)
         Me.CheckBoxInversionServo2.TabIndex = 93
@@ -1026,7 +1031,7 @@ Partial Class Form1
         'CheckBoxInversionServo1
         '
         Me.CheckBoxInversionServo1.AutoSize = True
-        Me.CheckBoxInversionServo1.Location = New System.Drawing.Point(358, 36)
+        Me.CheckBoxInversionServo1.Location = New System.Drawing.Point(346, 36)
         Me.CheckBoxInversionServo1.Name = "CheckBoxInversionServo1"
         Me.CheckBoxInversionServo1.Size = New System.Drawing.Size(46, 17)
         Me.CheckBoxInversionServo1.TabIndex = 92
@@ -1035,7 +1040,7 @@ Partial Class Form1
         '
         'TextVoltageExterne
         '
-        Me.TextVoltageExterne.Location = New System.Drawing.Point(426, 167)
+        Me.TextVoltageExterne.Location = New System.Drawing.Point(426, 124)
         Me.TextVoltageExterne.Name = "TextVoltageExterne"
         Me.TextVoltageExterne.Size = New System.Drawing.Size(46, 20)
         Me.TextVoltageExterne.TabIndex = 91
@@ -1043,7 +1048,7 @@ Partial Class Form1
         '
         'TextTempInterne
         '
-        Me.TextTempInterne.Location = New System.Drawing.Point(426, 145)
+        Me.TextTempInterne.Location = New System.Drawing.Point(361, 146)
         Me.TextTempInterne.Name = "TextTempInterne"
         Me.TextTempInterne.Size = New System.Drawing.Size(46, 20)
         Me.TextTempInterne.TabIndex = 90
@@ -1051,31 +1056,23 @@ Partial Class Form1
         '
         'TextVoltageInterne
         '
-        Me.TextVoltageInterne.Location = New System.Drawing.Point(426, 123)
+        Me.TextVoltageInterne.Location = New System.Drawing.Point(331, 123)
         Me.TextVoltageInterne.Name = "TextVoltageInterne"
-        Me.TextVoltageInterne.Size = New System.Drawing.Size(46, 20)
+        Me.TextVoltageInterne.Size = New System.Drawing.Size(42, 20)
         Me.TextVoltageInterne.TabIndex = 89
         Me.TextVoltageInterne.Text = "0 v"
         '
         'textNombrePales
         '
-        Me.textNombrePales.Location = New System.Drawing.Point(426, 100)
+        Me.textNombrePales.Location = New System.Drawing.Point(411, 100)
         Me.textNombrePales.Name = "textNombrePales"
-        Me.textNombrePales.Size = New System.Drawing.Size(46, 20)
+        Me.textNombrePales.Size = New System.Drawing.Size(32, 20)
         Me.textNombrePales.TabIndex = 87
         Me.textNombrePales.Text = "2"
         '
-        'textAddresseI2C
-        '
-        Me.textAddresseI2C.Location = New System.Drawing.Point(426, 78)
-        Me.textAddresseI2C.Name = "textAddresseI2C"
-        Me.textAddresseI2C.Size = New System.Drawing.Size(46, 20)
-        Me.textAddresseI2C.TabIndex = 86
-        Me.textAddresseI2C.Text = "0"
-        '
         'textAuxiliaireMode
         '
-        Me.textAuxiliaireMode.Location = New System.Drawing.Point(163, 233)
+        Me.textAuxiliaireMode.Location = New System.Drawing.Point(158, 233)
         Me.textAuxiliaireMode.Name = "textAuxiliaireMode"
         Me.textAuxiliaireMode.Size = New System.Drawing.Size(39, 20)
         Me.textAuxiliaireMode.TabIndex = 84
@@ -1083,7 +1080,7 @@ Partial Class Form1
         '
         'textMaxiGenerale
         '
-        Me.textMaxiGenerale.Location = New System.Drawing.Point(163, 56)
+        Me.textMaxiGenerale.Location = New System.Drawing.Point(158, 56)
         Me.textMaxiGenerale.Name = "textMaxiGenerale"
         Me.textMaxiGenerale.Size = New System.Drawing.Size(39, 20)
         Me.textMaxiGenerale.TabIndex = 83
@@ -1091,7 +1088,7 @@ Partial Class Form1
         '
         'textMiniGenerale
         '
-        Me.textMiniGenerale.Location = New System.Drawing.Point(163, 34)
+        Me.textMiniGenerale.Location = New System.Drawing.Point(158, 34)
         Me.textMiniGenerale.Name = "textMiniGenerale"
         Me.textMiniGenerale.Size = New System.Drawing.Size(39, 20)
         Me.textMiniGenerale.TabIndex = 82
@@ -1099,7 +1096,7 @@ Partial Class Form1
         '
         'textDebutSynchro
         '
-        Me.textDebutSynchro.Location = New System.Drawing.Point(163, 210)
+        Me.textDebutSynchro.Location = New System.Drawing.Point(158, 210)
         Me.textDebutSynchro.Name = "textDebutSynchro"
         Me.textDebutSynchro.Size = New System.Drawing.Size(39, 20)
         Me.textDebutSynchro.TabIndex = 81
@@ -1107,7 +1104,7 @@ Partial Class Form1
         '
         'textMaxiMoteurs
         '
-        Me.textMaxiMoteurs.Location = New System.Drawing.Point(163, 188)
+        Me.textMaxiMoteurs.Location = New System.Drawing.Point(158, 188)
         Me.textMaxiMoteurs.Name = "textMaxiMoteurs"
         Me.textMaxiMoteurs.Size = New System.Drawing.Size(39, 20)
         Me.textMaxiMoteurs.TabIndex = 80
@@ -1115,7 +1112,7 @@ Partial Class Form1
         '
         'textTempsReponse
         '
-        Me.textTempsReponse.Location = New System.Drawing.Point(163, 166)
+        Me.textTempsReponse.Location = New System.Drawing.Point(158, 166)
         Me.textTempsReponse.Name = "textTempsReponse"
         Me.textTempsReponse.Size = New System.Drawing.Size(39, 20)
         Me.textTempsReponse.TabIndex = 79
@@ -1123,7 +1120,7 @@ Partial Class Form1
         '
         'textIdleServo2
         '
-        Me.textIdleServo2.Location = New System.Drawing.Point(163, 144)
+        Me.textIdleServo2.Location = New System.Drawing.Point(158, 144)
         Me.textIdleServo2.Name = "textIdleServo2"
         Me.textIdleServo2.Size = New System.Drawing.Size(39, 20)
         Me.textIdleServo2.TabIndex = 78
@@ -1131,25 +1128,25 @@ Partial Class Form1
         '
         'textIdleServo1
         '
-        Me.textIdleServo1.Location = New System.Drawing.Point(163, 122)
+        Me.textIdleServo1.Location = New System.Drawing.Point(158, 122)
         Me.textIdleServo1.Name = "textIdleServo1"
         Me.textIdleServo1.Size = New System.Drawing.Size(39, 20)
         Me.textIdleServo1.TabIndex = 77
         Me.textIdleServo1.Text = "0"
         '
-        'Label20
+        'LabelExternalVoltage
         '
-        Me.Label20.AutoSize = True
-        Me.Label20.Location = New System.Drawing.Point(268, 170)
-        Me.Label20.Name = "Label20"
-        Me.Label20.Size = New System.Drawing.Size(87, 13)
-        Me.Label20.TabIndex = 74
-        Me.Label20.Text = "Voltage externe :"
+        Me.LabelExternalVoltage.AutoSize = True
+        Me.LabelExternalVoltage.Location = New System.Drawing.Point(379, 126)
+        Me.LabelExternalVoltage.Name = "LabelExternalVoltage"
+        Me.LabelExternalVoltage.Size = New System.Drawing.Size(46, 13)
+        Me.LabelExternalVoltage.TabIndex = 74
+        Me.LabelExternalVoltage.Text = "Externe:"
         '
         'Label19
         '
         Me.Label19.AutoSize = True
-        Me.Label19.Location = New System.Drawing.Point(268, 148)
+        Me.Label19.Location = New System.Drawing.Point(249, 149)
         Me.Label19.Name = "Label19"
         Me.Label19.Size = New System.Drawing.Size(108, 13)
         Me.Label19.TabIndex = 73
@@ -1158,34 +1155,34 @@ Partial Class Form1
         'labelInternalVoltage
         '
         Me.labelInternalVoltage.AutoSize = True
-        Me.labelInternalVoltage.Location = New System.Drawing.Point(268, 126)
+        Me.labelInternalVoltage.Location = New System.Drawing.Point(249, 126)
         Me.labelInternalVoltage.Name = "labelInternalVoltage"
-        Me.labelInternalVoltage.Size = New System.Drawing.Size(84, 13)
+        Me.labelInternalVoltage.Size = New System.Drawing.Size(82, 13)
         Me.labelInternalVoltage.TabIndex = 72
-        Me.labelInternalVoltage.Text = "Voltage interne :"
+        Me.labelInternalVoltage.Text = "Voltage Interne:"
         '
         'labelNbrBlades
         '
         Me.labelNbrBlades.AutoSize = True
-        Me.labelNbrBlades.Location = New System.Drawing.Point(268, 104)
+        Me.labelNbrBlades.Location = New System.Drawing.Point(249, 104)
         Me.labelNbrBlades.Name = "labelNbrBlades"
         Me.labelNbrBlades.Size = New System.Drawing.Size(152, 13)
         Me.labelNbrBlades.TabIndex = 70
         Me.labelNbrBlades.Text = "Nombre de pales ou d'aimants:"
         '
-        'labelAddrLCD
+        'labelMode
         '
-        Me.labelAddrLCD.AutoSize = True
-        Me.labelAddrLCD.Location = New System.Drawing.Point(268, 81)
-        Me.labelAddrLCD.Name = "labelAddrLCD"
-        Me.labelAddrLCD.Size = New System.Drawing.Size(91, 13)
-        Me.labelAddrLCD.TabIndex = 69
-        Me.labelAddrLCD.Text = "Adresse I2C LCD:"
+        Me.labelMode.AutoSize = True
+        Me.labelMode.Location = New System.Drawing.Point(249, 81)
+        Me.labelMode.Name = "labelMode"
+        Me.labelMode.Size = New System.Drawing.Size(68, 13)
+        Me.labelMode.TabIndex = 69
+        Me.labelMode.Text = "Mode Radio:"
         '
         'labelReverseServo2
         '
         Me.labelReverseServo2.AutoSize = True
-        Me.labelReverseServo2.Location = New System.Drawing.Point(268, 59)
+        Me.labelReverseServo2.Location = New System.Drawing.Point(249, 59)
         Me.labelReverseServo2.Name = "labelReverseServo2"
         Me.labelReverseServo2.Size = New System.Drawing.Size(88, 13)
         Me.labelReverseServo2.TabIndex = 67
@@ -1194,7 +1191,7 @@ Partial Class Form1
         'labelReverseServo1
         '
         Me.labelReverseServo1.AutoSize = True
-        Me.labelReverseServo1.Location = New System.Drawing.Point(268, 37)
+        Me.labelReverseServo1.Location = New System.Drawing.Point(249, 37)
         Me.labelReverseServo1.Name = "labelReverseServo1"
         Me.labelReverseServo1.Size = New System.Drawing.Size(88, 13)
         Me.labelReverseServo1.TabIndex = 66
@@ -1241,9 +1238,9 @@ Partial Class Form1
         Me.labelMaxiServos.AutoSize = True
         Me.labelMaxiServos.Location = New System.Drawing.Point(23, 191)
         Me.labelMaxiServos.Name = "labelMaxiServos"
-        Me.labelMaxiServos.Size = New System.Drawing.Size(130, 13)
+        Me.labelMaxiServos.Size = New System.Drawing.Size(124, 13)
         Me.labelMaxiServos.TabIndex = 61
-        Me.labelMaxiServos.Text = "Position Maxi Servos: (µS)"
+        Me.labelMaxiServos.Text = "Position Maxi Servos: µS"
         '
         'labelSpeedModuleAnswer
         '
@@ -1306,8 +1303,8 @@ Partial Class Form1
         'GroupBoxMoteurs
         '
         Me.GroupBoxMoteurs.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-            Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+                    Or System.Windows.Forms.AnchorStyles.Left) _
+                    Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.GroupBoxMoteurs.Controls.Add(Me.SevenSegmentArray2)
         Me.GroupBoxMoteurs.Controls.Add(Me.SevenSegmentArray1)
         Me.GroupBoxMoteurs.Controls.Add(Me.AquaGaugeMoteur2)
@@ -1358,7 +1355,7 @@ Partial Class Form1
         'AquaGaugeMoteur2
         '
         Me.AquaGaugeMoteur2.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+                    Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.AquaGaugeMoteur2.AutoSize = True
         Me.AquaGaugeMoteur2.BackColor = System.Drawing.Color.Transparent
         Me.AquaGaugeMoteur2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
@@ -1400,7 +1397,7 @@ Partial Class Form1
         'AquaGaugeMoteur1
         '
         Me.AquaGaugeMoteur1.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-            Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+                    Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.AquaGaugeMoteur1.AutoSize = True
         Me.AquaGaugeMoteur1.BackColor = System.Drawing.Color.Transparent
         Me.AquaGaugeMoteur1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
@@ -1466,8 +1463,8 @@ Partial Class Form1
         'zg1
         '
         Me.zg1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-            Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+                    Or System.Windows.Forms.AnchorStyles.Left) _
+                    Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.zg1.Location = New System.Drawing.Point(7, 19)
         Me.zg1.Name = "zg1"
         Me.zg1.ScrollGrace = 0.0R
@@ -1575,7 +1572,7 @@ Partial Class Form1
         'labelInfoNeedSaveCOM
         '
         Me.labelInfoNeedSaveCOM.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+                    Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.labelInfoNeedSaveCOM.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.labelInfoNeedSaveCOM.Location = New System.Drawing.Point(4, 87)
         Me.labelInfoNeedSaveCOM.Name = "labelInfoNeedSaveCOM"
@@ -1683,8 +1680,8 @@ Partial Class Form1
         'DataLogger
         '
         Me.DataLogger.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-            Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+                    Or System.Windows.Forms.AnchorStyles.Left) _
+                    Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.DataLogger.Controls.Add(Me.zg1)
         Me.DataLogger.Location = New System.Drawing.Point(3, 3)
         Me.DataLogger.Name = "DataLogger"
@@ -1741,7 +1738,7 @@ Partial Class Form1
         Me.RichTextSimulationHelp.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical
         Me.RichTextSimulationHelp.Size = New System.Drawing.Size(19, 29)
         Me.RichTextSimulationHelp.TabIndex = 159
-        Me.RichTextSimulationHelp.Text = ""
+        Me.RichTextSimulationHelp.Text = "Simu"
         '
         'BoxRecorder
         '
@@ -2055,32 +2052,6 @@ Partial Class Form1
         Me.Label13.Size = New System.Drawing.Size(33, 17)
         Me.Label13.TabIndex = 141
         Me.Label13.Text = "Thr"
-        '
-        'UcV_ProgressBar1
-        '
-        Me.UcV_ProgressBar1._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
-        Me.UcV_ProgressBar1._Maxi = 100
-        Me.UcV_ProgressBar1._Mini = 0
-        Me.UcV_ProgressBar1._Value = 50
-        Me.UcV_ProgressBar1.BackColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.UcV_ProgressBar1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.UcV_ProgressBar1.Location = New System.Drawing.Point(357, 30)
-        Me.UcV_ProgressBar1.Name = "UcV_ProgressBar1"
-        Me.UcV_ProgressBar1.Size = New System.Drawing.Size(19, 191)
-        Me.UcV_ProgressBar1.TabIndex = 140
-        '
-        'UcV_ProgressBar2
-        '
-        Me.UcV_ProgressBar2._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
-        Me.UcV_ProgressBar2._Maxi = 100
-        Me.UcV_ProgressBar2._Mini = 0
-        Me.UcV_ProgressBar2._Value = 50
-        Me.UcV_ProgressBar2.BackColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.UcV_ProgressBar2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.UcV_ProgressBar2.Location = New System.Drawing.Point(326, 30)
-        Me.UcV_ProgressBar2.Name = "UcV_ProgressBar2"
-        Me.UcV_ProgressBar2.Size = New System.Drawing.Size(19, 191)
-        Me.UcV_ProgressBar2.TabIndex = 139
         '
         'labelAuxRudderSimulation
         '
@@ -2533,8 +2504,8 @@ Partial Class Form1
         'TextBoxHexaEditor
         '
         Me.TextBoxHexaEditor.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-            Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+                    Or System.Windows.Forms.AnchorStyles.Left) _
+                    Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.TextBoxHexaEditor.BackColor = System.Drawing.SystemColors.InactiveCaption
         Me.TextBoxHexaEditor.Font = New System.Drawing.Font("Courier New", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TextBoxHexaEditor.Location = New System.Drawing.Point(9, 211)
@@ -2664,8 +2635,8 @@ Partial Class Form1
         'txtoutput
         '
         Me.txtoutput.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-            Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+                    Or System.Windows.Forms.AnchorStyles.Left) _
+                    Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtoutput.BackColor = System.Drawing.Color.Black
         Me.txtoutput.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtoutput.ForeColor = System.Drawing.Color.DarkOrange
@@ -2966,6 +2937,58 @@ Partial Class Form1
         Me.BackgroundWorkerAuxiliary.WorkerReportsProgress = True
         Me.BackgroundWorkerAuxiliary.WorkerSupportsCancellation = True
         '
+        'ProgressBarThrottleAuxiliary
+        '
+        Me.ProgressBarThrottleAuxiliary._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
+        Me.ProgressBarThrottleAuxiliary._Maxi = 100
+        Me.ProgressBarThrottleAuxiliary._Mini = 0
+        Me.ProgressBarThrottleAuxiliary._Value = 50
+        Me.ProgressBarThrottleAuxiliary.BackColor = System.Drawing.SystemColors.ButtonHighlight
+        Me.ProgressBarThrottleAuxiliary.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.ProgressBarThrottleAuxiliary.Location = New System.Drawing.Point(567, 37)
+        Me.ProgressBarThrottleAuxiliary.Name = "ProgressBarThrottleAuxiliary"
+        Me.ProgressBarThrottleAuxiliary.Size = New System.Drawing.Size(19, 241)
+        Me.ProgressBarThrottleAuxiliary.TabIndex = 136
+        '
+        'ProgressBarThrottleMotors
+        '
+        Me.ProgressBarThrottleMotors._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
+        Me.ProgressBarThrottleMotors._Maxi = 100
+        Me.ProgressBarThrottleMotors._Mini = 0
+        Me.ProgressBarThrottleMotors._Value = 50
+        Me.ProgressBarThrottleMotors.BackColor = System.Drawing.SystemColors.ButtonHighlight
+        Me.ProgressBarThrottleMotors.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.ProgressBarThrottleMotors.Location = New System.Drawing.Point(536, 37)
+        Me.ProgressBarThrottleMotors.Name = "ProgressBarThrottleMotors"
+        Me.ProgressBarThrottleMotors.Size = New System.Drawing.Size(19, 241)
+        Me.ProgressBarThrottleMotors.TabIndex = 135
+        '
+        'UcV_ProgressBar1
+        '
+        Me.UcV_ProgressBar1._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
+        Me.UcV_ProgressBar1._Maxi = 100
+        Me.UcV_ProgressBar1._Mini = 0
+        Me.UcV_ProgressBar1._Value = 50
+        Me.UcV_ProgressBar1.BackColor = System.Drawing.SystemColors.ButtonHighlight
+        Me.UcV_ProgressBar1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.UcV_ProgressBar1.Location = New System.Drawing.Point(357, 30)
+        Me.UcV_ProgressBar1.Name = "UcV_ProgressBar1"
+        Me.UcV_ProgressBar1.Size = New System.Drawing.Size(19, 191)
+        Me.UcV_ProgressBar1.TabIndex = 140
+        '
+        'UcV_ProgressBar2
+        '
+        Me.UcV_ProgressBar2._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
+        Me.UcV_ProgressBar2._Maxi = 100
+        Me.UcV_ProgressBar2._Mini = 0
+        Me.UcV_ProgressBar2._Value = 50
+        Me.UcV_ProgressBar2.BackColor = System.Drawing.SystemColors.ButtonHighlight
+        Me.UcV_ProgressBar2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.UcV_ProgressBar2.Location = New System.Drawing.Point(326, 30)
+        Me.UcV_ProgressBar2.Name = "UcV_ProgressBar2"
+        Me.UcV_ProgressBar2.Size = New System.Drawing.Size(19, 191)
+        Me.UcV_ProgressBar2.TabIndex = 139
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -3061,7 +3084,6 @@ Partial Class Form1
     Friend WithEvents TextTempInterne As System.Windows.Forms.TextBox
     Friend WithEvents TextVoltageInterne As System.Windows.Forms.TextBox
     Friend WithEvents textNombrePales As System.Windows.Forms.TextBox
-    Friend WithEvents textAddresseI2C As System.Windows.Forms.TextBox
     Friend WithEvents textAuxiliaireMode As System.Windows.Forms.TextBox
     Friend WithEvents textMaxiGenerale As System.Windows.Forms.TextBox
     Friend WithEvents textMiniGenerale As System.Windows.Forms.TextBox
@@ -3072,11 +3094,10 @@ Partial Class Form1
     Friend WithEvents textIdleServo1 As System.Windows.Forms.TextBox
     Friend WithEvents textCentreServo2 As System.Windows.Forms.TextBox
     Friend WithEvents textCentreServo1 As System.Windows.Forms.TextBox
-    Friend WithEvents Label20 As System.Windows.Forms.Label
     Friend WithEvents Label19 As System.Windows.Forms.Label
     Friend WithEvents labelInternalVoltage As System.Windows.Forms.Label
     Friend WithEvents labelNbrBlades As System.Windows.Forms.Label
-    Friend WithEvents labelAddrLCD As System.Windows.Forms.Label
+    Friend WithEvents labelMode As System.Windows.Forms.Label
     Friend WithEvents labelReverseServo2 As System.Windows.Forms.Label
     Friend WithEvents labelReverseServo1 As System.Windows.Forms.Label
     Friend WithEvents labelAuxiMode As System.Windows.Forms.Label
@@ -3207,7 +3228,6 @@ Partial Class Form1
     Friend WithEvents ButtonSimulationHelp As System.Windows.Forms.Button
     Friend WithEvents TrackBarRudder As System.Windows.Forms.TrackBar
     Friend WithEvents labelInfoNeedSaveCOM As System.Windows.Forms.TextBox
-    Friend WithEvents labelLCDNotUsed As System.Windows.Forms.Label
     Friend WithEvents ButtonSettingsHelp As System.Windows.Forms.Button
     Friend WithEvents RichTextBoxSettingsHelp As System.Windows.Forms.RichTextBox
     Friend WithEvents PictureBoxReadHardwareOnOff As System.Windows.Forms.PictureBox
@@ -3290,6 +3310,11 @@ Partial Class Form1
     Friend WithEvents ButtonDumpLogFile As System.Windows.Forms.Button
     Friend WithEvents GroupBoxSDListFiles As System.Windows.Forms.GroupBox
     Friend WithEvents ListBoxSDListFiles As System.Windows.Forms.ListBox
+    Friend WithEvents LabelSignalType As System.Windows.Forms.Label
+    Friend WithEvents ButtonRcRadioMode As System.Windows.Forms.Button
+    Friend WithEvents Label17 As System.Windows.Forms.Label
+    Friend WithEvents labelModeRcRadio As System.Windows.Forms.Label
+    Friend WithEvents LabelExternalVoltage As System.Windows.Forms.Label
 
 
 End Class

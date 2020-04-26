@@ -14,10 +14,10 @@ void mode0()//run mode
     if (TinyPpmReader.isSynchro())
     {
       InputSignalExist = true;
-      Width_us    = TinyPpmReader.width_us(ms.MotorNbChannel);//AVERAGE(Width_us,RxChannelPulseMotor.width_us(), responseTime);/* average */
+      Width_us    = TinyPpmReader.width_us(MotorNbChannel);//AVERAGE(Width_us,RxChannelPulseMotor.width_us(), responseTime);/* average */
       WidthAux_us = TinyPpmReader.width_us(ms.AuxiliaryNbChannel);
-      WidthRud_us = TinyPpmReader.width_us(ms.RudderNbChannel);
-      WidthAil_us = TinyPpmReader.width_us(ms.AileronNbChannel);      
+      WidthRud_us = TinyPpmReader.width_us(RudderNbChannel);
+      WidthAil_us = TinyPpmReader.width_us(AileronNbChannel);      
     }
   }
   else if (ms.InputMode == 1)//SBUS
@@ -34,10 +34,10 @@ void mode0()//run mode
       if (cpt == 26) {cpt=0;} // au cas ou on aurait pas reçu les caractères de synchro on reset le compteur
     } // fin du while
 
-    Width_us    = map(voie[ms.MotorNbChannel], -100, +100, 900, 2100);
+    Width_us    = map(voie[MotorNbChannel], -100, +100, 900, 2100);
     WidthAux_us = map(voie[ms.AuxiliaryNbChannel], -100, +100, 900, 2100);
-    WidthRud_us = map(voie[ms.RudderNbChannel], -100, +100, 900, 2100);
-    WidthAil_us = map(voie[ms.AileronNbChannel], -100, +100, 900, 2100);
+    WidthRud_us = map(voie[RudderNbChannel], -100, +100, 900, 2100);
+    WidthAil_us = map(voie[AileronNbChannel], -100, +100, 900, 2100);
   }
   else if (ms.InputMode == 2)//IBUS
   {
@@ -45,10 +45,10 @@ void mode0()//run mode
     if (IBus.readChannel(0) > 0)
     {
       InputSignalExist = true;
-      Width_us    = IBus.readChannel(ms.MotorNbChannel-1);
+      Width_us    = IBus.readChannel(MotorNbChannel-1);
       WidthAux_us = IBus.readChannel(ms.AuxiliaryNbChannel-1);
-      WidthRud_us = IBus.readChannel(ms.RudderNbChannel-1);
-      WidthAil_us = IBus.readChannel(ms.AileronNbChannel-1);
+      WidthRud_us = IBus.readChannel(RudderNbChannel-1);
+      WidthAil_us = IBus.readChannel(AileronNbChannel-1);
     }
   }
   else
@@ -115,7 +115,12 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
       //Serial << millis() << endl;  
       SecurityIsON = false;
       static uint16_t posInUs;
-     
+
+      uint8_t countMessage = CountChar(Message,',');    
+#ifdef DEBUG
+      uint8_t m = MsgDisponible();
+      Serial << F("New settings received:: ") << countMessage << endl;
+#endif    
       pos = atoi(Message); //conversion Message ASCII vers Entier (ATOI= Ascii TO Integer)
       if( (pos >= 0) && (pos <= 180))//reception curseur VB 'servos'
       { 
@@ -123,7 +128,7 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
         //if (!RxChannelPulseMotor.available() && simulateSpeed == true)//verifie si Ch Moteur est inactif !!!
         if (!TinyPpmReader.isSynchro() && simulateSpeed == true)//verifie si Ch Moteur est inactif !!!
         {
-          PIN_TOGGLE(B,0);
+          //PIN_TOGGLE(B,0);
           posInUs = map(pos, 0, 180, ms.minimumPulse_US, ms.maximumPulse_US);
           if (ms.reverseServo1 == 0) {ServoMotor1.write_us(posInUs);}else{ServoMotor1.write_us((ms.centerposServo1*2)-posInUs);}               
           if (ms.reverseServo2 == 0) {ServoMotor2.write_us(posInUs);}else{ServoMotor2.write_us((ms.centerposServo2*2)-posInUs);}
@@ -136,143 +141,15 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
         //if (!RxChannelPulseMotor.available() && simulateSpeed == true)//verifie si Ch Moteur est inactif !!!
         if (!TinyPpmReader.isSynchro() && simulateSpeed == true)//verifie si Ch Moteur est inactif !!!
         {
-          PIN_TOGGLE(B,0);
+          //PIN_TOGGLE(B,0);
           //posInUs = map(pos,0,180,minimumPulse_US,maximumPulse_US);
           if (ms.reverseServo1 == 0) {ServoMotor1.write_us(pos);}else{ServoMotor1.write_us((ms.centerposServo1*2)-pos);}               
           if (ms.reverseServo2 == 0) {ServoMotor2.write_us(pos);}else{ServoMotor2.write_us((ms.centerposServo2*2)-pos);}
           waitMs(5);
           SoftRcPulseOut::refresh(1);      // generates the servo pulse
         } 
-      }      
-//      else if( (pos >= 181) && (pos <= 360))//reception curseur VB 'Auxiliaire' ou 'Direction'
-//      { 
-//        if(!RxChannelPulseAux.available() && simulateSpeed == true)//verifie si Ch Aux est inactif !!!
-//        {
-//          posInUs = map(pos,181,360,minimumPulse_US,maximumPulse_US);
-////          if (reverseServo1 == 0) {ServoMotor1.write_us(posInUs);}else{ServoMotor1.write_us((centerposServo1*2)-posInUs);}               
-////          if (reverseServo2 == 0) {ServoMotor2.write_us(posInUs);}else{ServoMotor2.write_us((centerposServo2*2)-posInUs);}  
-////          waitMs(5);                       // waits 5ms for for refresh period 
-////          SoftRcPulseOut::refresh(1);      // generates the servo pulse
-//        }          
-//      }        
-      else if(pos == 363)//envoie settings au port serie
-      {//format send: 1657|1657|1225|1225|2|2075|1393|1070|2205|1|0|0|100|39|2|0|5.00|27.61|1.000|0|1000|20000|ki|kp|kd 
-        sendConfigToSerial();      
-      } 
-      
-      //else if(countInMessage==18)
-      else if(CountChar(Message,',')==18)//reception settings from VB
-      {//format received: 1500,1500,1000,1000,2,2000,1250,1200,1900,1,0,0,99.00,2,0,0,0,1000,20000
-        StrSplit(Message, ",",  StrTbl, SUB_STRING_NB_MAX, &SeparFound);     
-        ms.centerposServo1 = atoi(StrTbl[0]);//EEPROMWrite(1, atoi(StrTbl[0]));//centerposServo1
-        ms.centerposServo2 = atoi(StrTbl[1]);//centerposServo2
-        ms.idelposServos1  = atoi(StrTbl[2]);//idelposServos1
-        ms.idelposServos2  = atoi(StrTbl[3]);//idelposServos2
-        ms.responseTime    = atoi(StrTbl[4]);//responseTime
-        ms.fullThrottle    = atoi(StrTbl[5]);//fullThrottle
-        ms.beginSynchro    = atoi(StrTbl[6]);//beginSynchro
-        ms.minimumPulse_US = atoi(StrTbl[7]);//minimumPulse_US
-        ms.maximumPulse_US = atoi(StrTbl[8]);//maximumPulse_US
-        ms.auxChannel      = atoi(StrTbl[9]);//auxChannel
-        ms.reverseServo1   = atoi(StrTbl[10]);//reverseServo1
-        ms.reverseServo2   = atoi(StrTbl[11]);//reverseServo2
-        ms.diffVitesseErr  = atoi(StrTbl[12]);//diffVitesseErr (42 used because 21 return error !)
-        ms.nbPales         = atoi(StrTbl[13]);//nbPales
-        //EEPROM.update(29, atoi(StrTbl[14]));//LCD adresse
-        ms.moduleMasterOrSlave = atoi(StrTbl[15]);//moduleMasterOrSlave
-        ms.fahrenheitDegrees = atoi(StrTbl[16]);//fahrenheitDegrees
-        ms.minimumSpeed    = atoi(StrTbl[17]);//minimum motor rpm
-        ms.maximumSpeed    = atoi(StrTbl[18]);//maximum motor rpm (need 37 to 40)
-        StrSplitRestore(",", StrTbl, SeparFound);//Imperatif SeparFound <= SUB_STRING_NB_MAX
-        EEPROM.put(0,ms);
-        ledFlashSaveInEEProm(20);
-        Serial.flush(); // clear serial port
-      }
-      else if(pos == 364)//demande configuration par defaut par VB
-      {       
-        SettingsWriteDefault();     
-      }
-      else if(pos == 365)//lecture de la position du canal moteur:
-      {             
-        Serial << F("M") << Width_us << endl;       
-      }
-      else if(pos == 366)//run or stop speed read
-      {  
-        Serial << F("V") << vitesse1 << F("|") << vitesse2 << endl;/* Send speed to VB interface */
-      } 
-      else if(pos == 367)//lecture de la position du canal auxiliaire:
-      {        
-        Serial << F("A") << WidthAux_us << endl;
-      }
-      else if(pos == 368)//lecture voltage arduino, temp arduino et voltage batterie RX:
-      {        
-        Serial << F("STS") << _FLOAT(5/1000,3) << F("|");//Serial << F("STS") << _FLOAT(readVcc()/1000,3) << F("|");
-        Serial << 0 << F("|");//Serial << GetTemp() << F("|");
-#ifdef EXTERNALVBATT
-        Serial <<  _FLOAT(GetExternalVoltage(),3) << endl;
-#else
-        Serial <<  F("NOTUSED|") << endl;
-#endif
-      }
-      else if(pos == 369)//On/Off Glow Plug command
-      { 
-        if (glowControlIsActive==false)
-        {
-          PIN_HIGH(C,6);
-          glowControlIsActive=true;
-        }
-        else
-        { 
-          PIN_LOW(C,6);
-          glowControlIsActive=false;        
-        }
-      }
-      else if(pos == 370)//erase EEprom
-      { 
-        clearEEprom();
       }
 
-      else if(CountChar(Message,',') == 3)//check XXX,A,B,C 
-      {
-        StrSplit(Message, ",",  StrTbl, SUB_STRING_NB_MAX, &SeparFound);
-        switch (atoi(StrTbl[0]))
-        {
-#ifdef SDDATALOGGER
-          case 886://886,x,y1,y2         
-            writeSDdatalog(atoi(StrTbl[2]),atoi(StrTbl[3])); // OK avec VB
-            break;
-          case 890://890,fileName,0,0         
-            //dumpSDdatalog(StrTbl[1]); // Pas OK avec VB
-            break;
-          case 891://891,fileName,0,0         
-            deleteSDdatalog(StrTbl[1]); // OK avec VB
-            break;            
-#endif 
-#ifdef PIDCONTROL           
-          case 887://887,Kp,Ki,Kd
-            ms.consKp = strtod(StrTbl[1],NULL);
-            ms.consKi = strtod(StrTbl[2],NULL);
-            ms.consKd = strtod(StrTbl[3],NULL);
-            //Serial << StrTbl[1] << F("|") << StrTbl[2] << F("|") << StrTbl[3] << endl;
-            //EEPROMWriteDouble(50, diffVitesseErr);
-//            EEPROMWrite(58, consKp);
-//            EEPROMWrite(66, consKi);
-//            EEPROMWrite(74, consKd);
-            EEPROM.put(0,ms);
-            ledFlashSaveInEEProm(5);
-            break;
-#endif
-          case 888://888,v1,v2,consigne
-            simulateSpeed = true;
-            vitesse1 = atoi(StrTbl[1]);
-            vitesse2 = atoi(StrTbl[2]);
-            ms.diffVitesseErr = atoi(StrTbl[3]);
-            ledFlashSaveInEEProm(5);
-            break;                                 
-        }
-        StrSplitRestore(",", StrTbl, SeparFound);//Imperatif SeparFound <= SUB_STRING_NB_MAX
-        Serial.flush(); // clear serial port
-      } 
 #ifdef SDDATALOGGER           
       else if(pos == 371)//read SD Card Infos
       {
@@ -308,9 +185,129 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
       else if(pos == 999)//send Module Version
       { 
         Serial << F("FIRM|") << FirmwareVersion << endl;
-      }            
-      readAuxiliaryChannel();//read Auxiliary channel and his modes (1 to 6)
-    }  
+      }
+      else if(pos == 363)//envoie settings au port serie
+      {//format send: 1657|1657|1225|1225|2|2075|1393|1070|2205|1|0|0|100|39|2|0|5.00|27.61|1.000|0|1000|20000
+        sendConfigToSerial();      
+      } 
+      else if(pos == 364)//demande configuration par defaut par VB
+      {       
+        SettingsWriteDefault();     
+      }
+      else if(pos == 365)//lecture de la position du canal moteur:
+      {             
+        Serial << F("M") << Width_us << endl;       
+      }
+      else if(pos == 366)//run or stop speed read
+      {  
+        Serial << F("V") << vitesse1 << F("|") << vitesse2 << endl;/* Send speed to VB interface */
+      } 
+      else if(pos == 367)//lecture de la position du canal auxiliaire:
+      {        
+        Serial << F("A") << WidthAux_us << endl;
+      }
+      else if(pos == 368)//lecture voltage arduino, temp arduino et voltage batterie RX:
+      {        
+        Serial << F("STS") << _FLOAT(5/1000,3) << F("|");//Serial << F("STS") << _FLOAT(readVcc()/1000,3) << F("|");
+        Serial << 0 << F("|");//Serial << GetTemp() << F("|");
+#ifdef EXTERNALVBATT
+        Serial <<  _FLOAT(GetExternalVoltage(),3) << endl;
+#else
+        Serial <<  F("NOTUSED|") << endl;
+#endif
+      }
+      else if(pos == 369)//On/Off Glow Plug command
+      { 
+        if (glowControlIsActive==false)
+        {
+          //PIN_HIGH(C,6);
+          glowControlIsActive=true;
+        }
+        else
+        { 
+          //PIN_LOW(C,6);
+          glowControlIsActive=false;        
+        }
+      }
+      else if(pos == 370)//erase EEprom
+      { 
+        clearEEprom();
+      }
+
+      if(countMessage == 19)//reception settings from VB      
+      {//format received: 1500,1500,1000,1000,2,2000,1250,1200,1900,1,0,0,99,2,0,0,0,1000,20000,0
+#ifdef DEBUG
+        Serial << F("New settings received: ") << countMessage << endl;
+#endif               
+        StrSplit(Message, ",",  StrTbl, SUB_STRING_NB_MAX, &SeparFound);     
+        ms.centerposServo1 = atoi(StrTbl[0]);//centerposServo1
+        ms.centerposServo2 = atoi(StrTbl[1]);//centerposServo2
+        ms.idelposServos1  = atoi(StrTbl[2]);//idelposServos1
+        ms.idelposServos2  = atoi(StrTbl[3]);//idelposServos2
+        ms.responseTime    = atoi(StrTbl[4]);//responseTime
+        ms.fullThrottle    = atoi(StrTbl[5]);//fullThrottle
+        ms.beginSynchro    = atoi(StrTbl[6]);//beginSynchro
+        ms.minimumPulse_US = atoi(StrTbl[7]);//minimumPulse_US
+        ms.maximumPulse_US = atoi(StrTbl[8]);//maximumPulse_US
+        ms.auxChannel      = atoi(StrTbl[9]);//auxChannel
+        ms.reverseServo1   = atoi(StrTbl[10]);//reverseServo1
+        ms.reverseServo2   = atoi(StrTbl[11]);//reverseServo2
+        ms.diffVitesseErr  = atoi(StrTbl[12]);//diffVitesseErr
+        ms.nbPales         = atoi(StrTbl[13]);//nbPales
+        ms.radioRcMode     = atoi(StrTbl[14]);//Rc radio mode (1 to 4)
+        ms.moduleMasterOrSlave = atoi(StrTbl[15]);//moduleMasterOrSlave
+        ms.fahrenheitDegrees = atoi(StrTbl[16]);//fahrenheitDegrees
+        ms.minimumSpeed    = atoi(StrTbl[17]);//minimum motor rpm
+        ms.maximumSpeed    = atoi(StrTbl[18]);//maximum motor rpm
+        ms.InputMode       = atoi(StrTbl[19]);//CPPM,SBUS or IBUS
+        //ms.telemetryType   = atoi(StrTbl[20]);//0 = Frsky
+        
+        StrSplitRestore(",", StrTbl, SeparFound);//Imperatif SeparFound <= SUB_STRING_NB_MAX
+        EEPROM.put(0,ms);
+        blinkNTime(5,100,100);
+        Serial.flush(); // clear serial port
+      }
+      else if(countMessage == 3)//check XXX,A,B,C 
+      {
+        StrSplit(Message, ",",  StrTbl, SUB_STRING_NB_MAX, &SeparFound);
+        switch (atoi(StrTbl[0]))
+        {
+#ifdef SDDATALOGGER
+          case 886://886,x,y1,y2         
+            writeSDdatalog(atoi(StrTbl[2]),atoi(StrTbl[3])); // OK avec VB
+            break;
+          case 890://890,fileName,0,0         
+            //dumpSDdatalog(StrTbl[1]); // Pas OK avec VB
+            break;
+          case 891://891,fileName,0,0         
+            deleteSDdatalog(StrTbl[1]); // OK avec VB
+            break;            
+#endif 
+#ifdef PIDCONTROL           
+          case 887://887,Kp,Ki,Kd
+//            ms.consKp = strtod(StrTbl[1],NULL);
+//            ms.consKi = strtod(StrTbl[2],NULL);
+//            ms.consKd = strtod(StrTbl[3],NULL);
+            //Serial << StrTbl[1] << F("|") << StrTbl[2] << F("|") << StrTbl[3] << endl;
+
+            EEPROM.put(0,ms);
+            ledFlashSaveInEEProm(5);
+            break;
+#endif
+          case 888://888,v1,v2,consigne
+            simulateSpeed = true;
+            vitesse1 = atoi(StrTbl[1]);
+            vitesse2 = atoi(StrTbl[2]);
+            ms.diffVitesseErr = atoi(StrTbl[3]);
+            blinkNTime(5,LED_SIGNAL_FOUND,LED_SIGNAL_FOUND);
+            break;                                 
+        }
+        StrSplitRestore(",", StrTbl, SeparFound);//Imperatif SeparFound <= SUB_STRING_NB_MAX
+        Serial.flush(); // clear serial port
+      } 
+    } 
+
+    //readAuxiliaryChannel();//read Auxiliary channel and his modes (1 to 6)
 
 }//end SerialFromToVB()
 

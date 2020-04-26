@@ -157,6 +157,12 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="RcRadioMode.Designer.vb">
+      <DependentUpon>RcRadioMode.vb</DependentUpon>
+    </Compile>
+    <Compile Include="RcRadioMode.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="ShowInfo.vb" />
     <Compile Include="ShowMessage.vb" />
     <Compile Include="ShowMsgForm.Designer.vb">
@@ -195,6 +201,9 @@
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RcRadioMode.resx">
+      <DependentUpon>RcRadioMode.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ShowMsgForm.resx">
       <DependentUpon>ShowMsgForm.vb</DependentUpon>
@@ -320,6 +329,10 @@
     <None Include="Resources\112_DownArrowLong_Green_32x32_72.png" />
     <None Include="Resources\0203_Textbox_32.png" />
     <Content Include="Resources\delete.png" />
+    <None Include="Resources\mode1.png" />
+    <None Include="Resources\mode2.png" />
+    <None Include="Resources\mode3.png" />
+    <None Include="Resources\mode4.png" />
     <Content Include="Resources\Servo.png" />
     <None Include="Resources\TrackBar.png" />
     <Content Include="Resources\USBAsp_pinout.png" />

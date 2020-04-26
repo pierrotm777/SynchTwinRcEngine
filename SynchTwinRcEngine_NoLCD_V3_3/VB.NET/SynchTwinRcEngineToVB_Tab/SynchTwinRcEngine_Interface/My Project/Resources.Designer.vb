@@ -441,24 +441,6 @@ Namespace My.Resources
         End Property
         
         '''<summary>
-        '''  Recherche une chaîne localisée semblable à Address I2C LCD:.
-        '''</summary>
-        Friend ReadOnly Property labelAddrLCD_EN() As String
-            Get
-                Return ResourceManager.GetString("labelAddrLCD_EN", resourceCulture)
-            End Get
-        End Property
-        
-        '''<summary>
-        '''  Recherche une chaîne localisée semblable à Adresse I2C LCD:.
-        '''</summary>
-        Friend ReadOnly Property labelAddrLCD_FR() As String
-            Get
-                Return ResourceManager.GetString("labelAddrLCD_FR", resourceCulture)
-            End Get
-        End Property
-        
-        '''<summary>
         '''  Recherche une chaîne localisée semblable à Position Auxiliary:.
         '''</summary>
         Friend ReadOnly Property labelAuxiPosition_EN() As String
@@ -639,6 +621,24 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  Recherche une chaîne localisée semblable à Radio Mode:.
+        '''</summary>
+        Friend ReadOnly Property labelMode_EN() As String
+            Get
+                Return ResourceManager.GetString("labelMode_EN", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Recherche une chaîne localisée semblable à Mode Radio:.
+        '''</summary>
+        Friend ReadOnly Property labelMode_FR() As String
+            Get
+                Return ResourceManager.GetString("labelMode_FR", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  Recherche une chaîne localisée semblable à Channel Motors Simulation.
         '''</summary>
         Friend ReadOnly Property labelMotorsSimu_EN() As String
@@ -671,6 +671,24 @@ Namespace My.Resources
         Friend ReadOnly Property labelNbrBlades_FR() As String
             Get
                 Return ResourceManager.GetString("labelNbrBlades_FR", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Recherche une chaîne localisée semblable à Radio Mode:.
+        '''</summary>
+        Friend ReadOnly Property labelRadioMode_EN() As String
+            Get
+                Return ResourceManager.GetString("labelRadioMode_EN", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Recherche une chaîne localisée semblable à Mode Radio:.
+        '''</summary>
+        Friend ReadOnly Property labelRadioMode_FR() As String
+            Get
+                Return ResourceManager.GetString("labelRadioMode_FR", resourceCulture)
             End Get
         End Property
         
@@ -747,7 +765,7 @@ Namespace My.Resources
         End Property
         
         '''<summary>
-        '''  Recherche une chaîne localisée semblable à Speed Motors Mini/Maxi (tr/mn):.
+        '''  Recherche une chaîne localisée semblable à Speed Motors Mini/Maxi (rpm):.
         '''</summary>
         Friend ReadOnly Property labelSpeedMotorMinMaxRPM_EN() As String
             Get
@@ -756,7 +774,7 @@ Namespace My.Resources
         End Property
         
         '''<summary>
-        '''  Recherche une chaîne localisée semblable à Vitesse Moteurs Mini/Maxi (rpm):.
+        '''  Recherche une chaîne localisée semblable à Vitesse Moteurs Mini/Maxi (tr/mn):.
         '''</summary>
         Friend ReadOnly Property labelSpeedMotorMinMaxRPM_FR() As String
             Get
@@ -809,6 +827,46 @@ Namespace My.Resources
             Get
                 Dim obj As Object = ResourceManager.GetObject("logo_arduino1", resourceCulture)
                 Return CType(obj,System.Drawing.Icon)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Recherche une ressource localisée de type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property mode1() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("mode1", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Recherche une ressource localisée de type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property mode2() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("mode2", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Recherche une ressource localisée de type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property mode3() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("mode3", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Recherche une ressource localisée de type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property mode4() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("mode4", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
         

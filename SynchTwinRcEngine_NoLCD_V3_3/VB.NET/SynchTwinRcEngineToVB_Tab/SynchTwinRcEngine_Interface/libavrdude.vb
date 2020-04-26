@@ -737,6 +737,7 @@ Public Class libavrdude
             End Using
         Else
             MsgBox("Reading Error.Set avrdude.conf file path from settings")
+            Return Nothing ' ajouté par bibi à tester
         End If
     End Function
     Public Function abs(ByVal number As Integer) As Integer

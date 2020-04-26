@@ -6,7 +6,26 @@ SynchTwinRcEngine_Interface
 </name>
 </assembly>
 <members>
-<member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.ResourceManager">
+<member name="M:SynchTwinRcEngine_Interface.Form1.ComboPort_MouseClick(System.Object,System.EventArgs)">
+	<summary>
+ Update the com port list after a click
+ </summary>
+	<param name="sender"></param>
+	<param name="e"></param>
+	<remarks></remarks>
+</member><member name="M:SynchTwinRcEngine_Interface.Form1.AddRecord(System.String,System.String)">
+	<summary>
+ Build a record list file
+ </summary>
+	<param name="recorderList"></param>
+	<remarks></remarks>
+</member><member name="M:SynchTwinRcEngine_Interface.Form1.ReadRecord(System.String)">
+	<summary>
+ read a record list
+ </summary>
+	<param name="recorderList"></param>
+	<remarks></remarks>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.ResourceManager">
 	<summary>
   Retourne l'instance ResourceManager mise en cache utilisée par cette classe.
 </summary>
@@ -179,14 +198,6 @@ SynchTwinRcEngine_Interface
 	<summary>
   Recherche une ressource localisée de type System.Drawing.Bitmap.
 </summary>
-</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelAddrLCD_EN">
-	<summary>
-  Recherche une chaîne localisée semblable à Address I2C LCD:.
-</summary>
-</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelAddrLCD_FR">
-	<summary>
-  Recherche une chaîne localisée semblable à Adresse I2C LCD:.
-</summary>
 </member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelAuxiPosition_EN">
 	<summary>
   Recherche une chaîne localisée semblable à Position Auxiliary:.
@@ -267,6 +278,14 @@ SynchTwinRcEngine_Interface
 	<summary>
   Recherche une chaîne localisée semblable à Voltage Interne:.
 </summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelMode_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Radio Mode:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelMode_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Mode Radio:.
+</summary>
 </member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelMotorsSimu_EN">
 	<summary>
   Recherche une chaîne localisée semblable à Channel Motors Simulation.
@@ -282,6 +301,14 @@ SynchTwinRcEngine_Interface
 </member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelNbrBlades_FR">
 	<summary>
   Recherche une chaîne localisée semblable à Nombre de pales ou d'aimants:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelRadioMode_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Radio Mode:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelRadioMode_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Mode Radio:.
 </summary>
 </member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelReverseAuxi_EN">
 	<summary>
@@ -317,11 +344,11 @@ SynchTwinRcEngine_Interface
 </summary>
 </member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelSpeedMotorMinMaxRPM_EN">
 	<summary>
-  Recherche une chaîne localisée semblable à Speed Motors Mini/Maxi (tr/mn):.
+  Recherche une chaîne localisée semblable à Speed Motors Mini/Maxi (rpm):.
 </summary>
 </member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelSpeedMotorMinMaxRPM_FR">
 	<summary>
-  Recherche une chaîne localisée semblable à Vitesse Moteurs Mini/Maxi (rpm):.
+  Recherche une chaîne localisée semblable à Vitesse Moteurs Mini/Maxi (tr/mn):.
 </summary>
 </member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelStartSynchroMotors_EN">
 	<summary>
@@ -342,6 +369,22 @@ SynchTwinRcEngine_Interface
 </member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.logo_arduino1">
 	<summary>
   Recherche une ressource localisée de type System.Drawing.Icon semblable à (Icône).
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.mode1">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.mode2">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.mode3">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.mode4">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
 </summary>
 </member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.monitor">
 	<summary>
@@ -407,25 +450,6 @@ SynchTwinRcEngine_Interface
 	<summary>
   Une classe de ressource fortement typée destinée, entre autres, à la consultation des chaînes localisées.
 </summary>
-</member><member name="M:SynchTwinRcEngine_Interface.Form1.ComboPort_MouseClick(System.Object,System.EventArgs)">
-	<summary>
- Update the com port list after a click
- </summary>
-	<param name="sender"></param>
-	<param name="e"></param>
-	<remarks></remarks>
-</member><member name="M:SynchTwinRcEngine_Interface.Form1.AddRecord(System.String,System.String)">
-	<summary>
- Build a record list file
- </summary>
-	<param name="recorderList"></param>
-	<remarks></remarks>
-</member><member name="M:SynchTwinRcEngine_Interface.Form1.ReadRecord(System.String)">
-	<summary>
- read a record list
- </summary>
-	<param name="recorderList"></param>
-	<remarks></remarks>
 </member>
 </members>
 </doc>

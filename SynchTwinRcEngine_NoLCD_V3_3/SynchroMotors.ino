@@ -5,19 +5,19 @@ void UseSynchroMotors()
   diffVitesse = vitesse1 - vitesse2;
 
 #ifdef PIDCONTROL
-  double gap = ms.diffVitesseErr-diffVitesse; //distance away from diffVitesseErr
-  gap = abs(gap);
-  if (gap < 10)
-  {  //we're close to setpoint, use conservative tuning parameters
-    myPID.SetTunings(ms.consKp, ms.consKi, ms.consKd);
-  }
-  else
-  {
-     //we're far from setpoint, use aggressive tuning parameters
-     myPID.SetTunings(ms.aggKp, ms.aggKi, ms.aggKd);
-  }
-  
-  myPID.Compute();
+//  double gap = ms.diffVitesseErr-diffVitesse; //distance away from diffVitesseErr
+//  gap = abs(gap);
+//  if (gap < 10)
+//  {  //we're close to setpoint, use conservative tuning parameters
+//    myPID.SetTunings(ms.consKp, ms.consKi, ms.consKd);
+//  }
+//  else
+//  {
+//     //we're far from setpoint, use aggressive tuning parameters
+//     myPID.SetTunings(ms.aggKp, ms.aggKi, ms.aggKd);
+//  }
+//  
+//  myPID.Compute();
  
 #else
   stepMotor = 10;

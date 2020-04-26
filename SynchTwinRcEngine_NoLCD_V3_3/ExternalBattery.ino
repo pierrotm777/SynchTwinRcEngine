@@ -115,7 +115,7 @@ float GetExternalVoltage()
         |
 ----.   # R1=3k3 = Orange Orange Rouge Or
     |   |
-  A7|---+
+  A3|---+
     |   |        
 NaNo|   # R2=1k1 = Marron Marron Rouge Or 
     |   |        

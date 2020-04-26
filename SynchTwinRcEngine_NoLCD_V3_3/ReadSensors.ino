@@ -58,8 +58,8 @@ void readCaptorTransitions()
     interrupts();
   }
   
-  if (vitesse1 !=0) {PIN_HIGH(B,0);PIN_LOW(B,0);}// D8(GREEN)
-  if (vitesse2 !=0) {PIN_HIGH(B,1);PIN_LOW(B,1);}// D9(GREEN)
+  if (vitesse1 !=0) {on(LED1GREEN);off(LED1GREEN);}// D8(GREEN)
+  if (vitesse2 !=0) {on(LED2GREEN);off(LED2GREEN);}// D9(GREEN)
 
 #ifdef SDDATALOGGER
   if((millis()-SendMotorsToVBMs >= 500) && SDCardUsable == true && RunLogInSDCard == true)

@@ -21,7 +21,7 @@ void readAuxiliaryChannel()
 //    WidthAux_us =  TinyPpmReader.width_us(5);//AVERAGE(WidthAux_us,RxChannelPulseAux.width_us(), responseTime);
 //  }
 
-  if(Width_us >= OneFifthThrottle){PIN_HIGH(B,3);}else{PIN_LOW(B,3);}
+  if(Width_us >= OneFifthThrottle){on(LED1GREEN);}else{off(LED1GREEN);}
 
   //ajouter gestion de l'entree AUX avec inters 2 ou 3 positions:
   switch (ms.auxChannel)

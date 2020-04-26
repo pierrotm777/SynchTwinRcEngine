@@ -75,13 +75,26 @@ LED4 B,3
 LED5 B,4
 LED6 B,5
  */
-#define PIN_INPUT(port,pin) DDR ## port &= ~(1<<pin)
-#define PIN_OUTPUT(port,pin) DDR ## port |= (1<<pin)
-#define PIN_LOW(port,pin) PORT ## port &= ~(1<<pin)
-#define PIN_HIGH(port,pin) PORT ## port |= (1<<pin)
-#define PIN_TOGGLE(port,pin) PORT ## port ^= (1<<pin)
-//#define PIN_READ(port,pin) (PIN ## port & (1<<pin))
-//#define  PIN_INPUT_WITH_PULLUP(port,pin) PIN_INPUT(port,pin);PIN_HIGH(port,pin)
+/* Macro function to declare an output pin */
+#define out(x)      _out(x)
+#define _out(bit,port)  DDR##port |= (1 << bit)
+/* Macro function to declare an input pin */
+#define in(x)     _in(x)
+#define _in(bit,port) DDR##port &= ~(1 << bit)
+/* Macro function to set an output pin high */
+#define on(x)     _on(x)
+#define _on(bit,port) PORT##port |= (1 << bit)
+/* Macro function to set an output pin low */
+#define off(x)      _off(x)
+#define _off(bit,port)  PORT##port &= ~(1 << bit)
+/* Macro function to set internal pullup resistor of input pin (same as "on" macro)*/
+#define pullup(x)   _on(x)
+/* Macro function to get state of input pin */
+//#define get(x)      _get(x) // PB avec EEPROM.get(0,ms)
+//#define _get(bit,port)  (PIN##port & (1 << bit))
+/* Macro function to toggle an output pin */
+//#define flip(x)     _flip(x)
+//#define _flip(bit,port) PORT##port ^= (1 << bit)
 
 /* Ci-dessous, choisir EDGE_TYPE entre rien (#define EDGE_TYPE), Falling (#define EDGE_TYPE Falling) ou Rising (#define EDGE_TYPE Rising) */
 #define EDGE_TYPE           Rising

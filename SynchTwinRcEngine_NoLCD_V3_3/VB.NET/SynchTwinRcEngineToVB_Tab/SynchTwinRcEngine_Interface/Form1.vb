@@ -33,6 +33,10 @@ Public Class Form1
     Dim BaudRates() As String = {"300", "1200", "2400", "4800", "9600", "14400", "19200", "28800", "38400", "57600", "115200"}
 
     Dim term As New Terminal
+    Dim RcMode As New RcRadioMode
+
+    Public RcModeRadio As String
+    Public RcSignalType As String
 
     Dim servoPosition() As String
     Dim RecordFilesPath As String = Application.StartupPath & "\"
@@ -322,18 +326,12 @@ Public Class Form1
                     Dim s() As String = TextBoxDiffSpeedSimuConsigne.Text.Split(".")
                     TextBoxDiffSpeedSimuConsigne.Text = s(0)
                 End If
-                If array(13) <> "NOTUSED" Then
-                    labelLCDNotUsed.Visible = False
-                    textAddresseI2C.Visible = True
-                    textAddresseI2C.Text = array(13)
-                Else
-                    labelLCDNotUsed.Visible = True
-                    labelLCDNotUsed.Text = "LCD Not Used"
-                    textAddresseI2C.Visible = False
-                End If
 
                 textNombrePales.Text = array(14)
-                array(15) = "0" 'array(15) 'switchState (forcé à 0 avec version LCD)
+
+                labelModeRcRadio.Text = array(15) + 1
+                RcMode.ComboBox_Select_ModeType.Text = array(15) + 1
+
                 TextVoltageInterne.Text = array(16) & "v"
                 TextTempInterne.Text = array(17) & IIf(array(20) = "0", "°C", "°F")
                 CheckBoxFahrenheitDegrees.Checked = IIf(array(20) = "0", False, True)
@@ -359,9 +357,15 @@ Public Class Form1
                 textMiniMotorRPM.Text = array(21)
                 textMaxiMotorRPM.Text = array(22)
 
-                textBoxKpControl.Text = array(23)
-                textBoxKiControl.Text = array(24)
-                textBoxKdControl.Text = array(25)
+                Select Case array(23)
+                    Case 0
+                        LabelSignalType.Text = "CPPM"
+                    Case 1
+                        LabelSignalType.Text = "SBUS"
+                    Case 2
+                        LabelSignalType.Text = "IBUS"
+                End Select
+                RcMode.ComboBoxSignalType.SelectedIndex = array(23)
 
                 LabelModifications.Enabled = False
                 LabelModifications.Text = "..."
@@ -795,7 +799,7 @@ Public Class Form1
     '    LabelModifications.ForeColor = Color.Red
     '    If My.Settings.Language = "French" Then LabelModifications.Text = "Modifications non sauvegardées !" Else LabelModifications.Text = "Changes not saved !"
     'End Sub
-    Private Sub textAddresseI2C_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles textAddresseI2C.TextChanged
+    Private Sub textAddresseI2C_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs)
         LabelModifications.Enabled = True
         LabelModifications.ForeColor = Color.Red
         If My.Settings.Language = "French" Then LabelModifications.Text = "Modifications non sauvegardées !" Else LabelModifications.Text = "Changes not saved !"
@@ -1596,12 +1600,22 @@ Public Class Form1
         If CheckBoxInversionServo2.Checked = True Then MessageToSend &= "1," Else MessageToSend &= "0," 'reverseServo2
         MessageToSend &= TextBoxDiffSpeedSimuConsigne.Text & ","    'difference speeds accepted
         MessageToSend &= textNombrePales.Text & ","     'nbPales
-        MessageToSend &= textAddresseI2C.Text & ","     'I2C LCD
+        MessageToSend &= labelModeRcRadio.Text - 1 & "," 'radio mode (1 à 4)
         MessageToSend &= "0," 'array(15).ToString & "," 'type de module (0=maître, 1=esclave)
         If CheckBoxFahrenheitDegrees.Checked = True Then MessageToSend &= "1," Else MessageToSend &= "0," 'Celcius/Fahrenheit
 
         MessageToSend &= textMiniMotorRPM.Text & ","    'speed motor mini
-        MessageToSend &= textMaxiMotorRPM.Text          'speed motor maxi
+        MessageToSend &= textMaxiMotorRPM.Text & ","    'speed motor maxi
+
+        ' MessageToSend &= LabelSignalType.Text
+        Select Case LabelSignalType.Text
+            Case "CPPM"
+                MessageToSend &= "0"
+            Case "SBUS"
+                MessageToSend &= "1"
+            Case "IBUS"
+                MessageToSend &= "2"
+        End Select
 
         'MsgBox(MessageToSend)
         If TextBoxDiffSpeedSimuConsigne.Text = "0" Then
@@ -1632,6 +1646,15 @@ Public Class Form1
 
         Thread.Sleep(1000)
         ShowMsg("!!! You must to restart your module !!!", ShowMsgImage.Info, "Info")
+    End Sub
+
+    Private Sub ButtonRcRadioMode_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonRcRadioMode.Click
+        If RcMode.Visible = False Then
+            RcMode.Show()
+            RcMode.Location = New Point(My.Settings.LocationX + Me.Width + 3, My.Settings.LocationY)
+        Else
+            RcMode.Hide()
+        End If
     End Sub
 
     'Read buttons
@@ -3534,25 +3557,24 @@ Public Class Form1
         ButtonReadTempVoltage.Text = My.Resources.buttonRead_FR
         ButtonModuleType.Text = My.Resources.buttonModuleType_FR
         '
-        labelCenterServo1.Text = My.Resources.labelCenterServo1_FR & " (µS)"
-        labelCenterServo2.Text = My.Resources.labelCenterServo2_FR & " (µS)"
+        labelCenterServo1.Text = My.Resources.labelCenterServo1_FR & " µS"
+        labelCenterServo2.Text = My.Resources.labelCenterServo2_FR & " µS"
         If (CheckBoxInversionServo1.Checked = True) Then CheckBoxInversionServo1.Text = "Oui" Else CheckBoxInversionServo1.Text = "Non"
         If (CheckBoxInversionServo2.Checked = True) Then CheckBoxInversionServo2.Text = "Oui" Else CheckBoxInversionServo2.Text = "Non"
         If (CheckBoxInversionAux.Checked = True) Then CheckBoxInversionAux.Text = "Oui" Else CheckBoxInversionAux.Text = "Non"
-        labelIdleServo1.Text = My.Resources.labelIdleServo1_FR & " (µS)"
-        labelIdleServo2.Text = My.Resources.labelIdleServo2_FR & " (µS)"
+        labelIdleServo1.Text = My.Resources.labelIdleServo1_FR & " µS"
+        labelIdleServo2.Text = My.Resources.labelIdleServo2_FR & " µS"
         labelSpeedModuleAnswer.Text = My.Resources.labelSpeedModuleAnswer_FR
-        labelStartSynchroServos.Text = My.Resources.labelStartSynchroMotors_FR & " (µS)"
-        labelPosMiniGene.Text = My.Resources.labelGeneralePositionMini_FR & " (µS)"
-        labelPosMaxiGene.Text = My.Resources.labelGeneralePositionMaxi_FR & " (µS)"
-        labelAuxiPosition.Text = My.Resources.labelAuxiPosition_FR & " (µS)"
+        labelStartSynchroServos.Text = My.Resources.labelStartSynchroMotors_FR & " µS"
+        labelPosMiniGene.Text = My.Resources.labelGeneralePositionMini_FR & " µS"
+        labelPosMaxiGene.Text = My.Resources.labelGeneralePositionMaxi_FR & " µS"
+        labelAuxiPosition.Text = My.Resources.labelAuxiPosition_FR & " µS"
         labelReverseServo1.Text = My.Resources.labelReverseServo1_FR
         labelReverseServo2.Text = My.Resources.labelReverseServo2_FR
         labelReverseAuxi.Text = My.Resources.labelReverseAuxi_FR
-        labelAddrLCD.Text = My.Resources.labelAddrLCD_FR
+        labelMode.Text = My.Resources.labelRadioMode_FR
         labelNbrBlades.Text = My.Resources.labelNbrBlades_FR
-        labelInternalVoltage.Text = My.Resources.labelIntVoltage_FR
-        labelSpeedMinMaxRPM.Text = My.Resources.labelSpeedMotorMinMaxRPM_FR & " (tr/mn)"
+        labelSpeedMinMaxRPM.Text = My.Resources.labelSpeedMotorMinMaxRPM_FR
         ButtonAnnulerModif.Text = My.Resources.buttonAbortChanges_FR
         ButtonConfigDefaut.Text = My.Resources.buttonResetSettings_FR
         ButtonSauvegardeConfig.Text = My.Resources.buttonSaveSettings_FR
@@ -3589,6 +3611,9 @@ Public Class Form1
 
         GroupBoxSDCardInfos.Text = "Infos Carte SD"
         GroupBoxSDListFiles.Text = "Liste fichiers Carte SD"
+
+        labelInternalVoltage.Text = My.Resources.labelIntVoltage_FR
+        labelMode.Text = My.Resources.labelMode_FR
     End Sub
 
     Private Sub SetEnglish()
@@ -3618,25 +3643,24 @@ Public Class Form1
         ButtonReadTempVoltage.Text = My.Resources.buttonRead_EN
         ButtonModuleType.Text = My.Resources.buttonModuleType_EN
         '
-        labelCenterServo1.Text = My.Resources.labelCenterServo1_EN & " (µS)"
-        labelCenterServo2.Text = My.Resources.labelCenterServo2_EN & " (µS)"
+        labelCenterServo1.Text = My.Resources.labelCenterServo1_EN & " µS"
+        labelCenterServo2.Text = My.Resources.labelCenterServo2_EN & " µS"
         If (CheckBoxInversionServo1.Checked = True) Then CheckBoxInversionServo1.Text = "Yes" Else CheckBoxInversionServo1.Text = "No"
         If (CheckBoxInversionServo2.Checked = True) Then CheckBoxInversionServo2.Text = "Yes" Else CheckBoxInversionServo2.Text = "No"
         If (CheckBoxInversionAux.Checked = True) Then CheckBoxInversionAux.Text = "Yes" Else CheckBoxInversionAux.Text = "No"
-        labelIdleServo1.Text = My.Resources.labelIdleServo1_EN & " (µS)"
-        labelIdleServo2.Text = My.Resources.labelIdleServo2_EN & " (µS)"
+        labelIdleServo1.Text = My.Resources.labelIdleServo1_EN & " µS"
+        labelIdleServo2.Text = My.Resources.labelIdleServo2_EN & " µS"
         labelSpeedModuleAnswer.Text = My.Resources.labelSpeedModuleAnswer_EN
-        labelStartSynchroServos.Text = My.Resources.labelStartSynchroMotors_EN & " (µS)"
-        labelPosMiniGene.Text = My.Resources.labelGeneralePositionMini_EN & " (µS)"
-        labelPosMaxiGene.Text = My.Resources.labelGeneralePositionMaxi_EN & " (µS)"
-        labelAuxiPosition.Text = My.Resources.labelAuxiPosition_EN & " (µS)"
+        labelStartSynchroServos.Text = My.Resources.labelStartSynchroMotors_EN & " µS"
+        labelPosMiniGene.Text = My.Resources.labelGeneralePositionMini_EN & " µS"
+        labelPosMaxiGene.Text = My.Resources.labelGeneralePositionMaxi_EN & " µS"
+        labelAuxiPosition.Text = My.Resources.labelAuxiPosition_EN & " µS"
         labelReverseServo1.Text = My.Resources.labelReverseServo1_EN
         labelReverseServo2.Text = My.Resources.labelReverseServo2_EN
         labelReverseAuxi.Text = My.Resources.labelReverseAuxi_EN
-        labelAddrLCD.Text = My.Resources.labelAddrLCD_EN
+        labelMode.Text = My.Resources.labelRadioMode_EN
         labelNbrBlades.Text = My.Resources.labelNbrBlades_EN
-        labelInternalVoltage.Text = My.Resources.labelIntVoltage_EN
-        labelSpeedMinMaxRPM.Text = My.Resources.labelSpeedMotorMinMaxRPM_EN & " (RPM)"
+        labelSpeedMinMaxRPM.Text = My.Resources.labelSpeedMotorMinMaxRPM_EN
         ButtonAnnulerModif.Text = My.Resources.buttonAbortChanges_EN
         ButtonConfigDefaut.Text = My.Resources.buttonResetSettings_EN
         ButtonSauvegardeConfig.Text = My.Resources.buttonSaveSettings_EN
@@ -3673,6 +3697,9 @@ Public Class Form1
 
         GroupBoxSDCardInfos.Text = "SD Card Infos"
         GroupBoxSDListFiles.Text = "SD Card Files List"
+
+        labelInternalVoltage.Text = My.Resources.labelIntVoltage_EN
+        labelMode.Text = My.Resources.labelMode_EN
     End Sub
 
     Private Sub optLangFR_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles optLangFR.CheckedChanged
@@ -3870,7 +3897,6 @@ Public Class Form1
         'ButtonPlayer.Text = "Start Player"
         'PictureBoxPlayer.Image = My.Resources.rectangle_rouge
     End Sub
-
 
 End Class
 
