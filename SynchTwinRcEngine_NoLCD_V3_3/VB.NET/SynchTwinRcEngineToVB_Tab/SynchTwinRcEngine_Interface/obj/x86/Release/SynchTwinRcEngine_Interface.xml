@@ -358,6 +358,14 @@ SynchTwinRcEngine_Interface
 	<summary>
   Recherche une chaîne localisée semblable à Début Synchro Servos:.
 </summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelTerminalWelcome_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Terminal is ready !.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelTerminalWelcome_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Terminal prêt !.
+</summary>
 </member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.Lock">
 	<summary>
   Recherche une ressource localisée de type System.Drawing.Bitmap.

@@ -57,6 +57,14 @@ Public Class Form1
 
     Private Sub Button_Connect_Click(sender As System.Object, e As System.EventArgs) Handles Button_Connect.Click
         Try
+            If term.Visible = True Then
+                If My.Settings.Language = "French" Then
+                    term.TextBoxTerminalComPort.AppendText(My.Resources.labelTerminalWelcome_FR & vbCrLf)
+                ElseIf My.Settings.Language = "English" Then
+                    term.TextBoxTerminalComPort.AppendText(My.Resources.labelTerminalWelcome_EN & vbCrLf)
+                End If
+
+            End If
             If SerialPort1.IsOpen Then
                 PictureBoxConnectedOK.Image = My.Resources.rectangle_rouge
                 SerialPort1.Close()

@@ -1,41 +1,5 @@
 #ifndef _MACROS_H_
 #define _MACROS_H_
-
-
-///* use soft_restart() for have a reset (see https://github.com/connornishijima/SoftReset/blob/master/SoftReset.h) 
-//15mS    WDTO_15MS
-//30mS    WDTO_30MS
-//60mS    WDTO_60MS
-//120mS   WDTO_120MS
-//250mS   WDTO_250MS
-//500mS   WDTO_500MS
-//1S      WDTO_1S
-//2S      WDTO_2S
-//4S      WDTO_4S
-//8S      WDTO_8S
-//*/
-//#include <avr/wdt.h>
-//#define soft_restart()      \
-//do                          \
-//{                           \
-//    wdt_enable(WDTO_15MS);  \
-//    for(;;)                 \
-//    {                       \
-//    }                       \
-//} while(0)
-//	
-///* Function Pototype (For newer AVRs (such as the ATmega1281) 
-//also add this function to your code to then disable the 
-//watchdog after a reset (e.g., after a soft reset):) */
-//void wdt_init(void) __attribute__((naked)) __attribute__((section(".init3")));
-//
-//// Function Implementation
-//void wdt_init(void)
-//{
-//   MCUSR = 0;
-//   wdt_disable();
-//   return;
-//}
 	
 /* Possible values to compute a shifting average fin order to smooth the recieved pulse witdh */
 #define AVG_WITH_1_VALUE        0
@@ -93,8 +57,8 @@ LED6 B,5
 //#define get(x)      _get(x) // PB avec EEPROM.get(0,ms)
 //#define _get(bit,port)  (PIN##port & (1 << bit))
 /* Macro function to toggle an output pin */
-//#define flip(x)     _flip(x)
-//#define _flip(bit,port) PORT##port ^= (1 << bit)
+#define flip(x)     _flip(x)
+#define _flip(bit,port) PORT##port ^= (1 << bit)
 
 /* Ci-dessous, choisir EDGE_TYPE entre rien (#define EDGE_TYPE), Falling (#define EDGE_TYPE Falling) ou Rising (#define EDGE_TYPE Rising) */
 #define EDGE_TYPE           Rising

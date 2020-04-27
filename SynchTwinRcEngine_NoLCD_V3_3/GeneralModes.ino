@@ -1,23 +1,27 @@
 // Definition des modes:
 void mode0()//run mode
 {   
-  readCaptorTransitions();/* read sensors */
+  //readCaptorTransitions();/* read sensors */
 
 //#ifdef SERIALPLOTTER /* You can read the battery voltage, speeds and throttle and auxiliary pulses with the Serial Plotter (IDE >= 1.6.6) */
 //   Serial << ((GetExternalVoltage()>1)?GetExternalVoltage()*1000:0) << "," << Width_us << "," << WidthAux_us << "," << vitesse1 << "," << vitesse2 << endl;
 //#endif
+  static uint32_t BeginChronoServoMs = millis();
 
-  /* Receiver pulse acquisition and command of 2 servos */
-  //1.Direction, 2.Profondeur, 3.Moteur, 4.Ailerons
+  /* Receiver pulsse acquisition and command of 2 servos */
   if (ms.InputMode == 0)//PPM
   {
     if (TinyPpmReader.isSynchro())
     {
       InputSignalExist = true;
-      Width_us    = TinyPpmReader.width_us(MotorNbChannel);//AVERAGE(Width_us,RxChannelPulseMotor.width_us(), responseTime);/* average */
+      Width_us    = TinyPpmReader.width_us(MotorNbChannel);
       WidthAux_us = TinyPpmReader.width_us(ms.AuxiliaryNbChannel);
       WidthRud_us = TinyPpmReader.width_us(RudderNbChannel);
       WidthAil_us = TinyPpmReader.width_us(AileronNbChannel);      
+    }
+    else
+    {
+      InputSignalExist = false;
     }
   }
   else if (ms.InputMode == 1)//SBUS
@@ -50,12 +54,11 @@ void mode0()//run mode
       WidthRud_us = IBus.readChannel(RudderNbChannel-1);
       WidthAil_us = IBus.readChannel(AileronNbChannel-1);
     }
+    else
+    {
+      InputSignalExist = false;
+    }    
   }
-  else
-  {
-    InputSignalExist = false;
-  }
-
   
   if (InputSignalExist == true)
   {    
@@ -79,7 +82,7 @@ void mode0()//run mode
       /* Blink LED Management */
       if(millis()-LedStartMs>=1000)
       {
-        PIN_HIGH(B,0);PIN_HIGH(B,1);waitMs(20);PIN_LOW(B,0);PIN_LOW(B,1); //led green flash one time each second
+        flip(LED);//blinkNTime(1,125,1000);
         LedStartMs=millis(); /* Restart the Chrono for the LED */
       }
     } 
@@ -88,14 +91,27 @@ void mode0()//run mode
     readAuxiliaryChannel();//read Auxiliary channel (1 to 6)
     
     SoftRcPulseOut::refresh(1); /* (=1) allows to synchronize outgoing pulses with incoming pulses */
+    // Blink each 250ms if PPM found on pin 2
+    if(millis()-LedStartMs>=LED_SIGNAL_FOUND)
+    {
+      flip(LED);
+      LedStartMs=millis(); // Restart the Chrono for the LED 
+    }  
     BeginChronoServoMs=millis();  /* Restart the Chrono for Pulse */
   
   }
   else//Si absence du canal RX
   {
+    // Blink each 1s if PPM not found on pin 2
+    if(millis()-LedStartMs>=LED_SIGNAL_NOTFOUND)
+    {
+      flip(LED);
+      LedStartMs=millis(); // Restart the Chrono for the LED 
+    }
     /*Si aucun signal au demarrage, les helices sont bloquees avec "Width_us=1000")*/
     /* Check for pulse motor extinction */
-    if(millis() - BeginChronoServoMs >= 30 && simulateSpeed == false)//30ms
+    //if(millis() - BeginChronoServoMs >= 30 && simulateSpeed == false)//30ms
+    if(millis() - BeginChronoServoMs >= 30)//30ms
     {
       (ms.reverseServo1 == 0)?ServoMotor1.write_us(ms.idelposServos1):ServoMotor1.write_us((ms.centerposServo1*2)-ms.idelposServos1);               
       (ms.reverseServo2 == 0)?ServoMotor2.write_us(ms.idelposServos2):ServoMotor2.write_us((ms.centerposServo2*2)-ms.idelposServos2); 
@@ -464,10 +480,30 @@ void recupSbusdata(void){
   else
   {
     voie[0] = 1; // Normal
-    InputSignalExist = true;
   }
   for(int x = 1; x<19 ; x++)
   {
     voie[x]= (lround(voie[x]/9.92) - 100);
   }
+  
+  if ((voie[1] > -100) && (voie[1] < 100))
+  {
+    InputSignalExist = true;
+    // Blink each 250ms if SBUS found on Rx pin
+    if(millis()-LedStartMs>=LED_SIGNAL_FOUND)
+    {
+      flip(LED);
+      LedStartMs=millis(); // Restart the Chrono for the LED 
+    }  
+  }
+  else
+  {
+    InputSignalExist = false;
+    // Blink each 1s if SBUS not found on Rx pin
+    if(millis()-LedStartMs>=LED_SIGNAL_NOTFOUND)
+    {
+      flip(LED);
+      LedStartMs=millis(); // Restart the Chrono for the LED 
+    }  
+  }  
 }

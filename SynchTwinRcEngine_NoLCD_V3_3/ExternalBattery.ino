@@ -87,6 +87,7 @@ boolean battery_isLow()
   return low;
 }
 
+#ifdef DEBUG
 void battery_Informations()
 {
   Serial << F("Batterie type: ");
@@ -98,6 +99,7 @@ void battery_Informations()
   }
   Serial << _FLOAT(GetExternalVoltage(),3) << F("v (")<< battery_numberOfCells() << F(" elements)") << endl;
 }
+#endif
 
 float GetExternalVoltage()
 {
@@ -126,7 +128,9 @@ NaNo|   # R2=1k1 = Marron Marron Rouge Or
   */  
   static float coeff_division = 4.0;
   /* Mesure de la tension brute */
-  uint16_t raw_bat = analogRead(BROCHE_BATTEXT); //attention a I2C qui utilise les pins A4 et A5  
+  //uint16_t raw_bat = analogRead(BROCHE_BATTEXT); //attention a I2C qui utilise les pins A4 et A5
+  uint16_t raw_bat = anaRead(BROCHE_BATTEXT);
+  
   /* Calcul de la tension reel -- Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V) */
   //float real_bat = (raw_bat != 0 )?0:((raw_bat * (readVcc() * 1.0 / 1023)) * coeff_division);
 

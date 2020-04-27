@@ -10,19 +10,22 @@
 
 #include <FlySkyIBus.h>
 
+// A TESTER I2C EEPROM pour recorder https://www.hobbytronics.co.uk/arduino-external-eeprom
+
 #define FirmwareVersion 0.5
 
+
 //#define DEBUG
-//#define SERIALPLOTTER           /* Multi plot in IDE (don't use this option with ARDUINO2PC) */
+//#define SECURITYENGINE          /* Engines security On/off */
 #define ARDUINO2PC                /* PC interface (!!!!!! don't use this option with SERIALPLOTTER or READ_Button_AnalogPin !!!!!!) */
 //#define EXTERNALVBATT             /* Read external battery voltage */
 //#define GLOWMANAGER             /* Glow driver */
-//#define SECURITYENGINE          /* Engines security On/off */
 //#define PIDCONTROL              /* Use PID control for define the variable stepMotor in SynchroMotors */
-//#define SDDATALOGGER            /* Use SD card for save speeds */
 //#define I2CSLAVEFOUND           /* for command a second module by the I2C port */
 //#define INT_REF                 /* internal 1.1v reference */
-//#define RECORDER
+//#define SERIALPLOTTER           /* Multi plot in IDE (don't use this option with ARDUINO2PC) */
+//#define RECORDER                /* L'enregistreur est déplacé dans VB */
+//#define TELEMETRY_FRSKY           /* Frsky S-PORT Telemetry for VOLTAGE,RPM and TEMP */
 
 /*
 9     INPUT PPM
@@ -34,17 +37,17 @@
 6     Servo rudder 
 7     Glow driver motor 1
 8     Glow driver motor 2
-9     
+9     Telemetry Frsky S-Port
 
-10    Led Green
-11    Led Green
-12    Led Red
-13    Led Arduino
+10    Led Red
+11    Led Red
+12    Led Yellow
+13    Led Yellow
 
-A0    Led Red
-A1    Led Yellow
+A0    Led Green
+A1    Led Green
 A2    Led Yellow
-A3    External power V+
+A3    Led Yellow//External power V+
 A4    SDA // Connexion SD I2C
 A5    SCL // Connexion SD I2C
 A6    
@@ -52,12 +55,182 @@ A7
 
 */
 
-#ifdef SDDATALOGGER
-#include <SD.h>
-Sd2Card card;
-SdVolume volume;
-SdFile root;
-const int chipSelect = 10;
+#ifdef TELEMETRY_FRSKY
+#include "FrSkySportSensor.h"
+#include "FrSkySportSensorAss.h"
+#include "FrSkySportSensorFcs.h"
+//#include "FrSkySportSensorFlvss.h"
+//#include "FrSkySportSensorGps.h"
+#include "FrSkySportSensorRpm.h"
+//#include "FrSkySportSensorSp2uart.h"
+//#include "FrSkySportSensorVario.h"
+#include "FrSkySportSingleWireSerial.h"
+#include "FrSkySportDecoder.h"
+#ifdef POLLING_ENABLED
+FrSkySportDecoder decodFrsky(true);                     // Create decoder object with polling
+#else
+FrSkySportDecoder decodFrsky;                           // Create decoder object without polling
+#endif
+FrSkySportSensorAss ass;                               // Create ASS sensor with default ID
+FrSkySportSensorFcs fcs;                               // Create FCS-40A sensor with default ID (use ID8 for FCS-150A)
+//FrSkySportSensorFlvss flvss1;                          // Create FLVSS sensor with default ID
+//FrSkySportSensorFlvss flvss2(FrSkySportSensor::ID15);  // Create FLVSS sensor with given ID
+//FrSkySportSensorGps gps;                               // Create GPS sensor with default ID
+FrSkySportSensorRpm rpm;                               // Create RPM sensor with default ID
+//FrSkySportSensorSp2uart sp2uart;                       // Create SP2UART Type B sensor with default ID
+//FrSkySportSensorVario vario;                           // Create Variometer sensor with default ID
+#endif
+
+/* Select your radio's channels order */
+#define AETR
+
+//Channel order
+#ifdef AETR
+  #define AILERON  0
+  #define ELEVATOR 1
+  #define THROTTLE 2
+  #define RUDDER   3
+#endif
+#ifdef AERT
+  #define AILERON  0
+  #define ELEVATOR 1
+  #define THROTTLE 3
+  #define RUDDER   2
+#endif
+#ifdef ARET
+  #define AILERON  0
+  #define ELEVATOR 2
+  #define THROTTLE 3
+  #define RUDDER   1
+#endif
+#ifdef ARTE
+  #define AILERON  0
+  #define ELEVATOR 3
+  #define THROTTLE 2
+  #define RUDDER   1
+#endif
+#ifdef ATRE
+  #define AILERON  0
+  #define ELEVATOR 3
+  #define THROTTLE 1
+  #define RUDDER   2
+#endif
+#ifdef ATER
+  #define AILERON  0
+  #define ELEVATOR 2
+  #define THROTTLE 1
+  #define RUDDER   3
+#endif
+
+#ifdef EATR
+  #define AILERON  1
+  #define ELEVATOR 0
+  #define THROTTLE 2
+  #define RUDDER   3
+#endif
+#ifdef EART
+  #define AILERON  1
+  #define ELEVATOR 0
+  #define THROTTLE 3
+  #define RUDDER   2
+#endif
+#ifdef ERAT
+  #define AILERON  2
+  #define ELEVATOR 0
+  #define THROTTLE 3
+  #define RUDDER   1
+#endif
+#ifdef ERTA
+  #define AILERON  3
+  #define ELEVATOR 0
+  #define THROTTLE 2
+  #define RUDDER   1
+#endif
+#ifdef ETRA
+  #define AILERON  3
+  #define ELEVATOR 0
+  #define THROTTLE 1
+  #define RUDDER   2
+#endif
+#ifdef ETAR
+  #define AILERON  2
+  #define ELEVATOR 0
+  #define THROTTLE 1
+  #define RUDDER   3
+#endif
+
+#ifdef TEAR
+  #define AILERON  2
+  #define ELEVATOR 1
+  #define THROTTLE 0
+  #define RUDDER   3
+#endif
+#ifdef TERA
+  #define AILERON  3
+  #define ELEVATOR 1
+  #define THROTTLE 0
+  #define RUDDER   2
+#endif
+#ifdef TREA
+  #define AILERON  3
+  #define ELEVATOR 2
+  #define THROTTLE 0
+  #define RUDDER   1
+#endif
+#ifdef TRAE
+  #define AILERON  2
+  #define ELEVATOR 3
+  #define THROTTLE 0
+  #define RUDDER   1
+#endif
+#ifdef TARE
+  #define AILERON  1
+  #define ELEVATOR 3
+  #define THROTTLE 0
+  #define RUDDER   2
+#endif
+#ifdef TAER
+  #define AILERON  1
+  #define ELEVATOR 2
+  #define THROTTLE 0
+  #define RUDDER   3
+#endif
+
+#ifdef RETA
+  #define AILERON  3
+  #define ELEVATOR 1
+  #define THROTTLE 2
+  #define RUDDER   0
+#endif
+#ifdef REAT
+  #define AILERON  2
+  #define ELEVATOR 1
+  #define THROTTLE 3
+  #define RUDDER   0
+#endif
+#ifdef RAET
+  #define AILERON  1
+  #define ELEVATOR 2
+  #define THROTTLE 3
+  #define RUDDER   0
+#endif
+#ifdef RATE
+  #define AILERON  1
+  #define ELEVATOR 3
+  #define THROTTLE 2
+  #define RUDDER   0
+#endif
+#ifdef RTAE
+  #define AILERON  2
+  #define ELEVATOR 3
+  #define THROTTLE 1
+  #define RUDDER   0
+#endif
+#ifdef RTEA
+  #define AILERON  3
+  #define ELEVATOR 2
+  #define THROTTLE 1
+  #define RUDDER   0
 #endif
 
 //affectation des pins des entrees RX et sorties servos
@@ -86,8 +259,8 @@ boolean SDCardUsable = false;
 boolean RunLogInSDCard = false;
 
 /* Variables Chronos*/
-uint32_t BeginChronoLcdMs;//=millis();
-uint32_t BeginChronoServoMs;//=millis();
+//uint32_t BeginChronoLcdMs;//=millis();
+//uint32_t BeginChronoServoMs;//=millis();
 uint32_t BeginIdleMode;//=0;
 uint32_t ReadCaptorsMs;//=millis();
 uint32_t BeginSecurityMs;//=millis();
@@ -223,6 +396,11 @@ void setup()
 {
   Serial.begin(SERIALBAUD);//bloque la lecture des pins 0 et 1
   while (!Serial);// wait for serial port to connect.
+
+#ifdef TELEMETRY_FRSKY// telemetrie sur ici pin 12 (pin 2 à 12 possibles)
+  //decodFrsky.begin(FrSkySportSingleWireSerial::SOFT_SERIAL_PIN_12, &ass, &fcs, &flvss1, &flvss2, &gps, &rpm, &sp2uart, &vario);
+  decodFrsky.begin(FrSkySportSingleWireSerial::SOFT_SERIAL_PIN_12, &ass, &fcs, &rpm );
+#endif
   
 #ifdef I2CSLAVEFOUND
   Wire.begin(SLAVE_ADRESS,2);
@@ -244,34 +422,22 @@ void setup()
 #endif  
 
 #ifdef SDDATALOGGER
+ // see if the card is present and can be initialized:
+  if (!SD.begin(chipSelect)) {
+    Serial << F("Card failed, or not present") << endl;
+    // don't do anything more:
+    while (1);
+  }
+  Serial << F("SD card initialized.") << endl;
 #endif
 
   readAllEEprom();//read all settings from EEprom (save default's values in first start)
 
-  switch (ms.radioRcMode)//mode radio 1 a 4
-  {
-    case 0: //mode1
-      MotorNbChannel      = 1;
-      RudderNbChannel     = 2;
-      AileronNbChannel    = 3;
-    break;
-    case 1://mode2
-      MotorNbChannel      = 2;
-      RudderNbChannel     = 3;
-      AileronNbChannel    = 1;
-    break;
-      MotorNbChannel      = 3;
-      RudderNbChannel     = 1;
-      AileronNbChannel    = 2;
-    case 2://mode3
-    break;
-    case 3://mode4
-      MotorNbChannel      = 4;
-      RudderNbChannel     = 1;
-      AileronNbChannel    = 2;
-    break;
-  }
-  
+  AileronNbChannel = AILERON + 1;
+  //#define ELEVATOR 1
+  MotorNbChannel   = THROTTLE + 1;
+  RudderNbChannel  = RUDDER + 1;
+ 
   //initialise les capteurs effet hall ou IR avec une interruption associee
   TinyPinChange_Init();
   VirtualPortNb=TinyPinChange_RegisterIsr(BROCHE_SENSOR1, InterruptFunctionToCall);
@@ -293,8 +459,8 @@ void setup()
         Serial << F("CPPM selected") << endl;
 #endif       
       blinkNTime(1,125,250); 
-        //Serial.end();
-        //TinyPpmReader.attach(BROCHE_PPMINPUT); // Attach TinyPpmReader to SIGNAL_INPUT_PIN pin           
+        //Serial.end();// Attention ! Bloque la communication avec VB.
+        TinyPpmReader.attach(BROCHE_PPMINPUT); // Attach TinyPpmReader to SIGNAL_INPUT_PIN pin           
       break;
     case SBUS:
 #ifdef DEBUG
@@ -302,15 +468,15 @@ void setup()
 #endif       
       blinkNTime(2,125,250);   
         //Serial.flush();delay(500); // wait for last transmitted data to be sent
-        //Serial.begin(100000, SERIAL_8E2);// Choose your serial first: SBUS works at 100 000 bauds
+        Serial.begin(100000, SERIAL_8E2);// Attention ! Bloque la communication avec VB.
       break;
     case IBUS:
 #ifdef DEBUG
         Serial << F("IBUS selected") << endl;
 #endif       
       blinkNTime(3,125,250);     
-        //Serial.end();
-        //IBus.begin(Serial);
+        //Serial.flush();delay(500); // wait for last transmitted data to be sent
+        IBus.begin(Serial);// Attention ! Bloque la communication avec VB.
       break;
   }
 
@@ -341,11 +507,12 @@ void setup()
 
 void loop()
 {
-//#ifdef ARDUINO2PC
-    SerialFromToVB();
-//#endif
 
-//    mode0();/* main mode launched if no buttons pressed during start */    
+#ifdef ARDUINO2PC
+    SerialFromToVB();
+#endif
+
+    mode0();/* main mode launched if no buttons pressed during start */    
 
 }//fin loop
 
@@ -673,3 +840,10 @@ int ADC_read_conversion(){
 }
 //End of ADC management functions
 #endif
+
+
+//int const bchout_ar[]  = {'AETR','AERT','ARET','ARTE'};//,'ATRE','ATER','EATR','EART','ERAT','ERTA','ETRA','ETAR','TEAR','TERA','TREA','TRAE','TARE','TAER','RETA','REAT','RAET','RATE','RTAE','RTEA'};
+//char channel_order(uint8_t x)
+//{
+//  return bchout_ar[x] ;
+//}

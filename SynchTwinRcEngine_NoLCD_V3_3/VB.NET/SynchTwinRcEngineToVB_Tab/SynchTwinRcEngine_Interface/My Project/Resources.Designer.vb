@@ -801,6 +801,24 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  Recherche une chaîne localisée semblable à Terminal is ready !.
+        '''</summary>
+        Friend ReadOnly Property labelTerminalWelcome_EN() As String
+            Get
+                Return ResourceManager.GetString("labelTerminalWelcome_EN", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Recherche une chaîne localisée semblable à Terminal prêt !.
+        '''</summary>
+        Friend ReadOnly Property labelTerminalWelcome_FR() As String
+            Get
+                Return ResourceManager.GetString("labelTerminalWelcome_FR", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  Recherche une ressource localisée de type System.Drawing.Bitmap.
         '''</summary>
         Friend ReadOnly Property Lock() As System.Drawing.Bitmap

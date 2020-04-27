@@ -427,4 +427,10 @@
   <data name="labelMode_FR" xml:space="preserve">
     <value>Mode Radio:</value>
   </data>
+  <data name="labelTerminalWelcome_EN" xml:space="preserve">
+    <value>Terminal is ready !</value>
+  </data>
+  <data name="labelTerminalWelcome_FR" xml:space="preserve">
+    <value>Terminal prêt !</value>
+  </data>
 </root>
