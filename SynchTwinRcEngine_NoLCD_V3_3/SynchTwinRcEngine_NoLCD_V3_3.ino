@@ -7,6 +7,10 @@
 #include "Macros.h"
 #include <TinyPpmReader.h>      /* Librairie utilisee pour lire un signal ppm en entree */
 #include <Rcul.h>
+#include <SoftSerial.h>
+
+// software serial #1: TX = digital pin 2, RX = digital pin 3
+SoftSerial SettingsPort(10,11);
 
 #include <FlySkyIBus.h>
 
@@ -28,7 +32,7 @@
 //#define TELEMETRY_FRSKY           /* Frsky S-PORT Telemetry for VOLTAGE,RPM and TEMP */
 
 /*
-9     INPUT PPM
+0     INPUT PPM
 1     Tx (Not used)
 2     Hall or IR motor 1 
 3     Hall or IR motor 2 
@@ -39,8 +43,8 @@
 8     Glow driver motor 2
 9     Telemetry Frsky S-Port
 
-10    Led Red
-11    Led Red
+10    Led Red/Setting's Port RX
+11    Led Red/Setting's Port TX
 12    Led Yellow
 13    Led Yellow
 
@@ -234,7 +238,7 @@ FrSkySportSensorRpm rpm;                               // Create RPM sensor with
 #endif
 
 //affectation des pins des entrees RX et sorties servos
-#define BROCHE_PPMINPUT         9    /* Multiplex RX pinout 2 */
+#define BROCHE_PPMINPUT         0    /* Multiplex RX pinout 2 */
 #define BROCHE_SENSOR1          2    /* Hall or IR motor 1 */
 #define BROCHE_SENSOR2          3    /* Hall or IR motor 2 */
 #define BROCHE_MOTOR1           4    /* Servo motor 1 */
@@ -242,25 +246,32 @@ FrSkySportSensorRpm rpm;                               // Create RPM sensor with
 #define BROCHE_RUDDER           6    /* Servo rudder */
 
 #ifdef GLOWMANAGER
-#define BROCHE_GLOW1            7  /* Glow driver motor 1 */
-#define BROCHE_GLOW2            8  /* Glow driver motor 2 */
+#define BROCHE_GLOW1            7  /* Glow driver motor 1 (PD7)*/ 
+#define BROCHE_GLOW2            8  /* Glow driver motor 2 (PB0)*/
 #endif
-
 
 #ifdef EXTERNALVBATT
 #define BROCHE_BATTEXT          A3  /* External battery voltage (V+) */
 #endif
 
+#define LED_SIGNAL_FOUND      250
+#define LED_SIGNAL_NOTFOUND   1000
+#define LED                   5,B // declare LED in PCB5 (D13)
+//#define LED1GREEN             2,B //D10
+//#define LED2GREEN             3,B //D11
+#define LED1RED               4,B //D12
+#define LED2RED               0,C //A0
+#define LED1YELLOW            1,C //A1
+#define LED2YELLOW            2,C //A2
+
+
 boolean synchroIsActive = false;
 boolean glowControlIsActive = false;
 boolean SecurityIsON = false;
 boolean simulateSpeed = false;
-boolean SDCardUsable = false;
 boolean RunLogInSDCard = false;
 
 /* Variables Chronos*/
-//uint32_t BeginChronoLcdMs;//=millis();
-//uint32_t BeginChronoServoMs;//=millis();
 uint32_t BeginIdleMode;//=0;
 uint32_t ReadCaptorsMs;//=millis();
 uint32_t BeginSecurityMs;//=millis();
@@ -276,18 +287,6 @@ int voie[18];
 int memread;
 int cpt;
 int s1,s2,s3,s4;
-
-
-#define LED_SIGNAL_FOUND      250
-#define LED_SIGNAL_NOTFOUND   1000
-#define LED                   5,B // declare LED in PCB5 (D13)
-#define LED1GREEN             2,B //D10
-#define LED2GREEN             3,B //D11
-#define LED1RED               4,B //D12
-#define LED2RED               0,C //A0
-#define LED1YELLOW            1,C //A1
-#define LED2YELLOW            2,C //A2
-
 
 /*
 #define RC_CHANS  12
@@ -351,11 +350,11 @@ int readings_V2[5];                             //averaging last 5 readings_V2
 
 int index = 0;
 
-#ifdef PIDCONTROL
-//http://www.ferdinandpiette.com/blog/2012/04/asservissement-en-vitesse-dun-moteur-avec-arduino/
-#include <SimpleTimer.h>
-
-#endif
+//#ifdef PIDCONTROL
+////http://www.ferdinandpiette.com/blog/2012/04/asservissement-en-vitesse-dun-moteur-avec-arduino/
+//#include <SimpleTimer.h>
+//
+//#endif
 
 /* ******************************************************************************
  * !!!!!! DOIT ETRE AU MINIMUM POUR BLOQUER LES HELICES SI PAS DE SIGNAL !!!!!! *
@@ -383,36 +382,74 @@ char *StrTbl[SUB_STRING_NB_MAX];          /* declaration de pointeurs sur chaine
 #endif
 int pos = 0;
 
-#ifdef I2CSLAVEFOUND
-#include <Wire.h>               /* Interface LCD I2C, SDA = A4, SCL = A5) */
-#define SLAVE_ADRESS      20
-#endif
+//#ifdef I2CSLAVEFOUND
+//#include <Wire.h>               /* Interface LCD I2C, SDA = A4, SCL = A5) */
+//#define SLAVE_ADRESS      20
+//#endif
 
-//boolean RunConfig = false;
+boolean RunConfig = false;
 unsigned long startedWaiting = millis();
 unsigned long started1s = millis();
+
 
 void setup()
 {
   Serial.begin(SERIALBAUD);//bloque la lecture des pins 0 et 1
   while (!Serial);// wait for serial port to connect.
 
+  SettingsPort.begin(SERIALBAUD);
+  SettingsPort << "test" << endl;
+  
+  if (RunConfig == false)
+  {
+    String sdata="";
+    Serial << F("Wait Return");
+    byte ch;
+    while(millis() - startedWaiting <= 5000) //waiting 5s return key
+    { 
+      /* Check 1s */
+      if(millis()-started1s>=1000)
+      {
+        Serial << F(".");started1s=millis();
+      }
+      if(Serial.available() > 0)
+      {
+        ch = Serial.read();
+        sdata += (char)ch;
+        if (ch=='\r')
+        {
+          sdata.trim(); // Process command in sdata.
+          sdata = ""; // Clear the string ready for the next command.
+          RunConfig = true;
+          break;
+        }        
+      }   
+    }
+  }
+
+//*********************
+//  RunConfig = true;
+//*********************
+
+  (RunConfig == true?Serial << endl << endl << F("Configuration mode is actived") << endl:Serial << endl << endl << F("Starting without configuration") << endl);
+  
+  
+
 #ifdef TELEMETRY_FRSKY// telemetrie sur ici pin 12 (pin 2 à 12 possibles)
   //decodFrsky.begin(FrSkySportSingleWireSerial::SOFT_SERIAL_PIN_12, &ass, &fcs, &flvss1, &flvss2, &gps, &rpm, &sp2uart, &vario);
-  decodFrsky.begin(FrSkySportSingleWireSerial::SOFT_SERIAL_PIN_12, &ass, &fcs, &rpm );
+  decodFrsky.begin(FrSkySportSingleWireSerial::SOFT_SERIAL_PIN_9, &ass, &fcs, &rpm );
 #endif
   
-#ifdef I2CSLAVEFOUND
-  Wire.begin(SLAVE_ADRESS,2);
-#endif
+//#ifdef I2CSLAVEFOUND
+//  Wire.begin(SLAVE_ADRESS,2);
+//#endif
 
-#ifdef PIDCONTROL
-
-#endif
+//#ifdef PIDCONTROL
+//#endif
   
   /* init pins leds in output */
   out(LED);
-  out(LED1GREEN);out(LED2GREEN);
+//  out(LED1GREEN);out(LED2GREEN);
   out(LED1RED);out(LED2RED);
   out(LED1YELLOW);out(LED2YELLOW);
   
@@ -421,23 +458,13 @@ void setup()
   //PIN_OUTPUT(D,BROCHE_GLOW1);PIN_OUTPUT(D,BROCHE_GLOW2);
 #endif  
 
-#ifdef SDDATALOGGER
- // see if the card is present and can be initialized:
-  if (!SD.begin(chipSelect)) {
-    Serial << F("Card failed, or not present") << endl;
-    // don't do anything more:
-    while (1);
-  }
-  Serial << F("SD card initialized.") << endl;
-#endif
 
   readAllEEprom();//read all settings from EEprom (save default's values in first start)
 
   AileronNbChannel = AILERON + 1;
-  //#define ELEVATOR 1
   MotorNbChannel   = THROTTLE + 1;
   RudderNbChannel  = RUDDER + 1;
- 
+   
   //initialise les capteurs effet hall ou IR avec une interruption associee
   TinyPinChange_Init();
   VirtualPortNb=TinyPinChange_RegisterIsr(BROCHE_SENSOR1, InterruptFunctionToCall);
@@ -449,7 +476,6 @@ void setup()
 
 #ifdef DEBUG
   Serial << F("SynchTwinRcEngine est demarre") << endl << endl;
-  //Serial << F("Librairies Asynchrones: V") << SOFT_RC_PULSE_IN_VERSION << F(".") << SOFT_RC_PULSE_IN_REVISION << endl << endl;
 #endif//endif DEBUG
 
   switch (ms.InputMode)//CPPM,SBUS or IBUS
@@ -458,25 +484,38 @@ void setup()
 #ifdef DEBUG
         Serial << F("CPPM selected") << endl;
 #endif       
-      blinkNTime(1,125,250); 
-        //Serial.end();// Attention ! Bloque la communication avec VB.
-        TinyPpmReader.attach(BROCHE_PPMINPUT); // Attach TinyPpmReader to SIGNAL_INPUT_PIN pin           
+        blinkNTime(1,125,250);
+        if (RunConfig == true)
+        {
+          TinyPpmReader.attach(9); // Attach TinyPpmReader to pin 9 (Telemetry for settings mode with VB only)
+        }
+        else
+        {
+          Serial.end();// Attention ! Bloque la communication avec VB.
+          TinyPpmReader.attach(BROCHE_PPMINPUT); // Attach TinyPpmReader to SIGNAL_INPUT_PIN pin 
+        }          
       break;
     case SBUS:
 #ifdef DEBUG
         Serial << F("SBUS selected") << endl;
-#endif       
-      blinkNTime(2,125,250);   
-        //Serial.flush();delay(500); // wait for last transmitted data to be sent
-        Serial.begin(100000, SERIAL_8E2);// Attention ! Bloque la communication avec VB.
+#endif
+        blinkNTime(2,125,250);
+        if (RunConfig == false)
+        {
+          Serial.flush();delay(500); // wait for last transmitted data to be sent
+          Serial.begin(100000, SERIAL_8E2);// Attention ! Bloque la communication avec VB.
+        }
       break;
     case IBUS:
 #ifdef DEBUG
         Serial << F("IBUS selected") << endl;
 #endif       
-      blinkNTime(3,125,250);     
-        //Serial.flush();delay(500); // wait for last transmitted data to be sent
-        IBus.begin(Serial);// Attention ! Bloque la communication avec VB.
+        blinkNTime(3,125,250);
+        if (RunConfig == false)
+        {             
+          Serial.flush();delay(500); // wait for last transmitted data to be sent
+          IBus.begin(Serial);// Attention ! Bloque la communication avec VB.
+        }
       break;
   }
 
@@ -508,10 +547,13 @@ void setup()
 void loop()
 {
 
+  if (RunConfig == true)
+  {
 #ifdef ARDUINO2PC
     SerialFromToVB();
 #endif
-
+  }
+  
     mode0();/* main mode launched if no buttons pressed during start */    
 
 }//fin loop
@@ -554,12 +596,12 @@ void readAllEEprom()
     waitMs(500);
     readAllEEprom();
   }
-  else
-  {
-    //EEPROM Ok!
-    waitMs(2000);
-    blinkNTime(5,LED_SIGNAL_FOUND,LED_SIGNAL_FOUND);
-  }
+//  else
+//  {
+//    //EEPROM Ok!
+//    waitMs(2000);
+//    blinkNTime(5,LED_SIGNAL_FOUND,LED_SIGNAL_FOUND);
+//  }
 }
 
 

@@ -58,14 +58,14 @@ void readCaptorTransitions()
     interrupts();
   }
   
-  if (vitesse1 !=0) {on(LED1GREEN);off(LED1GREEN);}// D8(GREEN)
-  if (vitesse2 !=0) {on(LED2GREEN);off(LED2GREEN);}// D9(GREEN)
+  if (vitesse1 !=0) {on(LED1RED);off(LED1RED);}
+  if (vitesse2 !=0) {on(LED1RED);off(LED1RED);}
 
-#ifdef SDDATALOGGER
-  if((millis()-SendMotorsToVBMs >= 500) && SDCardUsable == true && RunLogInSDCard == true)
-  {
-    SendMotorsToVBMs=millis(); 
-    //writeSDdatalog(vitesse1,vitesse2);
-  }
-#endif   
+//#ifdef SDDATALOGGER
+//  if((millis()-SendMotorsToVBMs >= 500) && SDCardUsable == true && RunLogInSDCard == true)
+//  {
+//    SendMotorsToVBMs=millis(); 
+//    //writeSDdatalog(vitesse1,vitesse2);
+//  }
+//#endif   
 }
