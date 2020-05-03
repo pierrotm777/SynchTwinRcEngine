@@ -1,7 +1,7 @@
 // Definition des modes:
 void mode0()//run mode
 {   
-  //readCaptorTransitions();/* read sensors */
+  readCaptorTransitions();/* read sensors */
 
 //#ifdef SettingsPortPLOTTER /* You can read the battery voltage, speeds and throttle and auxiliary pulses with the SettingsPort Plotter (IDE >= 1.6.6) */
 //   SettingsPort << ((GetExternalVoltage()>1)?GetExternalVoltage()*1000:0) << "," << Width_us << "," << WidthAux_us << "," << vitesse1 << "," << vitesse2 << endl;
@@ -11,13 +11,13 @@ void mode0()//run mode
   /* Receiver pulsse acquisition and command of 2 servos */
   if (ms.InputMode == 0)//PPM
   {
-    if (TinyPpmReader.isSynchro())
+    if (TinyCppmReader.isSynchro())
     {
       InputSignalExist = true;
-      Width_us    = TinyPpmReader.width_us(MotorNbChannel);
-      WidthAux_us = TinyPpmReader.width_us(ms.AuxiliaryNbChannel);
-      WidthRud_us = TinyPpmReader.width_us(RudderNbChannel);
-      WidthAil_us = TinyPpmReader.width_us(AileronNbChannel);      
+      Width_us    = TinyCppmReader.width_us(MotorNbChannel);
+      WidthAux_us = TinyCppmReader.width_us(ms.AuxiliaryNbChannel);
+      WidthRud_us = TinyCppmReader.width_us(RudderNbChannel);
+      WidthAil_us = TinyCppmReader.width_us(AileronNbChannel);      
     }
     else
     {
@@ -26,22 +26,32 @@ void mode0()//run mode
   }
   else if (ms.InputMode == 1)//SBUS
   {
-    recupSbusdata();// conversion des données SBUS pour les 16 Voies
-    while ( SettingsPort.available() ) { // tant qu'un octet arrive sur le SBUS
-      int val = SettingsPort.read();  // lecture de l'octet
-      if  (( memread == 0 ) and ( val == 15)) { // detection de la fin et debut de la trame SBUS (une trame fini par 0 et commence par 15)
-        cpt = 0; // remise a zero du compteur dans la trame
+    SBusRx.process(); /* Don't forget to call the SBusRx.process()! */
+    if(SBusRx.isSynchro()) /* One SBUS frame just arrived */
+    {
+      if (!SBusRx.flags(SBUS_RX_FRAME_LOST))
+      {
+        InputSignalExist = true;
       }
-      memread = val; // memorisation de la dernière valeur reçu
-      buf[cpt] = val; // stock la valeur reçu dans le buffer
-      cpt +=1;        // incrémente le compteur
-      if (cpt == 26) {cpt=0;} // au cas ou on aurait pas reçu les caractères de synchro on reset le compteur
-    } // fin du while
-
-    Width_us    = map(voie[MotorNbChannel], -100, +100, 900, 2100);
-    WidthAux_us = map(voie[ms.AuxiliaryNbChannel], -100, +100, 900, 2100);
-    WidthRud_us = map(voie[RudderNbChannel], -100, +100, 900, 2100);
-    WidthAil_us = map(voie[AileronNbChannel], -100, +100, 900, 2100);
+      else
+      {
+        InputSignalExist = false;
+      }
+      
+      /* Display SBUS channels and flags in the serial console */
+//      for(uint8_t Ch = 1; Ch <= SBUS_RX_CH_NB; Ch++)
+//      {
+//        Serial.print(F("Ch["));Serial.print(Ch);Serial.print(F("]="));Serial.print(SBusRx.width_us(Ch));Serial.print(F(" Raw="));Serial.println(SBusRx.rawData(Ch));
+//      }
+      Width_us    = SBusRx.width_us(MotorNbChannel);
+      WidthAux_us = SBusRx.width_us(ms.AuxiliaryNbChannel);
+      WidthRud_us = SBusRx.width_us(RudderNbChannel);
+      WidthAil_us = SBusRx.width_us(AileronNbChannel);
+//      Serial.print(F("Ch17="));    Serial.println(SBusRx.flags(SBUS_RX_CH17)); /* Digital Channel#17 */
+//      Serial.print(F("Ch18="));    Serial.println(SBusRx.flags(SBUS_RX_CH18)); /* Digital Channel#18 */
+//      Serial.print(F("FrmLost=")); Serial.println(SBusRx.flags(SBUS_RX_FRAME_LOST)); /* Switch off the Transmitter to check this */
+//      Serial.print(F("FailSafe="));Serial.println(SBusRx.flags(SBUS_RX_FAILSAFE));   /* Switch off the Transmitter to check this */
+    }
   }
   else if (ms.InputMode == 2)//IBUS
   {
@@ -126,22 +136,23 @@ void mode0()//run mode
 #ifdef ARDUINO2PC//interface between arduino and PC
 void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
 {
+  //SettingsPort.flush();
+  
   if( MsgDisponible() >= 0) //MsgDisponible() retourne la longueur du message recu; le message est disponible dans Message
   {
+            
       SecurityIsON = false;
       static uint16_t posInUs;
 
-      uint8_t countMessage = CountChar(Message,',');    
+      //countVirgulesInMessage = CountChar(Message,',');
 //#ifdef DEBUG
-//      uint8_t m = MsgDisponible();
-//      SettingsPort << F("New settings received:: ") << countMessage << endl;
+//      SettingsPort << F("New settings received: ") << countVirgulesInMessage + 1 << F("  ") << Message << endl;
 //#endif    
       pos = atoi(Message); //conversion Message ASCII vers Entier (ATOI= Ascii TO Integer)
       if( (pos >= 0) && (pos <= 180))//reception curseur VB 'servos'
       { 
         //if(pos<=1) {pos=2;} //Servo making noise at 0 and 1. Need to be at least 2.
-        //if (!RxChannelPulseMotor.available() && simulateSpeed == true)//verifie si Ch Moteur est inactif !!!
-        if (!TinyPpmReader.isSynchro() && simulateSpeed == true)//verifie si Ch Moteur est inactif !!!
+        if (!TinyCppmReader.isSynchro() && simulateSpeed == true)//verifie si Ch Moteur est inactif !!!
         {
           //PIN_TOGGLE(B,0);
           posInUs = map(pos, 0, 180, ms.minimumPulse_US, ms.maximumPulse_US);
@@ -153,8 +164,7 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
       }
       else if( (pos >= ms.minimumPulse_US) && (pos <=ms.maximumPulse_US))//reception VB en uS 'servos'
       {        
-        //if (!RxChannelPulseMotor.available() && simulateSpeed == true)//verifie si Ch Moteur est inactif !!!
-        if (!TinyPpmReader.isSynchro() && simulateSpeed == true)//verifie si Ch Moteur est inactif !!!
+        if (!TinyCppmReader.isSynchro() && simulateSpeed == true)//verifie si Ch Moteur est inactif !!!
         {
           //PIN_TOGGLE(B,0);
           //posInUs = map(pos,0,180,minimumPulse_US,maximumPulse_US);
@@ -182,10 +192,23 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
         SettingsPort << F("FIRM|") << FirmwareVersion << endl;
       }
       
-
-      else if(pos == 360)//envoyer automatiquement Moteur, Auxiliaire, V1 et V2
+      else if(pos == 360)//CPPM
       {             
-        AllInOne = !AllInOne;//SettingsPort << F("ALLINONE") << Width_us << F("|") << WidthAux_us << F("|") << vitesse1 << F("|") << vitesse2 << endl;       
+        ms.InputMode = 0;
+        EEPROM.put(0, ms);
+        blinkNTime(5,LED_SIGNAL_FOUND,LED_SIGNAL_FOUND);
+      }
+      else if(pos == 361)//SBUS
+      {             
+        ms.InputMode = 1;
+        EEPROM.put(0, ms);
+        blinkNTime(5,LED_SIGNAL_FOUND,LED_SIGNAL_FOUND);
+      }
+      else if(pos == 362)//IBUS
+      {             
+        ms.InputMode = 2;
+        EEPROM.put(0, ms);
+        blinkNTime(5,LED_SIGNAL_FOUND,LED_SIGNAL_FOUND);
       }
       else if(pos == 363)//envoie settings au port serie
       {//format send: 1657|1657|1225|1225|2|2075|1393|1070|2205|1|0|0|100|39|2|0|5.00|27.61|1.000|0|1000|20000|0
@@ -195,6 +218,7 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
       {       
         SettingsWriteDefault();     
       }
+      
       else if(pos == 365)//lecture de la position du canal moteur:
       {             
         SettingsPort << F("M") << Width_us << endl;       
@@ -236,31 +260,31 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
         clearEEprom();
       }
 
-#ifdef SDDATALOGGER           
-      else if(pos == 371)//read SD Card Infos
+#ifdef FRAM_USED           
+      else if(pos == 371)//read FRAM Infos
       {
-        readSDCardInfos(); //OK avec VB
+        //readFramInfos(); //à tester
       }
-      else if(pos == 372)//start/stop log file on SD Card
+      else if(pos == 372)//start/stop FRAM
       {
-        RunLogInSDCard = !RunLogInSDCard;
-        //(RunLogInSDCard)?SettingsPort << F("LogOn") <<endl:SettingsPort << F("LogOf") <<endl;
       }
-      else if(pos == 373)//read log file from SD Card
-      { 
-        listSDdatalog(); //OK avec VB
+      else if(pos == 373)//read FRAM
+      {
       }
 #else
-      else if(pos == 371)//read SD Card Infos
+      else if(pos == 371)//read FRAM Infos
       {
-        SettingsPort << F("SDNO") <<endl;
+        SettingsPort << F("NOFRAM") <<endl;
       } 
 #endif
       
-      if(countMessage == 19)//reception settings from VB      
+      if(CountChar(Message,',')>0)
+      //if(countVirgulesInMessage == 19)//reception settings from VB (test le nombre de virgule, pas de variables)
       {//format received: 1500,1500,1000,1000,2,2000,1250,1200,1900,1,0,0,99,2,0,0,0,1000,20000,0
+        //                1500,1500,1000,1000,2,2000,1250,1000,2000,1,0,0,99,2,1,0,0,1000,20000,1
 #ifdef DEBUG
-        SettingsPort << F("New settings received: ") << countMessage << endl;
+        SettingsPort << F("New settings received: ") << Message << endl;
+        SettingsPort << sizeof(Message) << endl;
 #endif               
         StrSplit(Message, ",",  StrTbl, SUB_STRING_NB_MAX, &SeparFound);     
         ms.centerposServo1 = atoi(StrTbl[0]);//centerposServo1
@@ -288,35 +312,35 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
         StrSplitRestore(",", StrTbl, SeparFound);//Imperatif SeparFound <= SUB_STRING_NB_MAX
         EEPROM.put(0,ms);
         blinkNTime(5,100,100);
-        SettingsPort.flush(); // clear SettingsPort port
+        //SettingsPort.flush(); // clear SettingsPort port
       }
-      else if(countMessage == 3)//check XXX,A,B,C 
+      else if(countVirgulesInMessage == 3)//check XXX,A,B,C 
       {
         StrSplit(Message, ",",  StrTbl, SUB_STRING_NB_MAX, &SeparFound);
         switch (atoi(StrTbl[0]))
         {
-#ifdef SDDATALOGGER
+#ifdef FRAM_USED
           case 886://886,x,y1,y2         
-            writeSDdatalog(atoi(StrTbl[2]),atoi(StrTbl[3])); // OK avec VB
+            //writeToFRAM(atoi(StrTbl[2]),atoi(StrTbl[3])); // OK avec VB
             break;
           case 890://890,fileName,0,0         
-            //dumpSDdatalog(StrTbl[1]); // Pas OK avec VB
+            //readFromFRAM(StrTbl[1]); //à tester
             break;
           case 891://891,fileName,0,0         
-            deleteSDdatalog(StrTbl[1]); // OK avec VB
+            //eraseAllFRAM(StrTbl[1]); //à tester
             break;            
 #endif 
-#ifdef PIDCONTROL           
-          case 887://887,Kp,Ki,Kd
-//            ms.consKp = strtod(StrTbl[1],NULL);
-//            ms.consKi = strtod(StrTbl[2],NULL);
-//            ms.consKd = strtod(StrTbl[3],NULL);
-            //SettingsPort << StrTbl[1] << F("|") << StrTbl[2] << F("|") << StrTbl[3] << endl;
-
-            EEPROM.put(0,ms);
-            ledFlashSaveInEEProm(5);
-            break;
-#endif
+//#ifdef PIDCONTROL           
+//          case 887://887,Kp,Ki,Kd
+////            ms.consKp = strtod(StrTbl[1],NULL);
+////            ms.consKi = strtod(StrTbl[2],NULL);
+////            ms.consKd = strtod(StrTbl[3],NULL);
+//            //SettingsPort << StrTbl[1] << F("|") << StrTbl[2] << F("|") << StrTbl[3] << endl;
+//
+//            EEPROM.put(0,ms);
+//            ledFlashSaveInEEProm(5);
+//            break;
+//#endif
           case 888://888,v1,v2,consigne
             simulateSpeed = true;
             vitesse1 = atoi(StrTbl[1]);
@@ -326,7 +350,7 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
             break;                                 
         }
         StrSplitRestore(",", StrTbl, SeparFound);//Imperatif SeparFound <= SUB_STRING_NB_MAX
-        SettingsPort.flush(); // clear SettingsPort port
+        //SettingsPort.flush(); // clear SettingsPort port
       } 
     } 
 
@@ -342,6 +366,27 @@ uint8_t CountChar(String input, char c )
   retval ++;
   return retval;
 }
+
+//uint8_t checkVirgules(String Input , char c)
+//{
+//  
+//  // Count number of comma
+//  int count=0;
+//  int count_comma;
+//  int strlength = Input.length();
+// 
+//  do
+//  {
+//      if(String(Input[count]) == ",")
+//      {
+//        count_comma++;
+//      }
+//      count++;
+//   
+//  }while(count < strlength);
+// 
+//  Serial.print(F("Nombre de virgules: ")); Serial.println(count_comma);
+//}
 
 
 /**********************************************************************************************************
@@ -426,6 +471,7 @@ int8_t MsgDisponible(void)/* merci a LOUSSOUARN Philippe pour ce code */
   char CaractereRecu;
   static uint8_t Idx = 0;
 
+  
   if(SettingsPort.available() > 0)
   {
     CaractereRecu = SettingsPort.read();
@@ -453,64 +499,3 @@ int8_t MsgDisponible(void)/* merci a LOUSSOUARN Philippe pour ce code */
   return(Ret); 
 }
 #endif
-
-void recupSbusdata(void){
-// récuperation des données SBUS et conversion dans le tableau des voies
-// les données SBUS sont sur 8 bits et les données des voies sont sur 11 bits
-// il faut donc jouer a cheval sur les octets pour calculer les voies.
-
-  voie[1]  = ((buf[1]|buf[2]<< 8) & 0x07FF);
-  voie[2]  = ((buf[2]>>3|buf[3]<<5) & 0x07FF);
-  voie[3]  = ((buf[3]>>6|buf[4]<<2|buf[5]<<10) & 0x07FF);
-  voie[4]  = ((buf[5]>>1|buf[6]<<7) & 0x07FF);
-  voie[5]  = ((buf[6]>>4|buf[7]<<4) & 0x07FF);
-  voie[6]  = ((buf[7]>>7|buf[8]<<1|buf[9]<<9) & 0x07FF);
-  voie[7]  = ((buf[9]>>2|buf[10]<<6) & 0x07FF);
-  voie[8]  = ((buf[10]>>5|buf[11]<<3) & 0x07FF);
- 
-  voie[9]  = ((buf[12]|buf[13]<< 8) & 0x07FF);
-  voie[10]  = ((buf[13]>>3|buf[14]<<5) & 0x07FF);
-  voie[11] = ((buf[14]>>6|buf[15]<<2|buf[16]<<10) & 0x07FF);
-  voie[12] = ((buf[16]>>1|buf[17]<<7) & 0x07FF);
-  voie[13] = ((buf[17]>>4|buf[18]<<4) & 0x07FF);
-  voie[14] = ((buf[18]>>7|buf[19]<<1|buf[20]<<9) & 0x07FF);
-  voie[15] = ((buf[20]>>2|buf[21]<<6) & 0x07FF);
-  voie[16] = ((buf[21]>>5|buf[22]<<3) & 0x07FF);
- 
-  ((buf[23]) & 1 )      ? voie[17] = 2047 : voie[17] = 0 ;
-  ((buf[23] >> 1) & 1 ) ? voie[18] = 2047 : voie[17] = 0 ;
- 
-  // detection du failsafe
-  if ((buf[23] >> 3) & 1) {
-    voie[0] = 0; // Failsafe
-  }
-  else
-  {
-    voie[0] = 1; // Normal
-  }
-  for(int x = 1; x<19 ; x++)
-  {
-    voie[x]= (lround(voie[x]/9.92) - 100);
-  }
-  
-  if ((voie[1] > -100) && (voie[1] < 100))
-  {
-    InputSignalExist = true;
-    // Blink each 250ms if SBUS found on Rx pin
-    if(millis()-LedStartMs>=LED_SIGNAL_FOUND)
-    {
-      flip(LED);
-      LedStartMs=millis(); // Restart the Chrono for the LED 
-    }  
-  }
-  else
-  {
-    InputSignalExist = false;
-    // Blink each 1s if SBUS not found on Rx pin
-    if(millis()-LedStartMs>=LED_SIGNAL_NOTFOUND)
-    {
-      flip(LED);
-      LedStartMs=millis(); // Restart the Chrono for the LED 
-    }  
-  }  
-}

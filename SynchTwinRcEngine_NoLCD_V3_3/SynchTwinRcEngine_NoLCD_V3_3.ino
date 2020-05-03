@@ -9,8 +9,8 @@
 #include <Rcul.h>
 #include <SoftSerial.h>
 
-// software serial #1: TX = digital pin 2, RX = digital pin 3
-SoftSerial SettingsPort(10,11);
+// software Serial #1: TX = digital pin 2, RX = digital pin 3
+//SoftSerial Serial(10,11);
 
 #include <FlySkyIBus.h>
 
@@ -21,13 +21,13 @@ SoftSerial SettingsPort(10,11);
 
 //#define DEBUG
 //#define SECURITYENGINE          /* Engines security On/off */
-#define ARDUINO2PC                /* PC interface (!!!!!! don't use this option with SERIALPLOTTER or READ_Button_AnalogPin !!!!!!) */
+#define ARDUINO2PC                /* PC interface (!!!!!! don't use this option with SerialPLOTTER or READ_Button_AnalogPin !!!!!!) */
 //#define EXTERNALVBATT             /* Read external battery voltage */
 //#define GLOWMANAGER             /* Glow driver */
 //#define PIDCONTROL              /* Use PID control for define the variable stepMotor in SynchroMotors */
 //#define I2CSLAVEFOUND           /* for command a second module by the I2C port */
 //#define INT_REF                 /* internal 1.1v reference */
-//#define SERIALPLOTTER           /* Multi plot in IDE (don't use this option with ARDUINO2PC) */
+//#define SerialPLOTTER           /* Multi plot in IDE (don't use this option with ARDUINO2PC) */
 //#define RECORDER                /* L'enregistreur est déplacé dans VB */
 //#define TELEMETRY_FRSKY           /* Frsky S-PORT Telemetry for VOLTAGE,RPM and TEMP */
 
@@ -293,13 +293,13 @@ int s1,s2,s3,s4;
 enum rc {ROLL,PITCH,YAW ,THROTTLE,AUX1,AUX2,
          AUX3,AUX4 ,AUX5,AUX6    ,AUX7,AUX8};
          
-//#define SERIAL_SUM_PPM         PITCH,YAW,THROTTLE,ROLL,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For Graupner/Spektrum
-#define SERIAL_SUM_PPM         ROLL,PITCH,THROTTLE,YAW,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For Robe/Hitec/Futaba
-//#define SERIAL_SUM_PPM         ROLL,PITCH,YAW,THROTTLE,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For Multiplex
-//#define SERIAL_SUM_PPM         PITCH,ROLL,THROTTLE,YAW,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For some Hitec/Sanwa/Others
+//#define Serial_SUM_PPM         PITCH,YAW,THROTTLE,ROLL,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For Graupner/Spektrum
+#define Serial_SUM_PPM         ROLL,PITCH,THROTTLE,YAW,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For Robe/Hitec/Futaba
+//#define Serial_SUM_PPM         ROLL,PITCH,YAW,THROTTLE,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For Multiplex
+//#define Serial_SUM_PPM         PITCH,ROLL,THROTTLE,YAW,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For some Hitec/Sanwa/Others
 
-#if defined(SERIAL_SUM_PPM) //Channel order for PPM SUM RX Configs
-  static uint8_t rcChannel[RC_CHANS] = {SERIAL_SUM_PPM};
+#if defined(Serial_SUM_PPM) //Channel order for PPM SUM RX Configs
+  static uint8_t rcChannel[RC_CHANS] = {Serial_SUM_PPM};
 #endif
 */
 
@@ -369,7 +369,7 @@ SoftRcPulseOut ServoMotor1;               /* Servo Engine 1 */
 SoftRcPulseOut ServoMotor2;               /* Servo Engine 2 */
 SoftRcPulseOut ServoRudder;
 
-#define SERIALBAUD         115200         /* 115200 is need for use BlueSmirF BT module */
+#define SERIAL_BAUD         115200         /* 115200 is need for use BlueSmirF BT module */
 #ifdef ARDUINO2PC
 #define LONGUEUR_MSG_MAX   75             /* ex: 1500,1500,1000,1000,2,2000,1250,1000,2000,1,1,0,99,2,0,0,0,1000,20000,0,0 */
 #define RETOUR_CHARRIOT    0x0D           /* CR (code ASCII) */
@@ -394,11 +394,8 @@ unsigned long started1s = millis();
 
 void setup()
 {
-  Serial.begin(SERIALBAUD);//bloque la lecture des pins 0 et 1
-  while (!Serial);// wait for serial port to connect.
-
-  SettingsPort.begin(SERIALBAUD);
-  SettingsPort << "test" << endl;
+  Serial.begin(SERIAL_BAUD);//bloque la lecture des pins 0 et 1
+  while (!Serial);// wait for Serial port to connect.
   
   if (RunConfig == false)
   {
@@ -436,8 +433,8 @@ void setup()
   
 
 #ifdef TELEMETRY_FRSKY// telemetrie sur ici pin 12 (pin 2 à 12 possibles)
-  //decodFrsky.begin(FrSkySportSingleWireSerial::SOFT_SERIAL_PIN_12, &ass, &fcs, &flvss1, &flvss2, &gps, &rpm, &sp2uart, &vario);
-  decodFrsky.begin(FrSkySportSingleWireSerial::SOFT_SERIAL_PIN_9, &ass, &fcs, &rpm );
+  //decodFrsky.begin(FrSkySportSingleWireSerial::SOFT_Serial_PIN_12, &ass, &fcs, &flvss1, &flvss2, &gps, &rpm, &sp2uart, &vario);
+  decodFrsky.begin(FrSkySportSingleWireSerial::SOFT_Serial_PIN_9, &ass, &fcs, &rpm );
 #endif
   
 //#ifdef I2CSLAVEFOUND
@@ -491,7 +488,7 @@ void setup()
         }
         else
         {
-          Serial.end();// Attention ! Bloque la communication avec VB.
+          Serial.flush();delay(500); // wait for last transmitted data to be sent
           TinyPpmReader.attach(BROCHE_PPMINPUT); // Attach TinyPpmReader to SIGNAL_INPUT_PIN pin 
         }          
       break;
@@ -757,7 +754,7 @@ void sendConfigToSerial()
   Serial << ms.maximumSpeed << F("|");//array(22)
   Serial << ms.InputMode << endl;//array(23)
   
-  Serial.flush(); // clear serial port
+  Serial.flush(); // clear Serial port
 }
 
 

@@ -16,7 +16,7 @@ Public Class Form1
     Dim list As New PointPairList
     Dim list2 As New PointPairList
     Dim ModuleVersion As String = ""
-    Dim InterfaceVersion As String = "0.3"
+    Dim InterfaceVersion As String = "0.6"
     Dim GraphIsReady As Boolean
     Dim GlowPlugIsOn As Boolean
     Dim RecorderIsOn As Boolean
@@ -68,13 +68,19 @@ Public Class Form1
             If SerialPort1.IsOpen Then
                 PictureBoxConnectedOK.Image = My.Resources.rectangle_rouge
                 SerialPort1.Close()
-                SerialPort1.Dispose()
+                'SerialPort1.Dispose()
                 ShowMsg("Com Port " & My.Settings.COMPort & " is closed !!!", ShowMsgImage.Info, "Info")
                 labelInfoNeedSaveCOM.Visible = False
             Else
+                SerialPort1.Close()
+                SerialPort1.Handshake = Handshake.None
+                SerialPort1.Encoding = System.Text.Encoding.Default
+                SerialPort1.ReadTimeout = 10000
+                SerialPort1.DtrEnable = True 'nécessaire avec Leonardo ou Pro Micro
+                SerialPort1.RtsEnable = True 'nécessaire avec Leonardo ou Pro Micro
                 SerialPort1.Open()
 
-                SerialPort1.Write(vbCrLf) 'initialise le module en mode configuration
+                'SerialPort1.Write(vbCrLf) 'initialise le module en mode configuration
 
                 PictureBoxConnectedOK.Image = My.Resources.rectangle_vert
                 Thread.Sleep(500)
@@ -190,13 +196,13 @@ Public Class Form1
             Try
                 If SerialMessagRecieved.Replace("SD|", "") = "0" Then
                     SDCardUsed = False
-                    labelSDCardIsUsed.Text = "SD Card Used: NO"
-                    labelSDCardType.Text = "SD Card Type: NO"
+                    labelFRAMIsUsed.Text = "SD Card Used: NO"
+                    labelFRAMType.Text = "SD Card Type: NO"
                     'labelSDCardSize.Text = "SD Card Size: NO"
-                    labelSDCardFAT.Text = "SD Card FAT: NO"
+                    labelSDCardSize.Text = "SD Card FAT: NO"
                 ElseIf SerialMessagRecieved.Replace("SD|", "") = "1" Then
                     SDCardUsed = True
-                    labelSDCardIsUsed.Text = "SD Card Used: YES"
+                    labelFRAMIsUsed.Text = "SD Card Used: YES"
                 End If
 
             Catch ex As Exception
@@ -205,28 +211,28 @@ Public Class Form1
         End If
         If Strings.Left(SerialMessagRecieved, 3) = "SD1" Then 'return sd is v1 type
             Try
-                labelSDCardType.Text = "SD Card Type: SD1"
+                labelFRAMType.Text = "SD Card Type: SD1"
             Catch ex As Exception
                 ShowMsg(SerialMessagRecieved & vbCrLf & ex.Message, ShowMsgImage.Critical, "Erreur")
             End Try
         End If
         If Strings.Left(SerialMessagRecieved, 3) = "SD2" Then 'return sd is v2 type
             Try
-                labelSDCardType.Text = "SD Card Type: SD2"
+                labelFRAMType.Text = "SD Card Type: SD2"
             Catch ex As Exception
                 ShowMsg(SerialMessagRecieved & vbCrLf & ex.Message, ShowMsgImage.Critical, "Erreur")
             End Try
         End If
         If Strings.Left(SerialMessagRecieved, 3) = "SDH" Then 'return sd is sdhc type
             Try
-                labelSDCardType.Text = "SD Card Type: SDHC"
+                labelFRAMType.Text = "SD Card Type: SDHC"
             Catch ex As Exception
                 ShowMsg(SerialMessagRecieved & vbCrLf & ex.Message, ShowMsgImage.Critical, "Erreur")
             End Try
         End If
         If Strings.Left(SerialMessagRecieved, 3) = "SDU" Then 'return sd is unknow type
             Try
-                labelSDCardType.Text = "SD Card Type: Unknow"
+                labelFRAMType.Text = "SD Card Type: Unknow"
             Catch ex As Exception
                 ShowMsg(SerialMessagRecieved & vbCrLf & ex.Message, ShowMsgImage.Critical, "Erreur")
             End Try
@@ -234,14 +240,14 @@ Public Class Form1
         If Strings.Left(SerialMessagRecieved, 4) = "SDN|" Then 'return sd isn't formatted
             Try
                 'ShowMsg("You need to format the SD Card (FAT or FAT32 only)!!!", ShowMsgImage.Critical, "Erreur")
-                labelSDCardFAT.Text = "SD Card FAT: NO FAT !!!"
+                labelSDCardSize.Text = "SD Card FAT: NO FAT !!!"
             Catch ex As Exception
                 ShowMsg(SerialMessagRecieved & vbCrLf & ex.Message, ShowMsgImage.Critical, "Erreur")
             End Try
         End If
         If Strings.Left(SerialMessagRecieved, 4) = "SDF|" Then 'return sd format type
             Try
-                labelSDCardFAT.Text = "SD Card FAT: " & SerialMessagRecieved.Replace("SDF|", "")
+                labelSDCardSize.Text = "SD Card FAT: " & SerialMessagRecieved.Replace("SDF|", "")
             Catch ex As Exception
                 ShowMsg(SerialMessagRecieved & vbCrLf & ex.Message, ShowMsgImage.Critical, "Erreur")
             End Try
@@ -254,13 +260,13 @@ Public Class Form1
                 ShowMsg(SerialMessagRecieved & vbCrLf & ex.Message, ShowMsgImage.Critical, "Erreur")
             End Try
         End If
-        If Strings.Left(SerialMessagRecieved, 4) = "SDNO" Then 'sd isn't used
+        If Strings.Left(SerialMessagRecieved, 6) = "NOFRAM" Then 'fram isn't used
             Try
                 SDCardUsed = False
-                labelSDCardIsUsed.Text = "SD Card Used: NOT DEFINE"
-                labelSDCardType.Text = "SD Card Type: NOT DEFINE"
-                'labelSDCardSize.Text = "SD Card Size: NOT DEFINE"
-                labelSDCardFAT.Text = "SD Card FAT: NOT DEFINE"
+                labelFRAMIsUsed.Text = "FRAM Used: NOT DEFINE"
+                labelFRAMType.Text = "FRAM Type: NOT DEFINE"
+                labelSDCardSize.Text = "SD Card Size: NOT DEFINE"
+
             Catch ex As Exception
                 ShowMsg(SerialMessagRecieved & vbCrLf & ex.Message, ShowMsgImage.Critical, "Erreur")
             End Try
@@ -759,7 +765,7 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub Form1_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
+    Private Sub Form1_Closing(ByVal sender As Object, ByVal e As CancelEventArgs) Handles Me.Closing
         Try
 
             TimerSpeeds.Enabled = False
@@ -853,7 +859,7 @@ Public Class Form1
         If My.Settings.Language = "French" Then LabelModifications.Text = "Modifications non sauvegardées !" Else LabelModifications.Text = "Changes not saved !"
     End Sub
 
-    Private Sub CheckBoxInversionServo1_Click(sender As System.Object, e As System.EventArgs) Handles CheckBoxInversionServo1.CheckStateChanged
+    Private Sub CheckBoxInversionServo1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CheckBoxInversionServo1.CheckStateChanged
         LabelModifications.Enabled = True
         LabelModifications.ForeColor = Color.Red
         If My.Settings.Language = "French" Then LabelModifications.Text = "Modifications non sauvegardées !" Else LabelModifications.Text = "Changes not saved !"
@@ -863,7 +869,7 @@ Public Class Form1
             If (CheckBoxInversionServo1.Checked = True) Then CheckBoxInversionServo1.Text = "Yes" Else CheckBoxInversionServo1.Text = "No"
         End If
     End Sub
-    Private Sub CheckBoxInversionServo2_Click(sender As System.Object, e As System.EventArgs) Handles CheckBoxInversionServo2.CheckStateChanged
+    Private Sub CheckBoxInversionServo2_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CheckBoxInversionServo2.CheckStateChanged
         LabelModifications.Enabled = True
         LabelModifications.ForeColor = Color.Red
         If My.Settings.Language = "French" Then LabelModifications.Text = "Modifications non sauvegardées !" Else LabelModifications.Text = "Changes not saved !"
@@ -873,13 +879,13 @@ Public Class Form1
             If (CheckBoxInversionServo2.Checked = True) Then CheckBoxInversionServo2.Text = "Yes" Else CheckBoxInversionServo2.Text = "No"
         End If
     End Sub
-    Private Sub CheckBoxFahrenheitDegrees_Click(sender As System.Object, e As System.EventArgs) Handles CheckBoxFahrenheitDegrees.CheckStateChanged
+    Private Sub CheckBoxFahrenheitDegrees_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CheckBoxFahrenheitDegrees.CheckStateChanged
         LabelModifications.Enabled = True
         LabelModifications.ForeColor = Color.Red
         If My.Settings.Language = "French" Then LabelModifications.Text = "Modifications non sauvegardées !" Else LabelModifications.Text = "Changes not saved !"
         If CheckBoxFahrenheitDegrees.Checked = False Then CheckBoxFahrenheitDegrees.Text = "°C" Else CheckBoxFahrenheitDegrees.Text = "°F"
     End Sub
-    Private Sub CheckBoxInversionAux_Click(sender As System.Object, e As System.EventArgs) Handles CheckBoxInversionAux.CheckStateChanged
+    Private Sub CheckBoxInversionAux_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CheckBoxInversionAux.CheckStateChanged
         LabelModifications.Enabled = True
         LabelModifications.ForeColor = Color.Red
         If My.Settings.Language = "French" Then LabelModifications.Text = "Modifications non sauvegardées !" Else LabelModifications.Text = "Changes not saved !"
@@ -891,18 +897,18 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub ButtonMoinsVitesseReponse_Click(sender As System.Object, e As System.EventArgs) Handles ButtonMoinsVitesseReponse.Click
+    Private Sub ButtonMoinsVitesseReponse_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonMoinsVitesseReponse.Click
         If Convert.ToInt16(textTempsReponse.Text) > 0 Then textTempsReponse.Text = Convert.ToString(Convert.ToInt16(textTempsReponse.Text) - 1)
     End Sub
-    Private Sub ButtonPlusVitesseReponse_Click(sender As System.Object, e As System.EventArgs) Handles ButtonPlusVitesseReponse.Click
+    Private Sub ButtonPlusVitesseReponse_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonPlusVitesseReponse.Click
         If Convert.ToInt16(textTempsReponse.Text) < 4 Then textTempsReponse.Text = Convert.ToString(Convert.ToInt16(textTempsReponse.Text) + 1)
     End Sub
 
-    Private Sub ButtonMoinsModeAuxiliaire_Click(sender As System.Object, e As System.EventArgs) Handles ButtonMoinsModeAuxiliaire.Click
+    Private Sub ButtonMoinsModeAuxiliaire_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonMoinsModeAuxiliaire.Click
         If Convert.ToInt16(textAuxiliaireMode.Text) > 1 Then textAuxiliaireMode.Text = Convert.ToString(Convert.ToInt16(textAuxiliaireMode.Text) - 1)
         LabelInterType.Text = ModeAuxiliaireTypeText(Convert.ToInt16(textAuxiliaireMode.Text))
     End Sub
-    Private Sub ButtonPlusModeAuxiliaire_Click(sender As System.Object, e As System.EventArgs) Handles ButtonPlusModeAuxiliaire.Click
+    Private Sub ButtonPlusModeAuxiliaire_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonPlusModeAuxiliaire.Click
         If Convert.ToInt16(textAuxiliaireMode.Text) < 6 Then textAuxiliaireMode.Text = Convert.ToString(Convert.ToInt16(textAuxiliaireMode.Text) + 1)
         LabelInterType.Text = ModeAuxiliaireTypeText(Convert.ToInt16(textAuxiliaireMode.Text))
     End Sub
@@ -916,10 +922,10 @@ Public Class Form1
     '    ShowMsg("No Telemetry Feature Available !!!", ShowMsgImage.Info, "Error")
     'End Sub
 
-    Private Sub ButtonMoinsNombrePales_Click(sender As System.Object, e As System.EventArgs) Handles ButtonMoinsNombrePales.Click
+    Private Sub ButtonMoinsNombrePales_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonMoinsNombrePales.Click
         If Convert.ToInt16(textNombrePales.Text) > 1 Then textNombrePales.Text = Convert.ToString(Convert.ToInt16(textNombrePales.Text) - 1)
     End Sub
-    Private Sub ButtonPlusNombrePales_Click(sender As System.Object, e As System.EventArgs) Handles ButtonPlusNombrePales.Click
+    Private Sub ButtonPlusNombrePales_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonPlusNombrePales.Click
         If Convert.ToInt16(textNombrePales.Text) < 5 Then textNombrePales.Text = Convert.ToString(Convert.ToInt16(textNombrePales.Text) + 1)
     End Sub
 
@@ -1001,7 +1007,7 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub ButtonReadCenter1_Click(sender As System.Object, e As System.EventArgs) Handles ButtonReadCenter1.Click
+    Private Sub ButtonReadCenter1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonReadCenter1.Click
         ModeType = 1
         If TimerRXAuxiliaire.Enabled = True Then
             TimerRXAuxiliaire.Enabled = False
@@ -1027,7 +1033,7 @@ Public Class Form1
             ButtonReadCenter1.Text = "Stop"
         End If
     End Sub
-    Private Sub ButtonReadCenter2_Click(sender As System.Object, e As System.EventArgs) Handles ButtonReadCenter2.Click
+    Private Sub ButtonReadCenter2_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonReadCenter2.Click
         ModeType = 2
         If TimerRXAuxiliaire.Enabled = True Then
             TimerRXAuxiliaire.Enabled = False
@@ -1055,7 +1061,7 @@ Public Class Form1
     End Sub
 
 
-    Private Sub ButtonIdelMoteur1_Click(sender As System.Object, e As System.EventArgs) Handles ButtonIdleMoteur1.Click
+    Private Sub ButtonIdelMoteur1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonIdleMoteur1.Click
         ModeType = 31
         If TimerRXAuxiliaire.Enabled = True Then
             TimerRXAuxiliaire.Enabled = False
@@ -1081,7 +1087,7 @@ Public Class Form1
             ButtonIdleMoteur1.Text = "Stop"
         End If
     End Sub
-    Private Sub ButtonIdleMoteur2_Click(sender As System.Object, e As System.EventArgs) Handles ButtonIdleMoteur2.Click
+    Private Sub ButtonIdleMoteur2_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonIdleMoteur2.Click
         ModeType = 32
         If TimerRXAuxiliaire.Enabled = True Then
             TimerRXAuxiliaire.Enabled = False
@@ -1108,7 +1114,7 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub ButtonMaxiMoteurs_Click(sender As System.Object, e As System.EventArgs) Handles ButtonMaxiMoteurs.Click
+    Private Sub ButtonMaxiMoteurs_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonMaxiMoteurs.Click
         ModeType = 51
         If TimerRXAuxiliaire.Enabled = True Then
             TimerRXAuxiliaire.Enabled = False
@@ -1134,7 +1140,7 @@ Public Class Form1
             ButtonMaxiMoteurs.Text = "Stop"
         End If
     End Sub
-    Private Sub ButtonDebutSynchro_Click(sender As System.Object, e As System.EventArgs) Handles ButtonDebutSynchro.Click
+    Private Sub ButtonDebutSynchro_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonDebutSynchro.Click
         ModeType = 52
         If TimerRXAuxiliaire.Enabled = True Then
             TimerRXAuxiliaire.Enabled = False
@@ -1161,7 +1167,7 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub ButtonMiniMaxGeneral_Click(sender As System.Object, e As System.EventArgs) Handles ButtonMiniMaxGeneral.Click
+    Private Sub ButtonMiniMaxGeneral_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonMiniMaxGeneral.Click
         ModeType = 53
         If TimerRXAuxiliaire.Enabled = True Then
             TimerRXAuxiliaire.Enabled = False
@@ -1202,7 +1208,7 @@ Public Class Form1
 
     End Sub
 
-    Private Sub ButtonReadSpeeds_Click(sender As System.Object, e As System.EventArgs) Handles ButtonReadSpeeds.Click
+    Private Sub ButtonReadSpeeds_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonReadSpeeds.Click
         If TimerRXAuxiliaire.Enabled = True Then
             TimerRXAuxiliaire.Enabled = False
             PictureBoxTimer2OnOff.Image = My.Resources.rectangle_vert
@@ -1256,7 +1262,7 @@ Public Class Form1
 
     End Sub
 
-    Private Sub ButtonReadAuxiliairePulse_Click(sender As System.Object, e As System.EventArgs) Handles ButtonReadAuxiliairePulse.Click
+    Private Sub ButtonReadAuxiliairePulse_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonReadAuxiliairePulse.Click
         If TimerRXMotors.Enabled = True Then
             TimerRXMotors.Enabled = False
             PictureBoxTimer2OnOff.Image = My.Resources.rectangle_rouge
@@ -1285,7 +1291,7 @@ Public Class Form1
 
     End Sub
 
-    Private Sub ButtonReadTempVoltage_Click(sender As System.Object, e As System.EventArgs) Handles ButtonReadTempVoltage.Click
+    Private Sub ButtonReadTempVoltage_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonReadTempVoltage.Click
         If TimerHardwareInfos.Enabled = True Then
             TimerHardwareInfos.Enabled = False
             PictureBoxReadHardwareOnOff.Image = My.Resources.rectangle_rouge
@@ -1295,7 +1301,7 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub ButtonModuleType_Click(sender As System.Object, e As System.EventArgs) Handles ButtonModuleType.Click
+    Private Sub ButtonModuleType_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonModuleType.Click
         array(19) = IIf(array(19) = "0", "1", "0")
         Dim master As String = ""
         Dim slave As String = ""
@@ -1319,7 +1325,7 @@ Public Class Form1
         If My.Settings.Language = "French" Then LabelModifications.Text = "Modifications non sauvegardées !" Else LabelModifications.Text = "Changes not saved !"
     End Sub
 
-    Private Function ModeAuxiliaireTypeText(mode As Integer) As String
+    Private Function ModeAuxiliaireTypeText(ByVal mode As Integer) As String
         Dim StringMode As String = ""
         Select Case mode
             Case 1 : If My.Settings.Language = "French" Then StringMode = "===> Auxiliaire non connecté" Else StringMode = "===> Auxiliary not connected"
@@ -1355,7 +1361,7 @@ Public Class Form1
         Return StringMode
     End Function
 
-    Private Sub ButtonAuxiliaireHelp_Click(sender As System.Object, e As System.EventArgs) Handles ButtonAuxiliaireHelp.Click
+    Private Sub ButtonAuxiliaireHelp_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonAuxiliaireHelp.Click
         If My.Settings.Language = "French" Then
             Select Case Convert.ToInt32(textAuxiliaireMode.Text)
                 Case 0 : ShowMsg("Selectionnez un mode Auxiliaire (utiliser les boutons + ou - !!!)", ShowMsgImage.Info, "Canal Auxiliaire Erreur !!!")
@@ -1455,7 +1461,7 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub btnSend_Click(sender As System.Object, e As System.EventArgs) Handles btnSend.Click
+    Private Sub btnSend_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnSend.Click
         If SerialPort1.IsOpen() Then
             SerialPort1.Write(Trim(Str(txtMessage.Text)) & vbCrLf)
             SerialPort1.WriteLine(term.TextBoxTerminalComPort.Text)
@@ -1467,11 +1473,11 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub Button3_Click(sender As System.Object, e As System.EventArgs) Handles ButtonClear.Click
+    Private Sub Button3_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonClear.Click
         term.TextBoxTerminalComPort.Clear()
     End Sub
 
-    Private Sub ButtonAuxMini_Click(sender As System.Object, e As System.EventArgs) Handles ButtonAuxMini.Click
+    Private Sub ButtonAuxMini_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonAuxMini.Click
         PictureBoxAuxMini.Image = My.Resources.rectangle_vert
         PictureBoxAuxMiddle.Image = My.Resources.rectangle_rouge
         PictureBoxAuxMaxi.Image = My.Resources.rectangle_rouge
@@ -1481,7 +1487,7 @@ Public Class Form1
 
     End Sub
 
-    Private Sub ButtonAuxMiddle_Click(sender As System.Object, e As System.EventArgs) Handles ButtonAuxMiddle.Click
+    Private Sub ButtonAuxMiddle_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonAuxMiddle.Click
         PictureBoxAuxMini.Image = My.Resources.rectangle_rouge
         PictureBoxAuxMiddle.Image = My.Resources.rectangle_vert
         PictureBoxAuxMaxi.Image = My.Resources.rectangle_rouge
@@ -1490,7 +1496,7 @@ Public Class Form1
         SerialPort1.Write(Trim(Str(270)) & vbCr)
     End Sub
 
-    Private Sub ButtonAuxMaxi_Click(sender As System.Object, e As System.EventArgs) Handles ButtonAuxMaxi.Click
+    Private Sub ButtonAuxMaxi_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonAuxMaxi.Click
         PictureBoxAuxMini.Image = My.Resources.rectangle_rouge
         PictureBoxAuxMiddle.Image = My.Resources.rectangle_rouge
         PictureBoxAuxMaxi.Image = My.Resources.rectangle_vert
@@ -1499,7 +1505,7 @@ Public Class Form1
         SerialPort1.Write(Trim(Str(360)) & vbCr)
     End Sub
 
-    Private Sub ButtonSettingsHelp_Click(sender As System.Object, e As System.EventArgs) Handles ButtonSettingsHelp.Click
+    Private Sub ButtonSettingsHelp_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonSettingsHelp.Click
         If RichTextBoxSettingsHelp.Visible = False Then
 
             RichTextBoxSettingsHelp.Visible = True
@@ -1539,11 +1545,11 @@ Public Class Form1
 #End Region
 
 #Region "Save Reset Delete Settings"
-    Private Sub ButtonAnnulerModif_Click(sender As System.Object, e As System.EventArgs) Handles ButtonAnnulerModif.Click
+    Private Sub ButtonAnnulerModif_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonAnnulerModif.Click
         TabPage1.Select()
     End Sub
 
-    Private Sub buttonEraseEEprom_Click(sender As System.Object, e As System.EventArgs) Handles buttonEraseEEprom.Click
+    Private Sub buttonEraseEEprom_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles buttonEraseEEprom.Click
         SerialPort1.Write(Trim(Str(370)) & vbCr)
         ProgressBarSaveSettings.Visible = True
         For p As Integer = 0 To 100 Step 25
@@ -1552,7 +1558,7 @@ Public Class Form1
         ShowMsg("!!! You must to restart your module !!!", ShowMsgImage.Info, "Info")
     End Sub
 
-    Private Sub buttonResetArduino_Click(sender As System.Object, e As System.EventArgs) Handles buttonResetArduino.Click
+    Private Sub buttonResetArduino_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles buttonResetArduino.Click
         ProgressBarSaveSettings.Visible = False
         Thread.Sleep(500)
 
@@ -1583,7 +1589,7 @@ Public Class Form1
 
     End Sub
 
-    Private Sub ButtonConfigDefaut_Click(sender As System.Object, e As System.EventArgs) Handles ButtonConfigDefaut.Click
+    Private Sub ButtonConfigDefaut_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonConfigDefaut.Click
         ProgressBarSaveSettings.Visible = True
         LabelModifications.Enabled = True
 
@@ -1603,7 +1609,7 @@ Public Class Form1
         ProgressBarSaveSettings.Value = 100
         ShowMsg("!!! You must to restart your module !!!", ShowMsgImage.Info, "Info")
     End Sub
-    Private Sub ButtonSauvegardeConfig_Click(sender As System.Object, e As System.EventArgs) Handles ButtonSauvegardeConfig.Click
+    Private Sub ButtonSauvegardeConfig_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonSauvegardeConfig.Click
         ProgressBarSaveSettings.Visible = True
         ProgressBarSaveSettings.Value = 0
         'format envoyé : 1656,1653,1385,1385,2,2073,1389,1225,2073,1,0,0,100,3,20,0,0,1000,20000
@@ -1646,7 +1652,7 @@ Public Class Form1
             Exit Sub
         End If
 
-        'SerialPort1.Write("5000,1200,1385,1385,2,2073,1389,1225,2073,1,0,0,100,3,20,0,1000,20000" & vbCr)
+        'SerialPort1.Write("5000,1200,1385,1385,2,2073,1389,1225,2073,1,0,0,100,3,20,0,1000,20000,0" & vbCr)
         If term.Visible = True Then
             term.TextBoxTerminalComPort.AppendText(MessageToSend & vbCrLf)
         End If
@@ -1681,7 +1687,7 @@ Public Class Form1
     End Sub
 
     'Read buttons
-    Private Sub EnableDisableButtonsRead(state As Boolean)
+    Private Sub EnableDisableButtonsRead(ByVal state As Boolean)
         ButtonReadCenter1.Enabled = state
         ButtonReadCenter2.Enabled = state
         ButtonIdleMoteur1.Enabled = state
@@ -1698,7 +1704,7 @@ Public Class Form1
 #End Region
 
 #Region "Motors"
-    Private Sub CheckBoxAnaDigi_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles CheckBoxAnaDigi.CheckedChanged
+    Private Sub CheckBoxAnaDigi_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CheckBoxAnaDigi.CheckedChanged
 
         If CheckBoxAnaDigi.Checked = True Then
             CheckBoxAnaDigi.Text = "Analogic"
@@ -1732,11 +1738,11 @@ Public Class Form1
 #End Region
 
 #Region "Simulation"
-    Private Sub TrackBarMotors_Scroll(sender As System.Object, e As System.EventArgs) Handles TrackBarMotors.Scroll
+    Private Sub TrackBarMotors_Scroll(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TrackBarMotors.Scroll
 
     End Sub
 
-    Private Sub ButtonServoTest_Click(sender As System.Object, e As System.EventArgs) Handles ButtonServoTest.Click
+    Private Sub ButtonServoTest_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonServoTest.Click
         CheckBoxReadTracBarMotorOrMotorThrottle.Checked = False
         PictureBoxSimuThrottle.Image = My.Resources.TrackBar
         TrackBarMotors.Visible = True
@@ -1809,7 +1815,7 @@ Public Class Form1
     End Sub
 
     'Utilisé en simulation (force la vitesse des moteurs)
-    Private Sub TrackBarSpeedSimu1_MouseUp(sender As System.Object, e As System.EventArgs) Handles TrackBarSpeedSimu1.MouseUp
+    Private Sub TrackBarSpeedSimu1_MouseUp(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TrackBarSpeedSimu1.MouseUp
         Try
             If CheckBoxSimuSynchroSpeeds.Checked = True Then TrackBarSpeedSimu2.Value = TrackBarSpeedSimu1.Value
             SerialPort1.Write(Trim(MessageToSend) & vbCr)
@@ -1835,7 +1841,7 @@ Public Class Form1
             ShowMsg(ex.Message, ShowMsgImage.Info, "Error")
         End Try
     End Sub
-    Private Sub TrackBarSpeedSimu2_MouseUp(sender As System.Object, e As System.EventArgs) Handles TrackBarSpeedSimu2.MouseUp
+    Private Sub TrackBarSpeedSimu2_MouseUp(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TrackBarSpeedSimu2.MouseUp
         Try
             If CheckBoxSimuSynchroSpeeds.Checked = True Then TrackBarSpeedSimu1.Value = TrackBarSpeedSimu2.Value
             SerialPort1.Write(Trim(MessageToSend) & vbCr)
@@ -1861,7 +1867,7 @@ Public Class Form1
         End Try
     End Sub
 
-    Private Sub CheckBoxSimuSynchroSpeeds_Click(sender As System.Object, e As System.EventArgs) Handles CheckBoxSimuSynchroSpeeds.Click
+    Private Sub CheckBoxSimuSynchroSpeeds_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CheckBoxSimuSynchroSpeeds.Click
         LabelModifications.Enabled = True
         LabelModifications.ForeColor = Color.Red
         If My.Settings.Language = "French" Then LabelModifications.Text = "Modifications non sauvegardées !" Else LabelModifications.Text = "Changes not saved !"
@@ -1874,7 +1880,7 @@ Public Class Form1
 
     End Sub
 
-    Private Sub ButtonSpeedSimuOn_Click(sender As System.Object, e As System.EventArgs) Handles ButtonSpeedSimuOn.Click
+    Private Sub ButtonSpeedSimuOn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonSpeedSimuOn.Click
         If SimualtionSpeed = False Then
             'format envoyé : 888,1656,1653,100
             SimualtionSpeed = True
@@ -1906,7 +1912,7 @@ Public Class Form1
 
     End Sub
 
-    Private Sub ButtonGlowPlugOnOff_Click(sender As System.Object, e As System.EventArgs) Handles ButtonGlowPlugOnOff.Click
+    Private Sub ButtonGlowPlugOnOff_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonGlowPlugOnOff.Click
         GlowPlugIsOn = Not GlowPlugIsOn
         SerialPort1.Write(Trim(Str(369)) & vbCr)
         If GlowPlugIsOn = True Then
@@ -1917,7 +1923,7 @@ Public Class Form1
 
     End Sub
 
-    Private Sub ButtonSavePIDVariables_Click(sender As System.Object, e As System.EventArgs) Handles ButtonSavePIDVariables.Click
+    Private Sub ButtonSavePIDVariables_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonSavePIDVariables.Click
         MessageToSend = ""
         MessageToSend = "887,"
         MessageToSend &= textBoxKpControl.Text & ","
@@ -1931,7 +1937,7 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub ButtonRecorder_Click(sender As System.Object, e As System.EventArgs) Handles ButtonRecorder.Click
+    Private Sub ButtonRecorder_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonRecorder.Click
         RecorderIsOn = Not RecorderIsOn
         If RecorderIsOn = True Then
             svfd.Filter = "Text files|*.record"
@@ -1979,7 +1985,7 @@ Public Class Form1
 
     Dim ChronoInMinutes As Integer
     Dim cntDown As Date
-    Private Sub ButtonPlayer_Click(sender As System.Object, e As System.EventArgs) Handles ButtonPlayer.Click
+    Private Sub ButtonPlayer_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonPlayer.Click
         PlayerIsOn = Not PlayerIsOn
         If PlayerIsOn = True Then
             fd.Title = "Read a Record File"
@@ -2029,15 +2035,15 @@ Public Class Form1
 
     End Sub
 
-    Private Sub TextBoxChronoMM_TextChanged(sender As System.Object, e As System.EventArgs) Handles TextBoxChronoMM.TextChanged
+    Private Sub TextBoxChronoMM_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TextBoxChronoMM.TextChanged
         LabelChronoSS.Text = "00"
     End Sub
 
-    Private Sub TextBoxChronoHH_TextChanged(sender As System.Object, e As System.EventArgs) Handles TextBoxChronoHH.TextChanged
+    Private Sub TextBoxChronoHH_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TextBoxChronoHH.TextChanged
         LabelChronoSS.Text = "00"
     End Sub
 
-    Private Sub BackgroundWorker1_DoWork(sender As Object, e As DoWorkEventArgs) Handles BackgroundWorker1.DoWork
+    Private Sub BackgroundWorker1_DoWork(ByVal sender As Object, ByVal e As DoWorkEventArgs) Handles BackgroundWorker1.DoWork
         While PlayerIsOn
             Application.DoEvents()
             ReadRecord(fd.FileName)
@@ -2052,7 +2058,7 @@ Public Class Form1
         'End If
     End Sub
 
-    Private Sub BackgroundWorker1_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles BackgroundWorker1.RunWorkerCompleted
+    Private Sub BackgroundWorker1_RunWorkerCompleted(ByVal sender As Object, ByVal e As RunWorkerCompletedEventArgs) Handles BackgroundWorker1.RunWorkerCompleted
         'If e.Cancelled = True Then
         'ElseIf e.Error IsNot Nothing Then
         '    'Me.tbProgress.Text = "Error: " & e.Error.Message
@@ -2111,7 +2117,7 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub ButtonSimulationHelp_Click(sender As System.Object, e As System.EventArgs) Handles ButtonSimulationHelp.Click
+    Private Sub ButtonSimulationHelp_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonSimulationHelp.Click
         If RichTextSimulationHelp.Visible = False Then
             RichTextSimulationHelp.Visible = True
             RichTextSimulationHelp.Location = New Point(4, 21)
@@ -2185,9 +2191,9 @@ Public Class Form1
 
 #End Region
 
-#Region "SD Card"
+#Region "FRAM"
     'for test with SD Card only
-    Private Sub ButtonWriteDataLogger_Click(sender As System.Object, e As System.EventArgs) Handles ButtonWriteDataLogger.Click
+    Private Sub ButtonWriteInFram_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonWriteInFram.Click
         Dim y As Double, y2 As Double
 
         y = 1000
@@ -2204,18 +2210,17 @@ Public Class Form1
         'Next i
     End Sub
 
-    Private Sub buttonSDCardInfos_Click(sender As System.Object, e As System.EventArgs) Handles buttonSDCardInfos.Click
-        labelSDCardIsUsed.Text = "SD Card Used:"
-        labelSDCardType.Text = "SD Card Type:"
-        'labelSDCardSize.Text = ""
-        labelSDCardFAT.Text = "SD Card FAT:"
+    Private Sub buttonFramInfos_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles buttonFramInfos.Click
+        labelFRAMIsUsed.Text = "FRAM Used:"
+        labelFRAMType.Text = "FRAM Type:"
+        labelSDCardSize.Text = "FRAM size:"
         SerialPort1.Write("371" & vbCr)
         If term.Visible = True Then
             term.TextBoxTerminalComPort.AppendText("371" & vbCrLf)
         End If
     End Sub
 
-    Private Sub ButtonSDCardListFiles_Click(sender As System.Object, e As System.EventArgs) Handles ButtonSDCardListFiles.Click
+    Private Sub ButtonFramRead_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonFramRead.Click
         ListBoxSDListFiles.Items.Clear()
         SerialPort1.Write("373" & vbCr)
         If term.Visible = True Then
@@ -2223,14 +2228,14 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub ButtonSDCardErase_Click(sender As System.Object, e As System.EventArgs) Handles ButtonSDCardErase.Click
+    Private Sub ButtonSDCardErase_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonSDCardErase.Click
         Dim title As String = "", quest As String = ""
         If My.Settings.Language = "French" Then
             title = "Effacer"
-            quest = "Voulez éffacer ce fichier ?"
+            quest = "Voulez éffacer la FRAM ?"
         ElseIf My.Settings.Language = "English" Then
             title = "Delete"
-            quest = "Do you want delete this file ?"
+            quest = "Do you want erase FRAM ?"
         End If
         If ListBoxSDListFiles.SelectedItem <> "" Then
             Dim ret As DialogResult = ShowMsg(quest, "pierrotm777@gmail.com", ShowMsgButtons.YesNo, ShowMsgDefaultButton.Button3, title)
@@ -2254,7 +2259,7 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub ButtonDumpLogFile_Click(sender As System.Object, e As System.EventArgs) Handles ButtonDumpLogFile.Click
+    Private Sub ButtonDumpLogFile_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonDumpLogFile.Click
         If ListBoxSDListFiles.SelectedItem <> "" Then
             MessageToSend = ""
             MessageToSend = Replace(ListBoxSDListFiles.SelectedItem, "   ", "|")
@@ -2303,7 +2308,7 @@ Public Class Form1
             Else
                 EnableDisableButtonsRead(True)
             End If
-            SerialPort1.Write("371" & vbCr) 'recupération carte SD
+            'SerialPort1.Write("371" & vbCr) 'recupération carte SD
         Catch ex As Exception
             ShowMsg("Please,connect to the module!", ShowMsgImage.Info, "Error")
         End Try
@@ -3680,12 +3685,12 @@ Public Class Form1
         TabPage3.Text = "Moteurs"
         TabPage4.Text = "Graphique Vitesses"
         TabPage5.Text = "Simulation"
-        TabPage6.Text = "Carte SD"
+        TabPage6.Text = "FRAM"
         TabPage7.Text = "Programmation"
         TabPage8.Text = "Jeu"
 
-        GroupBoxSDCardInfos.Text = "Infos Carte SD"
-        GroupBoxSDListFiles.Text = "Liste fichiers Carte SD"
+        GroupBoxFRAMInfos.Text = "Infos FRAM"
+        GroupBoxSDListFiles.Text = "FRAM"
 
         labelInternalVoltage.Text = My.Resources.labelIntVoltage_FR
         labelMode.Text = My.Resources.labelMode_FR
@@ -3766,12 +3771,12 @@ Public Class Form1
         TabPage3.Text = "Moteurs"
         TabPage4.Text = "Data Logger"
         TabPage5.Text = "Simulation"
-        TabPage6.Text = "SD Card"
+        TabPage6.Text = "FRAM"
         TabPage7.Text = "Programmer"
         TabPage8.Text = "Game"
 
-        GroupBoxSDCardInfos.Text = "SD Card Infos"
-        GroupBoxSDListFiles.Text = "SD Card Files List"
+        GroupBoxFRAMInfos.Text = "FRAM Infos"
+        GroupBoxSDListFiles.Text = "FRAM"
 
         labelInternalVoltage.Text = My.Resources.labelIntVoltage_EN
         labelMode.Text = My.Resources.labelMode_EN

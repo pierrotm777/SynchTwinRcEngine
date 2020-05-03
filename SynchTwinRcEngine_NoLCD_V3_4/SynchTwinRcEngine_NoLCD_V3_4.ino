@@ -5,13 +5,15 @@
 #include <Streaming.h>          /* Librairie remplacant SettingsPort.print() */
 #include <SoftRcPulseOut.h>     /* Librairie utilisee pour creer un signal pwm en sortie */
 #include "Macros.h"
-#include <TinyPpmReader.h>      /* Librairie utilisee pour lire un signal ppm en entree */
 #include <Rcul.h>
-#include <SoftSerial.h>
 
+#include <SoftSerial.h>
 // software SettingsPort #1: RX = digital pin 10, TX = digital pin 11
 SoftSerial SettingsPort(10,11);
 
+//Input libraries
+#include <TinyCppmReader.h>
+#include <SBusRx.h>
 #include <FlySkyIBus.h>
 
 // A TESTER I2C EEPROM pour recorder https://www.hobbytronics.co.uk/arduino-external-eeprom
@@ -27,9 +29,10 @@ SoftSerial SettingsPort(10,11);
 //#define PIDCONTROL              /* Use PID control for define the variable stepMotor in SynchroMotors */
 //#define I2CSLAVEFOUND           /* for command a second module by the I2C port */
 //#define INT_REF                 /* internal 1.1v reference */
-//#define SettingsPortPLOTTER           /* Multi plot in IDE (don't use this option with ARDUINO2PC) */
+//#define SerialPLOTTER           /* Multi plot in IDE (don't use this option with ARDUINO2PC) */
 //#define RECORDER                /* L'enregistreur est déplacé dans VB */
 //#define TELEMETRY_FRSKY           /* Frsky S-PORT Telemetry for VOLTAGE,RPM and TEMP */
+//#define FRAM_USED
 
 /*
 0     INPUT PPM
@@ -60,6 +63,7 @@ A7
 */
 
 #ifdef TELEMETRY_FRSKY
+#define SERIALSOFT				/* Remplace SoftwareSerial par SoftSerial dans la lib FrSkySportSingleWireSerial.h */
 #include "FrSkySportSensor.h"
 #include "FrSkySportSensorAss.h"
 #include "FrSkySportSensorFcs.h"
@@ -250,6 +254,9 @@ FrSkySportSensorRpm rpm;                               // Create RPM sensor with
 #define BROCHE_GLOW2            8  /* Glow driver motor 2 (PB0)*/
 #endif
 
+// Frsky Telemetry input pin    9 /* see decodFrsky.begin(FrSkySportSingleWireSettingsPort::SOFT_SERIAL_PIN_9, &ass, &fcs, &rpm ); */
+
+
 #ifdef EXTERNALVBATT
 #define BROCHE_BATTEXT          A3  /* External battery voltage (V+) */
 #endif
@@ -280,13 +287,6 @@ uint32_t SendMotorsToVBMs;//=millis();
 
 enum { CPPM=0, SBUS, IBUS };
 bool InputSignalExist = false;
-
-//SBUS variables
-int buf[25];
-int voie[18];
-int memread;
-int cpt;
-int s1,s2,s3,s4;
 
 /*
 #define RC_CHANS  12
@@ -364,6 +364,8 @@ uint16_t WidthAux_us = 1000;
 uint16_t WidthRud_us = 1000;
 uint16_t WidthAil_us = 1000;
 
+/* Object TinyCppmReader creation */
+TinyCppmReader TinyCppmReader; 
 /* Creation des objets Sorties servos */
 SoftRcPulseOut ServoMotor1;               /* Servo Engine 1 */
 SoftRcPulseOut ServoMotor2;               /* Servo Engine 2 */
@@ -371,14 +373,15 @@ SoftRcPulseOut ServoRudder;
 
 #define SERIAL_BAUD         115200         /* 115200 is need for use BlueSmirF BT module */
 #ifdef ARDUINO2PC
-#define LONGUEUR_MSG_MAX   75             /* ex: 1500,1500,1000,1000,2,2000,1250,1000,2000,1,1,0,99,2,0,0,0,1000,20000,0,0 */
+#define LONGUEUR_MSG_MAX   82//73             /* ex: 1500,1500,1000,1000,2,2000,1250,1000,2000,1,1,0,99,2,0,0,0,1000,20000,0,0 */
 #define RETOUR_CHARRIOT    0x0D           /* CR (code ASCII) */
 #define PASSAGE_LIGNE      0x0A           /* LF (code ASCII) */
 #define BACK_SPACE         0x08
 char Message[LONGUEUR_MSG_MAX + 1];
 uint8_t SubStrNb, SeparFound;
-#define SUB_STRING_NB_MAX  20
+#define SUB_STRING_NB_MAX  20//23             /* nombre de valeurs splitées */
 char *StrTbl[SUB_STRING_NB_MAX];          /* declaration de pointeurs sur chaine, 1 pointeur = 2 octets seulement */
+uint8_t countVirgulesInMessage = 0;
 #endif
 int pos = 0;
 
@@ -388,9 +391,7 @@ int pos = 0;
 //#endif
 
 boolean RunConfig = false;
-
-boolean AllInOne = false;
-unsigned long AllInOneTimer = millis();
+boolean CheckIfVBNeeded = true;
 
 unsigned long startedWaiting = millis();
 unsigned long started1s = millis();
@@ -398,8 +399,12 @@ unsigned long started1s = millis();
 
 void setup()
 {
-  Serial.begin(SERIAL_BAUD);//bloque la lecture des pins 0 et 1
-  while (!Serial);// wait for SettingsPort port to connect.
+#ifdef FRAM_USED
+  setupFRAM();
+#endif
+
+//  Serial.begin(SERIAL_BAUD);//bloque la lecture des pins 0 et 1
+//  while (!Serial);// wait for SettingsPort port to connect.
 
   SettingsPort.begin(57600);
   delay(500);
@@ -435,13 +440,13 @@ void setup()
 //  RunConfig = true;
 //*********************
 
-  (RunConfig == true?SettingsPort << endl << endl << F("Configuration mode is actived") << endl:SettingsPort << endl << endl << F("Starting without configuration") << endl);
+  (RunConfig == true?SettingsPort << endl << endl << F("Configuration mode is actived") << endl << endl:SettingsPort << endl << endl << F("Starting without configuration") << endl);
   
   
 
 #ifdef TELEMETRY_FRSKY// telemetrie sur ici pin 12 (pin 2 à 12 possibles)
   //decodFrsky.begin(FrSkySportSingleWireSettingsPort::SOFT_SettingsPort_PIN_12, &ass, &fcs, &flvss1, &flvss2, &gps, &rpm, &sp2uart, &vario);
-  decodFrsky.begin(FrSkySportSingleWireSettingsPort::SOFT_SettingsPort_PIN_9, &ass, &fcs, &rpm );
+  decodFrsky.begin(FrSkySportSingleWireSettingsPort::SOFT_SERIAL_PIN_9, &ass, &fcs, &rpm );
 #endif
   
 //#ifdef I2CSLAVEFOUND
@@ -488,27 +493,27 @@ void setup()
         blinkNTime(1,125,250);
         if (RunConfig = true)
         {
-          SettingsPort << F("CPPM selected") << endl;
-        }
-        Serial.end();
-        TinyPpmReader.attach(BROCHE_PPMINPUT); // Attach TinyPpmReader to SIGNAL_INPUT_PIN pin 
+          SettingsPort << F("CPPM selected") << endl << endl;
+        }     
+        //Serial.end();
+        TinyCppmReader.attach(BROCHE_PPMINPUT); // Attach TinyPpmReader to SIGNAL_INPUT_PIN pin 
       break;
     case SBUS:
         blinkNTime(2,125,250);
         if (RunConfig = true)
         {
-          SettingsPort << F("SBUS selected") << endl;
+          SettingsPort << F("SBUS selected") << endl << endl;
         }        
-        Serial.flush();delay(500); // wait for last transmitted data to be sent
-        Serial.begin(100000, SERIAL_8E2);// Attention ! Bloque la communication avec VB.
+          Serial.begin(100000, SERIAL_8E2); /* Choose your serial first: SBUS works at 100 000 bauds */
+          SBusRx.serialAttach(&Serial); /* Then, attach the SBus receiver to this Serial1 */
       break;
     case IBUS:
         blinkNTime(3,125,250);
         if (RunConfig = true)
         {
-          SettingsPort << F("IBUS selected") << endl;
+          SettingsPort << F("IBUS selected") << endl << endl;
         }
-        Serial.flush();delay(500); // wait for last transmitted data to be sent
+        //Serial.flush();delay(500); // wait for last transmitted data to be sent
         IBus.begin(Serial);// Attention ! Bloque la communication avec VB.
       break;
   }
@@ -542,8 +547,10 @@ void loop()
 {
 
 #ifdef ARDUINO2PC
+  //if (RunConfig == true)
+  //{
     SerialFromToVB();
-    AllTimers();
+  //}
 #endif
 
     mode0();/* main mode launched if no buttons pressed during start */
@@ -588,12 +595,12 @@ void readAllEEprom()
     waitMs(500);
     readAllEEprom();
   }
-//  else
-//  {
-//    //EEPROM Ok!
-//    waitMs(2000);
-//    blinkNTime(5,LED_SIGNAL_FOUND,LED_SIGNAL_FOUND);
-//  }
+  else
+  {
+    //EEPROM Ok!
+    SettingsPort <<  endl << F("EEPROM OK :-)") << endl << endl;
+    //blinkNTime(5,LED_SIGNAL_FOUND,LED_SIGNAL_FOUND);
+  }
 }
 
 
@@ -669,7 +676,7 @@ void SettingsWriteDefault()
  */
 
   ms.ID                  = 0x99;//write the ID to indicate valid data
-  ms.InputMode           = 0;   //0-PPM, 1-SBUS, 2,IBUS
+  ms.InputMode           = 1;   //0-PPM, 1-SBUS, 2,IBUS
   ms.radioRcMode         = 1;   // mode is 0 to 3 (mode 1 à 4)
   ms.AuxiliaryNbChannel  = 5;
   ms.centerposServo1     = 1500;
@@ -876,15 +883,15 @@ int ADC_read_conversion(){
 #endif
 
 
-void AllTimers(void)//Send Moteurs, Auxiliary, V and V2 in one time
-{
-  if(AllInOne == true) 
-  {
-    if(millis()-AllInOneTimer>=500)
-    {
-      SettingsPort << F("ALLINONE") << Width_us << F("|") << WidthAux_us << F("|") << vitesse1 << F("|") << vitesse2 << endl; 
-      AllInOneTimer=millis(); // Restart the Chrono for the LED 
-    }
-  }   
-      
-}
+//void AllTimers(void)//Send Moteurs, Auxiliary, V and V2 in one time
+//{
+//  if(AllInOne == true) 
+//  {
+//    if(millis()-AllInOneTimer>=500)
+//    {
+//      SettingsPort << F("ALLINONE") << Width_us << F("|") << WidthAux_us << F("|") << vitesse1 << F("|") << vitesse2 << endl; 
+//      AllInOneTimer=millis(); // Restart the Chrono for the LED 
+//    }
+//  }   
+//      
+//}

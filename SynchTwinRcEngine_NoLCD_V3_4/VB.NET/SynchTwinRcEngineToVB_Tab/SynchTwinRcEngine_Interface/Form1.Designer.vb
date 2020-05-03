@@ -37,6 +37,8 @@ Partial Class Form1
         Me.PictureBoxConnectedOK = New System.Windows.Forms.PictureBox()
         Me.Button_Connect = New System.Windows.Forms.Button()
         Me.GroupBoxSettings = New System.Windows.Forms.GroupBox()
+        Me.labelA = New System.Windows.Forms.Label()
+        Me.labelM = New System.Windows.Forms.Label()
         Me.ButtonRcRadioMode = New System.Windows.Forms.Button()
         Me.Label17 = New System.Windows.Forms.Label()
         Me.labelModeRcRadio = New System.Windows.Forms.Label()
@@ -57,6 +59,8 @@ Partial Class Form1
         Me.textCentreServo2 = New System.Windows.Forms.TextBox()
         Me.Label12 = New System.Windows.Forms.Label()
         Me.Label11 = New System.Windows.Forms.Label()
+        Me.ProgressBarThrottleAuxiliary = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
+        Me.ProgressBarThrottleMotors = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
         Me.ButtonDiffSpeedSimuConsigne = New System.Windows.Forms.Label()
         Me.TextBoxDiffSpeedSimuConsigne = New System.Windows.Forms.TextBox()
         Me.textMaxiMotorRPM = New System.Windows.Forms.TextBox()
@@ -183,6 +187,8 @@ Partial Class Form1
         Me.TrackBarRudder = New System.Windows.Forms.TrackBar()
         Me.Label4 = New System.Windows.Forms.Label()
         Me.Label13 = New System.Windows.Forms.Label()
+        Me.UcV_ProgressBar1 = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
+        Me.UcV_ProgressBar2 = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
         Me.labelAuxRudderSimulation = New System.Windows.Forms.Label()
         Me.PictureBoxGlowPlugOnOff = New System.Windows.Forms.PictureBox()
         Me.ButtonServoTest = New System.Windows.Forms.Button()
@@ -219,13 +225,13 @@ Partial Class Form1
         Me.ButtonDumpLogFile = New System.Windows.Forms.Button()
         Me.ListBoxSDListFiles = New System.Windows.Forms.ListBox()
         Me.ButtonSDCardErase = New System.Windows.Forms.Button()
-        Me.GroupBoxSDCardInfos = New System.Windows.Forms.GroupBox()
-        Me.ButtonSDCardListFiles = New System.Windows.Forms.Button()
-        Me.ButtonWriteDataLogger = New System.Windows.Forms.Button()
-        Me.buttonSDCardInfos = New System.Windows.Forms.Button()
-        Me.labelSDCardIsUsed = New System.Windows.Forms.Label()
-        Me.labelSDCardFAT = New System.Windows.Forms.Label()
-        Me.labelSDCardType = New System.Windows.Forms.Label()
+        Me.GroupBoxFRAMInfos = New System.Windows.Forms.GroupBox()
+        Me.ButtonFramRead = New System.Windows.Forms.Button()
+        Me.ButtonWriteInFram = New System.Windows.Forms.Button()
+        Me.buttonFramInfos = New System.Windows.Forms.Button()
+        Me.labelFRAMIsUsed = New System.Windows.Forms.Label()
+        Me.labelSDCardSize = New System.Windows.Forms.Label()
+        Me.labelFRAMType = New System.Windows.Forms.Label()
         Me.TabPage7 = New System.Windows.Forms.TabPage()
         Me.TextBoxHexaEditor = New System.Windows.Forms.TextBox()
         Me.PictureBoxPinOut = New System.Windows.Forms.PictureBox()
@@ -275,12 +281,6 @@ Partial Class Form1
         Me.BackgroundWorkerThrottle = New System.ComponentModel.BackgroundWorker()
         Me.BackgroundWorkerAuxiliary = New System.ComponentModel.BackgroundWorker()
         Me.TimerProgressBars = New System.Windows.Forms.Timer(Me.components)
-        Me.ProgressBarThrottleAuxiliary = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
-        Me.ProgressBarThrottleMotors = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
-        Me.UcV_ProgressBar1 = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
-        Me.UcV_ProgressBar2 = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
-        Me.labelM = New System.Windows.Forms.Label()
-        Me.labelA = New System.Windows.Forms.Label()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBoxSerialPort.SuspendLayout()
         CType(Me.PictureBoxConnectedOK, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -320,7 +320,7 @@ Partial Class Form1
         CType(Me.TrackBarSpeedSimu1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.TabPage6.SuspendLayout()
         Me.GroupBoxSDListFiles.SuspendLayout()
-        Me.GroupBoxSDCardInfos.SuspendLayout()
+        Me.GroupBoxFRAMInfos.SuspendLayout()
         Me.TabPage7.SuspendLayout()
         CType(Me.PictureBoxPinOut, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBoxOperations.SuspendLayout()
@@ -544,6 +544,24 @@ Partial Class Form1
         Me.GroupBoxSettings.TabStop = False
         Me.GroupBoxSettings.Text = "Configuration"
         '
+        'labelA
+        '
+        Me.labelA.AutoSize = True
+        Me.labelA.Location = New System.Drawing.Point(424, 56)
+        Me.labelA.Name = "labelA"
+        Me.labelA.Size = New System.Drawing.Size(48, 13)
+        Me.labelA.TabIndex = 153
+        Me.labelA.Text = "Auxiliaire"
+        '
+        'labelM
+        '
+        Me.labelM.AutoSize = True
+        Me.labelM.Location = New System.Drawing.Point(423, 38)
+        Me.labelM.Name = "labelM"
+        Me.labelM.Size = New System.Drawing.Size(45, 13)
+        Me.labelM.TabIndex = 152
+        Me.labelM.Text = "Moteurs"
+        '
         'ButtonRcRadioMode
         '
         Me.ButtonRcRadioMode.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -726,6 +744,32 @@ Partial Class Form1
         Me.Label11.Size = New System.Drawing.Size(33, 17)
         Me.Label11.TabIndex = 137
         Me.Label11.Text = "Thr"
+        '
+        'ProgressBarThrottleAuxiliary
+        '
+        Me.ProgressBarThrottleAuxiliary._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
+        Me.ProgressBarThrottleAuxiliary._Maxi = 100
+        Me.ProgressBarThrottleAuxiliary._Mini = 0
+        Me.ProgressBarThrottleAuxiliary._Value = 50
+        Me.ProgressBarThrottleAuxiliary.BackColor = System.Drawing.SystemColors.ButtonHighlight
+        Me.ProgressBarThrottleAuxiliary.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.ProgressBarThrottleAuxiliary.Location = New System.Drawing.Point(567, 37)
+        Me.ProgressBarThrottleAuxiliary.Name = "ProgressBarThrottleAuxiliary"
+        Me.ProgressBarThrottleAuxiliary.Size = New System.Drawing.Size(19, 241)
+        Me.ProgressBarThrottleAuxiliary.TabIndex = 136
+        '
+        'ProgressBarThrottleMotors
+        '
+        Me.ProgressBarThrottleMotors._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
+        Me.ProgressBarThrottleMotors._Maxi = 100
+        Me.ProgressBarThrottleMotors._Mini = 0
+        Me.ProgressBarThrottleMotors._Value = 50
+        Me.ProgressBarThrottleMotors.BackColor = System.Drawing.SystemColors.ButtonHighlight
+        Me.ProgressBarThrottleMotors.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.ProgressBarThrottleMotors.Location = New System.Drawing.Point(536, 37)
+        Me.ProgressBarThrottleMotors.Name = "ProgressBarThrottleMotors"
+        Me.ProgressBarThrottleMotors.Size = New System.Drawing.Size(19, 241)
+        Me.ProgressBarThrottleMotors.TabIndex = 135
         '
         'ButtonDiffSpeedSimuConsigne
         '
@@ -2058,6 +2102,32 @@ Partial Class Form1
         Me.Label13.TabIndex = 141
         Me.Label13.Text = "Thr"
         '
+        'UcV_ProgressBar1
+        '
+        Me.UcV_ProgressBar1._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
+        Me.UcV_ProgressBar1._Maxi = 100
+        Me.UcV_ProgressBar1._Mini = 0
+        Me.UcV_ProgressBar1._Value = 50
+        Me.UcV_ProgressBar1.BackColor = System.Drawing.SystemColors.ButtonHighlight
+        Me.UcV_ProgressBar1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.UcV_ProgressBar1.Location = New System.Drawing.Point(357, 30)
+        Me.UcV_ProgressBar1.Name = "UcV_ProgressBar1"
+        Me.UcV_ProgressBar1.Size = New System.Drawing.Size(19, 191)
+        Me.UcV_ProgressBar1.TabIndex = 140
+        '
+        'UcV_ProgressBar2
+        '
+        Me.UcV_ProgressBar2._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
+        Me.UcV_ProgressBar2._Maxi = 100
+        Me.UcV_ProgressBar2._Mini = 0
+        Me.UcV_ProgressBar2._Value = 50
+        Me.UcV_ProgressBar2.BackColor = System.Drawing.SystemColors.ButtonHighlight
+        Me.UcV_ProgressBar2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.UcV_ProgressBar2.Location = New System.Drawing.Point(326, 30)
+        Me.UcV_ProgressBar2.Name = "UcV_ProgressBar2"
+        Me.UcV_ProgressBar2.Size = New System.Drawing.Size(19, 191)
+        Me.UcV_ProgressBar2.TabIndex = 139
+        '
         'labelAuxRudderSimulation
         '
         Me.labelAuxRudderSimulation.AutoSize = True
@@ -2377,12 +2447,12 @@ Partial Class Form1
         'TabPage6
         '
         Me.TabPage6.Controls.Add(Me.GroupBoxSDListFiles)
-        Me.TabPage6.Controls.Add(Me.GroupBoxSDCardInfos)
+        Me.TabPage6.Controls.Add(Me.GroupBoxFRAMInfos)
         Me.TabPage6.Location = New System.Drawing.Point(4, 22)
         Me.TabPage6.Name = "TabPage6"
         Me.TabPage6.Size = New System.Drawing.Size(597, 366)
         Me.TabPage6.TabIndex = 5
-        Me.TabPage6.Text = "SD Card"
+        Me.TabPage6.Text = "Fram"
         Me.TabPage6.UseVisualStyleBackColor = True
         '
         'GroupBoxSDListFiles
@@ -2403,7 +2473,7 @@ Partial Class Form1
         Me.ButtonDumpLogFile.Name = "ButtonDumpLogFile"
         Me.ButtonDumpLogFile.Size = New System.Drawing.Size(108, 23)
         Me.ButtonDumpLogFile.TabIndex = 9
-        Me.ButtonDumpLogFile.Text = "SD Card Dump Log"
+        Me.ButtonDumpLogFile.Text = "FRAM Dump Log"
         Me.ButtonDumpLogFile.UseVisualStyleBackColor = True
         '
         'ListBoxSDListFiles
@@ -2420,77 +2490,77 @@ Partial Class Form1
         Me.ButtonSDCardErase.Name = "ButtonSDCardErase"
         Me.ButtonSDCardErase.Size = New System.Drawing.Size(108, 23)
         Me.ButtonSDCardErase.TabIndex = 7
-        Me.ButtonSDCardErase.Text = "Delete File"
+        Me.ButtonSDCardErase.Text = "Erase FRAM"
         Me.ButtonSDCardErase.UseVisualStyleBackColor = True
         '
-        'GroupBoxSDCardInfos
+        'GroupBoxFRAMInfos
         '
-        Me.GroupBoxSDCardInfos.Controls.Add(Me.ButtonSDCardListFiles)
-        Me.GroupBoxSDCardInfos.Controls.Add(Me.ButtonWriteDataLogger)
-        Me.GroupBoxSDCardInfos.Controls.Add(Me.buttonSDCardInfos)
-        Me.GroupBoxSDCardInfos.Controls.Add(Me.labelSDCardIsUsed)
-        Me.GroupBoxSDCardInfos.Controls.Add(Me.labelSDCardFAT)
-        Me.GroupBoxSDCardInfos.Controls.Add(Me.labelSDCardType)
-        Me.GroupBoxSDCardInfos.Location = New System.Drawing.Point(9, 13)
-        Me.GroupBoxSDCardInfos.Name = "GroupBoxSDCardInfos"
-        Me.GroupBoxSDCardInfos.Size = New System.Drawing.Size(580, 84)
-        Me.GroupBoxSDCardInfos.TabIndex = 4
-        Me.GroupBoxSDCardInfos.TabStop = False
-        Me.GroupBoxSDCardInfos.Text = "SD Card Infos"
+        Me.GroupBoxFRAMInfos.Controls.Add(Me.ButtonFramRead)
+        Me.GroupBoxFRAMInfos.Controls.Add(Me.ButtonWriteInFram)
+        Me.GroupBoxFRAMInfos.Controls.Add(Me.buttonFramInfos)
+        Me.GroupBoxFRAMInfos.Controls.Add(Me.labelFRAMIsUsed)
+        Me.GroupBoxFRAMInfos.Controls.Add(Me.labelSDCardSize)
+        Me.GroupBoxFRAMInfos.Controls.Add(Me.labelFRAMType)
+        Me.GroupBoxFRAMInfos.Location = New System.Drawing.Point(9, 13)
+        Me.GroupBoxFRAMInfos.Name = "GroupBoxFRAMInfos"
+        Me.GroupBoxFRAMInfos.Size = New System.Drawing.Size(580, 84)
+        Me.GroupBoxFRAMInfos.TabIndex = 4
+        Me.GroupBoxFRAMInfos.TabStop = False
+        Me.GroupBoxFRAMInfos.Text = "FRAM Infos"
         '
-        'ButtonSDCardListFiles
+        'ButtonFramRead
         '
-        Me.ButtonSDCardListFiles.Location = New System.Drawing.Point(174, 51)
-        Me.ButtonSDCardListFiles.Name = "ButtonSDCardListFiles"
-        Me.ButtonSDCardListFiles.Size = New System.Drawing.Size(108, 23)
-        Me.ButtonSDCardListFiles.TabIndex = 8
-        Me.ButtonSDCardListFiles.Text = "SD Card List Files"
-        Me.ButtonSDCardListFiles.UseVisualStyleBackColor = True
+        Me.ButtonFramRead.Location = New System.Drawing.Point(174, 51)
+        Me.ButtonFramRead.Name = "ButtonFramRead"
+        Me.ButtonFramRead.Size = New System.Drawing.Size(108, 23)
+        Me.ButtonFramRead.TabIndex = 8
+        Me.ButtonFramRead.Text = "FRAM Read"
+        Me.ButtonFramRead.UseVisualStyleBackColor = True
         '
-        'ButtonWriteDataLogger
+        'ButtonWriteInFram
         '
-        Me.ButtonWriteDataLogger.Location = New System.Drawing.Point(12, 51)
-        Me.ButtonWriteDataLogger.Name = "ButtonWriteDataLogger"
-        Me.ButtonWriteDataLogger.Size = New System.Drawing.Size(108, 23)
-        Me.ButtonWriteDataLogger.TabIndex = 5
-        Me.ButtonWriteDataLogger.Text = "SD Card Write Test"
-        Me.ButtonWriteDataLogger.UseVisualStyleBackColor = True
+        Me.ButtonWriteInFram.Location = New System.Drawing.Point(12, 51)
+        Me.ButtonWriteInFram.Name = "ButtonWriteInFram"
+        Me.ButtonWriteInFram.Size = New System.Drawing.Size(108, 23)
+        Me.ButtonWriteInFram.TabIndex = 5
+        Me.ButtonWriteInFram.Text = "FRAM Write Test"
+        Me.ButtonWriteInFram.UseVisualStyleBackColor = True
         '
-        'buttonSDCardInfos
+        'buttonFramInfos
         '
-        Me.buttonSDCardInfos.Location = New System.Drawing.Point(475, 20)
-        Me.buttonSDCardInfos.Name = "buttonSDCardInfos"
-        Me.buttonSDCardInfos.Size = New System.Drawing.Size(99, 23)
-        Me.buttonSDCardInfos.TabIndex = 4
-        Me.buttonSDCardInfos.Text = "SD Card Infos"
-        Me.buttonSDCardInfos.UseVisualStyleBackColor = True
+        Me.buttonFramInfos.Location = New System.Drawing.Point(475, 20)
+        Me.buttonFramInfos.Name = "buttonFramInfos"
+        Me.buttonFramInfos.Size = New System.Drawing.Size(99, 23)
+        Me.buttonFramInfos.TabIndex = 4
+        Me.buttonFramInfos.Text = "FRAM Infos"
+        Me.buttonFramInfos.UseVisualStyleBackColor = True
         '
-        'labelSDCardIsUsed
+        'labelFRAMIsUsed
         '
-        Me.labelSDCardIsUsed.AutoSize = True
-        Me.labelSDCardIsUsed.Location = New System.Drawing.Point(9, 25)
-        Me.labelSDCardIsUsed.Name = "labelSDCardIsUsed"
-        Me.labelSDCardIsUsed.Size = New System.Drawing.Size(78, 13)
-        Me.labelSDCardIsUsed.TabIndex = 0
-        Me.labelSDCardIsUsed.Text = "SD Card Used:"
+        Me.labelFRAMIsUsed.AutoSize = True
+        Me.labelFRAMIsUsed.Location = New System.Drawing.Point(9, 25)
+        Me.labelFRAMIsUsed.Name = "labelFRAMIsUsed"
+        Me.labelFRAMIsUsed.Size = New System.Drawing.Size(68, 13)
+        Me.labelFRAMIsUsed.TabIndex = 0
+        Me.labelFRAMIsUsed.Text = "FRAM Used:"
         '
-        'labelSDCardFAT
+        'labelSDCardSize
         '
-        Me.labelSDCardFAT.AutoSize = True
-        Me.labelSDCardFAT.Location = New System.Drawing.Point(269, 25)
-        Me.labelSDCardFAT.Name = "labelSDCardFAT"
-        Me.labelSDCardFAT.Size = New System.Drawing.Size(73, 13)
-        Me.labelSDCardFAT.TabIndex = 3
-        Me.labelSDCardFAT.Text = "SD Card FAT:"
+        Me.labelSDCardSize.AutoSize = True
+        Me.labelSDCardSize.Location = New System.Drawing.Point(269, 25)
+        Me.labelSDCardSize.Name = "labelSDCardSize"
+        Me.labelSDCardSize.Size = New System.Drawing.Size(61, 13)
+        Me.labelSDCardSize.TabIndex = 3
+        Me.labelSDCardSize.Text = "FRAM size:"
         '
-        'labelSDCardType
+        'labelFRAMType
         '
-        Me.labelSDCardType.AutoSize = True
-        Me.labelSDCardType.Location = New System.Drawing.Point(137, 25)
-        Me.labelSDCardType.Name = "labelSDCardType"
-        Me.labelSDCardType.Size = New System.Drawing.Size(77, 13)
-        Me.labelSDCardType.TabIndex = 1
-        Me.labelSDCardType.Text = "SD Card Type:"
+        Me.labelFRAMType.AutoSize = True
+        Me.labelFRAMType.Location = New System.Drawing.Point(137, 25)
+        Me.labelFRAMType.Name = "labelFRAMType"
+        Me.labelFRAMType.Size = New System.Drawing.Size(67, 13)
+        Me.labelFRAMType.TabIndex = 1
+        Me.labelFRAMType.Text = "FRAM Type:"
         '
         'TabPage7
         '
@@ -2946,76 +3016,6 @@ Partial Class Form1
         '
         Me.TimerProgressBars.Interval = 1000
         '
-        'ProgressBarThrottleAuxiliary
-        '
-        Me.ProgressBarThrottleAuxiliary._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
-        Me.ProgressBarThrottleAuxiliary._Maxi = 100
-        Me.ProgressBarThrottleAuxiliary._Mini = 0
-        Me.ProgressBarThrottleAuxiliary._Value = 50
-        Me.ProgressBarThrottleAuxiliary.BackColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.ProgressBarThrottleAuxiliary.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.ProgressBarThrottleAuxiliary.Location = New System.Drawing.Point(567, 37)
-        Me.ProgressBarThrottleAuxiliary.Name = "ProgressBarThrottleAuxiliary"
-        Me.ProgressBarThrottleAuxiliary.Size = New System.Drawing.Size(19, 241)
-        Me.ProgressBarThrottleAuxiliary.TabIndex = 136
-        '
-        'ProgressBarThrottleMotors
-        '
-        Me.ProgressBarThrottleMotors._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
-        Me.ProgressBarThrottleMotors._Maxi = 100
-        Me.ProgressBarThrottleMotors._Mini = 0
-        Me.ProgressBarThrottleMotors._Value = 50
-        Me.ProgressBarThrottleMotors.BackColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.ProgressBarThrottleMotors.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.ProgressBarThrottleMotors.Location = New System.Drawing.Point(536, 37)
-        Me.ProgressBarThrottleMotors.Name = "ProgressBarThrottleMotors"
-        Me.ProgressBarThrottleMotors.Size = New System.Drawing.Size(19, 241)
-        Me.ProgressBarThrottleMotors.TabIndex = 135
-        '
-        'UcV_ProgressBar1
-        '
-        Me.UcV_ProgressBar1._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
-        Me.UcV_ProgressBar1._Maxi = 100
-        Me.UcV_ProgressBar1._Mini = 0
-        Me.UcV_ProgressBar1._Value = 50
-        Me.UcV_ProgressBar1.BackColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.UcV_ProgressBar1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.UcV_ProgressBar1.Location = New System.Drawing.Point(357, 30)
-        Me.UcV_ProgressBar1.Name = "UcV_ProgressBar1"
-        Me.UcV_ProgressBar1.Size = New System.Drawing.Size(19, 191)
-        Me.UcV_ProgressBar1.TabIndex = 140
-        '
-        'UcV_ProgressBar2
-        '
-        Me.UcV_ProgressBar2._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
-        Me.UcV_ProgressBar2._Maxi = 100
-        Me.UcV_ProgressBar2._Mini = 0
-        Me.UcV_ProgressBar2._Value = 50
-        Me.UcV_ProgressBar2.BackColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.UcV_ProgressBar2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.UcV_ProgressBar2.Location = New System.Drawing.Point(326, 30)
-        Me.UcV_ProgressBar2.Name = "UcV_ProgressBar2"
-        Me.UcV_ProgressBar2.Size = New System.Drawing.Size(19, 191)
-        Me.UcV_ProgressBar2.TabIndex = 139
-        '
-        'labelM
-        '
-        Me.labelM.AutoSize = True
-        Me.labelM.Location = New System.Drawing.Point(423, 38)
-        Me.labelM.Name = "labelM"
-        Me.labelM.Size = New System.Drawing.Size(45, 13)
-        Me.labelM.TabIndex = 152
-        Me.labelM.Text = "Moteurs"
-        '
-        'labelA
-        '
-        Me.labelA.AutoSize = True
-        Me.labelA.Location = New System.Drawing.Point(424, 56)
-        Me.labelA.Name = "labelA"
-        Me.labelA.Size = New System.Drawing.Size(48, 13)
-        Me.labelA.TabIndex = 153
-        Me.labelA.Text = "Auxiliaire"
-        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -3075,8 +3075,8 @@ Partial Class Form1
         CType(Me.TrackBarSpeedSimu1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.TabPage6.ResumeLayout(False)
         Me.GroupBoxSDListFiles.ResumeLayout(False)
-        Me.GroupBoxSDCardInfos.ResumeLayout(False)
-        Me.GroupBoxSDCardInfos.PerformLayout()
+        Me.GroupBoxFRAMInfos.ResumeLayout(False)
+        Me.GroupBoxFRAMInfos.PerformLayout()
         Me.TabPage7.ResumeLayout(False)
         Me.TabPage7.PerformLayout()
         CType(Me.PictureBoxPinOut, System.ComponentModel.ISupportInitialize).EndInit()
@@ -3204,13 +3204,13 @@ Partial Class Form1
     Friend WithEvents LabelVitesse1 As System.Windows.Forms.Label
     Friend WithEvents ButtonReadSpeeds As System.Windows.Forms.Button
     Friend WithEvents PictureBoxTimer1OnOff As System.Windows.Forms.PictureBox
-    Friend WithEvents labelSDCardIsUsed As System.Windows.Forms.Label
+    Friend WithEvents labelFRAMIsUsed As System.Windows.Forms.Label
     Friend WithEvents LabelVitesse2 As System.Windows.Forms.Label
     Friend WithEvents CheckBoxAnaDigi As System.Windows.Forms.CheckBox
-    Friend WithEvents labelSDCardType As System.Windows.Forms.Label
-    Friend WithEvents labelSDCardFAT As System.Windows.Forms.Label
-    Friend WithEvents GroupBoxSDCardInfos As System.Windows.Forms.GroupBox
-    Friend WithEvents buttonSDCardInfos As System.Windows.Forms.Button
+    Friend WithEvents labelFRAMType As System.Windows.Forms.Label
+    Friend WithEvents labelSDCardSize As System.Windows.Forms.Label
+    Friend WithEvents GroupBoxFRAMInfos As System.Windows.Forms.GroupBox
+    Friend WithEvents buttonFramInfos As System.Windows.Forms.Button
     Public WithEvents TabControl1 As System.Windows.Forms.TabControl
     Public WithEvents TabPage1 As System.Windows.Forms.TabPage
     Public WithEvents TabPage2 As System.Windows.Forms.TabPage
@@ -3300,7 +3300,7 @@ Partial Class Form1
     Friend WithEvents rdowrveeprom As System.Windows.Forms.RadioButton
     Friend WithEvents rdowrvflash As System.Windows.Forms.RadioButton
     Friend WithEvents svfd As System.Windows.Forms.SaveFileDialog
-    Friend WithEvents ButtonWriteDataLogger As System.Windows.Forms.Button
+    Friend WithEvents ButtonWriteInFram As System.Windows.Forms.Button
     Friend WithEvents ButtonSDCardErase As System.Windows.Forms.Button
     Friend WithEvents BoxRecorder As System.Windows.Forms.GroupBox
     Friend WithEvents PictureBoxRecorder As System.Windows.Forms.PictureBox
@@ -3328,7 +3328,7 @@ Partial Class Form1
     Friend WithEvents CheckBoxChronoOnOff As System.Windows.Forms.CheckBox
     Friend WithEvents LabelChrono As System.Windows.Forms.Label
     Friend WithEvents LabelTestNow As System.Windows.Forms.Label
-    Friend WithEvents ButtonSDCardListFiles As System.Windows.Forms.Button
+    Friend WithEvents ButtonFramRead As System.Windows.Forms.Button
     Friend WithEvents CheckBoxReadTracBarMotorOrMotorThrottle As System.Windows.Forms.CheckBox
     Friend WithEvents LabelOnSimuMoveThrottle As System.Windows.Forms.Label
     Friend WithEvents PictureBoxTimer2OnOff As System.Windows.Forms.PictureBox

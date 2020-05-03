@@ -3,7 +3,7 @@ void mode0()//run mode
 {   
   //readCaptorTransitions();/* read sensors */
 
-//#ifdef SERIALPLOTTER /* You can read the battery voltage, speeds and throttle and auxiliary pulses with the Serial Plotter (IDE >= 1.6.6) */
+//#ifdef SerialPLOTTER /* You can read the battery voltage, speeds and throttle and auxiliary pulses with the Serial Plotter (IDE >= 1.6.6) */
 //   Serial << ((GetExternalVoltage()>1)?GetExternalVoltage()*1000:0) << "," << Width_us << "," << WidthAux_us << "," << vitesse1 << "," << vitesse2 << endl;
 //#endif
   static uint32_t BeginChronoServoMs = millis();
@@ -202,6 +202,26 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
       { 
         Serial << F("FIRM|") << FirmwareVersion << endl;
       }
+
+      else if(pos == 360)//CPPM
+      {             
+        ms.InputMode = 0;
+        EEPROM.put(0, ms);
+        blinkNTime(5,LED_SIGNAL_FOUND,LED_SIGNAL_FOUND);
+      }
+      else if(pos == 361)//SBUS
+      {             
+        ms.InputMode = 1;
+        EEPROM.put(0, ms);
+        blinkNTime(5,LED_SIGNAL_FOUND,LED_SIGNAL_FOUND);
+      }
+      else if(pos == 362)//IBUS
+      {             
+        ms.InputMode = 2;
+        EEPROM.put(0, ms);
+        blinkNTime(5,LED_SIGNAL_FOUND,LED_SIGNAL_FOUND);
+      }
+      
       else if(pos == 363)//envoie settings au port serie
       {//format send: 1657|1657|1225|1225|2|2075|1393|1070|2205|1|0|0|100|39|2|0|5.00|27.61|1.000|0|1000|20000
         sendConfigToSerial();      
@@ -281,7 +301,7 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
         StrSplitRestore(",", StrTbl, SeparFound);//Imperatif SeparFound <= SUB_STRING_NB_MAX
         EEPROM.put(0,ms);
         blinkNTime(5,100,100);
-        Serial.flush(); // clear serial port
+        Serial.flush(); // clear Serial port
       }
       else if(countMessage == 3)//check XXX,A,B,C 
       {
@@ -319,7 +339,7 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
             break;                                 
         }
         StrSplitRestore(",", StrTbl, SeparFound);//Imperatif SeparFound <= SUB_STRING_NB_MAX
-        Serial.flush(); // clear serial port
+        Serial.flush(); // clear Serial port
       } 
     } 
 

@@ -60,12 +60,5 @@ void readCaptorTransitions()
   
   if (vitesse1 !=0) {on(LED1RED);off(LED1RED);}
   if (vitesse2 !=0) {on(LED1RED);off(LED1RED);}
-
-//#ifdef SDDATALOGGER
-//  if((millis()-SendMotorsToVBMs >= 500) && SDCardUsable == true && RunLogInSDCard == true)
-//  {
-//    SendMotorsToVBMs=millis(); 
-//    //writeSDdatalog(vitesse1,vitesse2);
-//  }
-//#endif   
+ 
 }
