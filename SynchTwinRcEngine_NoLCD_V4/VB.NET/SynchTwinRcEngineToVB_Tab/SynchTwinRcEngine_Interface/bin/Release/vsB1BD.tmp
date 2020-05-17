@@ -1,0 +1,414 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+SynchTwinRcEngine_Interface
+</name>
+</assembly>
+<members>
+<member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.ResourceManager">
+	<summary>
+  Retourne l'instance ResourceManager mise en cache utilisée par cette classe.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.Culture">
+	<summary>
+  Remplace la propriété CurrentUICulture du thread actuel pour toutes
+  les recherches de ressources à l'aide de cette classe de ressource fortement typée.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources._005_Task_32x42_72">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources._010_LowPriority_32x42_72">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources._112_DownArrowLong_Green_32x32_72">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.BiMoteur">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Icon semblable à (Icône).
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonAbortChanges_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Abort Changes.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonAbortChanges_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Annuler Modifications.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonAuxCenter_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Center.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonAuxCenter_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Milieu.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonConfig_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Settings &gt;&gt;.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonConfig_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Configuration &gt;&gt;.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonConnect_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Connection.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonConnect_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Connexion.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonDebugSend_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Send.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonDebugSend_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Envoi.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonGlowOnOff_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Glows On/Off.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonGlowOnOff_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Bougies On/Off.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonModuleType_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Master.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonModuleType_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Maître.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonMotors_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Motor.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonMotors_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Moteur.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonQuit_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Exit.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonQuit_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Quitter.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonRead_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Read.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonRead_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Lire.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonResetSettings_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Reset Settings.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonResetSettings_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à RAZ Configuration.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonSaveComPort_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Backup.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonSaveComPort_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Sauvegarde.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonSaveSettings_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Save Settings.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.buttonSaveSettings_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Sauver Configuration.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.cmd">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.Confirm">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.delete">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.GlowPlug">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.groupBoxComPort_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Serial Port.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.groupBoxComPort_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Port Série.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.groupBoxSettings_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Settings.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.groupBoxSettings_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Configuration.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.Info">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.inter">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.joystick">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelAddrLCD_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Address I2C LCD:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelAddrLCD_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Adresse I2C LCD:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelAuxiPosition_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Position Auxiliary:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelAuxiPosition_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Position Auxiliaire:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelAuxiRudderSimu_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Channel Auxiliary Simulation.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelAuxiRudderSimu_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Canal Auxiliaire Simulation.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelCenterServo1_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Center Servo1:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelCenterServo1_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Centre Servo1:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelCenterServo2_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Center Servo2:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelCenterServo2_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Centre Servo2:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelConfigModule_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Module configuration editor:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelConfigModule_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Editeur de la configuration du module:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelGeneralePositionMaxi_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Position Generale Maxi:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelGeneralePositionMaxi_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Position Maxi Générale:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelGeneralePositionMini_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Position Generale Mini:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelGeneralePositionMini_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Position Mini Générale:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelIdleServo1_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Position Idle Servo 1:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelIdleServo1_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Position Ralenti Servo 1:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelIdleServo2_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Position Idle Servo 2:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelIdleServo2_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Position Ralenti Servo 2:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelIntVoltage_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Internal Voltage:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelIntVoltage_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Voltage Interne:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelMotorsSimu_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Channel Motors Simulation.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelMotorsSimu_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Canal Moteurs Simulation.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelNbrBlades_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Number of Blades or Magnets:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelNbrBlades_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Nombre de pales ou d'aimants:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelReverseAuxi_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Reverse Aux:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelReverseAuxi_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Inversion Aux:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelReverseServo1_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Reverse Servo1:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelReverseServo1_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Inversion Servo1:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelReverseServo2_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Reverse Servo2:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelReverseServo2_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Inversion Servo2:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelSpeedModuleAnswer_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Speed Module Answer:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelSpeedModuleAnswer_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Vitesse Réponse Module:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelSpeedMotorMinMaxRPM_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Speed Motors Mini/Maxi (tr/mn):.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelSpeedMotorMinMaxRPM_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Vitesse Moteurs Mini/Maxi (rpm):.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelStartSynchroMotors_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à Start Synchro Servos:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.labelStartSynchroMotors_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Début Synchro Servos:.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.Lock">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.logo_arduino">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.logo_arduino1">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Icon semblable à (Icône).
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.monitor">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Icon semblable à (Icône).
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.Mosquito">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.Mosquito_dessus">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.NotAllowed">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.optLangEN_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à English.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.optLangEN_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Anglais.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.optLangFR_EN">
+	<summary>
+  Recherche une chaîne localisée semblable à French.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.optLangFR_FR">
+	<summary>
+  Recherche une chaîne localisée semblable à Français.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.rectangle_gris">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.rectangle_rouge">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.rectangle_vert">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.Servo">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.UnderConstruction">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.Warning">
+	<summary>
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
+</summary>
+</member><member name="T:SynchTwinRcEngine_Interface.My.Resources.Resources">
+	<summary>
+  Une classe de ressource fortement typée destinée, entre autres, à la consultation des chaînes localisées.
+</summary>
+</member><member name="M:SynchTwinRcEngine_Interface.Form1.AddRecord(System.String,System.String)">
+	<summary>
+ Build a RR custom list file with ICO option
+ </summary>
+	<param name="CustomList"></param>
+	<remarks></remarks>
+</member>
+</members>
+</doc>
