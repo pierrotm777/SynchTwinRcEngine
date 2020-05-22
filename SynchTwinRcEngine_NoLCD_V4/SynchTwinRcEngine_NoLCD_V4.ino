@@ -1,8 +1,9 @@
 /* SyncTwinRcEngine */
-/* Compile only with IDE version '1.0.6' or '1.5.7 beta' or '1.5.8 beta' or '1.6.0' to '1.8.2' */
+/* Compile only with IDE version '1.0.6' or '1.5.7 beta' or '1.5.8 beta' or '1.6.0' to '1.8.13' */
 
 #include <EEPROM.h>
 #include <Streaming.h>          /* Librairie remplacant SettingsPort.print() */
+#include <TinyPinChange.h>
 #include <SoftRcPulseOut.h>     /* Librairie utilisee pour creer un signal pwm en sortie */
 //Input libraries
 #include <TinyCppmReader.h>
@@ -17,8 +18,6 @@
 // software SettingsPort #1: RX = digital pin 10, TX = digital pin 11
 SoftSerial SettingsPort(10,11);
 
-
-
 // A TESTER I2C EEPROM pour recorder https://www.hobbytronics.co.uk/arduino-external-eeprom
 // et ici http://heliosoph.mit-links.info/512kb-eeprom-atmega328p/
 
@@ -26,21 +25,22 @@ SoftSerial SettingsPort(10,11);
 
 
 //#define DEBUG
-//#define SECURITYENGINE          /* Engines security On/off */
+#define SECURITYENGINE          /* Engines security On/off */
 #define ARDUINO2PC                /* PC interface (!!!!!! don't use this option with SettingsPortPLOTTER or READ_Button_AnalogPin !!!!!!) */
-//#define EXTERNALVBATT             /* Read external battery voltage */
-//#define GLOWMANAGER             /* Glow driver */
+#define EXTERNALVBATT             /* Read external battery voltage */
+#define GLOWMANAGER             /* Glow driver */
 //#define PIDCONTROL              /* Use PID control for define the variable stepMotor in SynchroMotors */
 //#define I2CSLAVEFOUND           /* for command a second module by the I2C port */
-//#define INT_REF                 /* internal 1.1v reference */
+#define INT_REF                 /* internal 1.1v reference */
 //#define SerialPLOTTER           /* Multi plot in IDE (don't use this option with ARDUINO2PC) */
 #define RECORDER                /* L'enregistreur est déplacé dans VB */
 //#define TELEMETRY_FRSKY           /* Frsky S-PORT Telemetry for VOLTAGE,RPM and TEMP */
 //#define FRAM_USED
+//#define EXTLED
 
 /*
 0     INPUT PPM
-1     Tx (Not used)
+1     Led Red
 2     Hall or IR motor 1 
 3     Hall or IR motor 2 
 4     Servo motor 1 
@@ -50,50 +50,21 @@ SoftSerial SettingsPort(10,11);
 8     Glow driver motor 2
 9     Telemetry Frsky S-Port
 
-10    Led Red/Setting's Port RX
-11    Led Red/Setting's Port TX
+10    Setting's Port RX
+11    Setting's Port TX
 12    Led Yellow
-13    Led Yellow
+13    Led Yellow (Pro Mini LED)
 
 A0    Led Green
 A1    Led Green
 A2    Led Yellow
-A3    Led Yellow//External power V+
+A3    Led Yellow
 A4    SDA // Connexion SD I2C
 A5    SCL // Connexion SD I2C
-A6    
-A7    
+A6    Led Red
+A7    External power V+
 
 */
-
-#ifdef TELEMETRY_FRSKY
-#define SERIALSOFT				/* Remplace SoftwareSerial par SoftSerial dans la lib FrSkySportSingleWireSerial.h */
-#include "FrSkySportSensor.h"
-#include "FrSkySportSensorAss.h"
-#include "FrSkySportSensorFcs.h"
-//#include "FrSkySportSensorFlvss.h"
-//#include "FrSkySportSensorGps.h"
-#include "FrSkySportSensorRpm.h"
-//#include "FrSkySportSensorSp2uart.h"
-//#include "FrSkySportSensorVario.h"
-#include "FrSkySportSingleWireSettingsPort.h"
-#include "FrSkySportDecoder.h"
-#ifdef POLLING_ENABLED
-FrSkySportDecoder decodFrsky(true);                     // Create decoder object with polling
-#else
-FrSkySportDecoder decodFrsky;                           // Create decoder object without polling
-#endif
-FrSkySportSensorAss ass;                               // Create ASS sensor with default ID
-FrSkySportSensorFcs fcs;                               // Create FCS-40A sensor with default ID (use ID8 for FCS-150A)
-//FrSkySportSensorFlvss flvss1;                          // Create FLVSS sensor with default ID
-//FrSkySportSensorFlvss flvss2(FrSkySportSensor::ID15);  // Create FLVSS sensor with given ID
-//FrSkySportSensorGps gps;                               // Create GPS sensor with default ID
-FrSkySportSensorRpm rpm;                               // Create RPM sensor with default ID
-//FrSkySportSensorSp2uart sp2uart;                       // Create SP2UART Type B sensor with default ID
-//FrSkySportSensorVario vario;                           // Create Variometer sensor with default ID
-#endif
-
-
 
 //affectation des pins des entrees RX et sorties servos
 #define BROCHE_PPMINPUT         0    /* PPM,SBUS or IBUS Input */
@@ -108,23 +79,26 @@ FrSkySportSensorRpm rpm;                               // Create RPM sensor with
 #define BROCHE_GLOW2            8  /* Glow driver motor 2 (PB0)*/
 #endif
 
-// Frsky Telemetry input pin    9 /* see decodFrsky.begin(FrSkySportSingleWireSettingsPort::SOFT_SERIAL_PIN_9, &ass, &fcs, &rpm ); */
+// Frsky Telemetry input pin    9 /* see decodFrsky.begin(FrSkySportSingleWireSerial::SOFT_SERIAL_PIN_9, &ass, &fcs, &rpm ); */
 
 
 #ifdef EXTERNALVBATT
-#define BROCHE_BATTEXT          A3  /* External battery voltage (V+) */
+#define BROCHE_BATTEXT          A7  /* External battery voltage (V+) */
 #endif
 
 #define LED_SIGNAL_FOUND      250
 #define LED_SIGNAL_NOTFOUND   1000
 #define LED                   5,B // declare LED in PCB5 (D13)
-//#define LED1GREEN             2,B //D10
-//#define LED2GREEN             3,B //D11
-#define LED1RED               4,B //D12
-#define LED2RED               0,C //A0
-#define LED1YELLOW            1,C //A1
-#define LED2YELLOW            2,C //A2
 
+#ifdef EXTLED
+#define LED1RED               2,B //D10
+#define LED2RED               3,B //D11 
+#define LED1GREEN             0,C //A0
+#define LED2GREEN             1,C //A1
+#define LED1YELLOW            2,C //A2
+#define LED2YELLOW            3,C //A3
+//Atmega328PB (A6(PE2) et A7(PE3) sont aussi dispo)
+#endif
 
 boolean RunConfig = true;
 boolean CheckIfVBUsed = false;
@@ -240,22 +214,34 @@ SoftRcPulseOut ServoRudder;
 
 #define SERIAL_BAUD         115200         /* 115200 is need for use BlueSmirF BT module */
 #ifdef ARDUINO2PC
-#define LONGUEUR_MSG_MAX   82//73             /* ex: 1500,1500,1000,1000,2,2000,1250,1000,2000,1,1,0,99,2,0,0,0,1000,20000,0,0 */
+#define LONGUEUR_MSG_MAX   48             /* ex: S1,1500,1500,1000,1000,2,2000,1250,1000,2000,1 ou S2,1,0,99,2,0,0,0,1000,20000,0,0 */
 #define RETOUR_CHARRIOT    0x0D           /* CR (code ASCII) */
 #define PASSAGE_LIGNE      0x0A           /* LF (code ASCII) */
 #define BACK_SPACE         0x08
 char Message[LONGUEUR_MSG_MAX + 1];
 uint8_t SubStrNb, SeparFound;
-#define SUB_STRING_NB_MAX  20//23             /* nombre de valeurs splitées */
+#define SUB_STRING_NB_MAX  13//23             /* nombre de valeurs splitées */
 char *StrTbl[SUB_STRING_NB_MAX];          /* declaration de pointeurs sur chaine, 1 pointeur = 2 octets seulement */
-uint8_t countVirgulesInMessage = 0;
 #endif
-int pos = 0;
+uint16_t pos = 0;
 
 //#ifdef I2CSLAVEFOUND
 //#include <Wire.h>               /* Interface LCD I2C, SDA = A4, SCL = A5) */
 //#define SLAVE_ADRESS      20
 //#endif
+
+
+//https://www.rcgroups.com/forums/showthread.php?2245978-FrSky-S-Port-telemetry-library-easy-to-use-and-configurable
+#ifdef TELEMETRY_FRSKY
+//#define FASTSERIAL
+//#include <FastSerial.h>
+//FastSerialPort0(Serial);
+#include "FrSkySportSensorRpm.h"
+#include "FrSkySportSingleWireSerial.h"
+#include "FrSkySportTelemetry.h"
+FrSkySportSensorRpm rpm;             // Create RPM sensor with default ID
+FrSkySportTelemetry decodFrsky;      // Create telemetry object without polling
+#endif
 
 void setup()
 {
@@ -269,11 +255,11 @@ void setup()
   Serial.begin(115200);
 
   SettingsPort.begin(57600);
-  delay(500);
+  delay(500);//while (SettingsPort.available() > 0)
 
 #ifdef TELEMETRY_FRSKY// telemetrie sur ici pin 12 (pin 2 à 12 possibles)
-  //decodFrsky.begin(FrSkySportSingleWireSettingsPort::SOFT_SettingsPort_PIN_12, &ass, &fcs, &flvss1, &flvss2, &gps, &rpm, &sp2uart, &vario);
-  decodFrsky.begin(FrSkySportSingleWireSettingsPort::SOFT_SERIAL_PIN_9, &ass, &fcs, &rpm );
+  //decodFrsky.begin(FrSkySportSingleWireSerial::SOFT_SettingsPort_PIN_12, &ass, &fcs, &flvss1, &flvss2, &gps, &rpm, &sp2uart, &vario);
+  decodFrsky.begin(FrSkySportSingleWireSerial::SOFT_SERIAL_PIN_9,&rpm );
 #endif
   
 //#ifdef I2CSLAVEFOUND
@@ -282,12 +268,6 @@ void setup()
 
 //#ifdef PIDCONTROL
 //#endif
-  
-  /* init pins leds in output */
-  out(LED);
-//  out(LED1GREEN);out(LED2GREEN);
-  out(LED1RED);out(LED2RED);
-  out(LED1YELLOW);out(LED2YELLOW);
   
 #ifdef GLOWMANAGER
   //initialisation du chauffage des bougies
@@ -318,7 +298,7 @@ void setup()
   {
     case CPPM:
         blinkNTime(1,125,250);
-        if (RunConfig = true)
+        if (RunConfig == true)
         {
           SettingsPort << F("CPPM selected") << endl << endl;
         }     
@@ -326,7 +306,7 @@ void setup()
       break;
     case SBUS:
         blinkNTime(2,125,250);
-        if (RunConfig = true)
+        if (RunConfig == true)
         {
           SettingsPort << F("SBUS selected") << endl << endl;
         }
@@ -336,7 +316,7 @@ void setup()
       break;
     case SRXL:
         blinkNTime(3,125,250);
-        if (RunConfig = true)
+        if (RunConfig == true)
         {
           SettingsPort << F("SRXL selected") << endl << endl;
         }
@@ -346,7 +326,7 @@ void setup()
       break;
     case SUMD:
         blinkNTime(4,125,250);
-        if (RunConfig = true)
+        if (RunConfig == true)
         {
           SettingsPort << F("SUMD selected") << endl << endl;
         }
@@ -356,7 +336,7 @@ void setup()
       break;
     case IBUS:
         blinkNTime(5,125,250);
-        if (RunConfig = true)
+        if (RunConfig == true)
         {
           SettingsPort << F("IBUS selected") << endl << endl;
         }
@@ -366,7 +346,7 @@ void setup()
       break;
     case JETIEX:
         blinkNTime(8,125,250);
-        if (RunConfig = true)
+        if (RunConfig == true)
         {
           SettingsPort << F("IBUS selected") << endl << endl;
         }
@@ -399,7 +379,20 @@ void setup()
   }
 #endif
 
-
+  /* init pins leds in output */
+#ifdef EXTLED
+  out(LED);
+  out(LED1RED);on(LED1RED);
+  out(LED2RED);on(LED2RED);
+  out(LED1GREEN);on(LED1GREEN);
+  out(LED2GREEN);on(LED2GREEN);
+  out(LED1YELLOW);on(LED1YELLOW);
+  out(LED2YELLOW);on(LED2YELLOW);
+  delay(500);
+  off(LED1RED);off(LED2RED);
+  off(LED1GREEN);off(LED2GREEN);
+  off(LED1YELLOW);off(LED2YELLOW);
+#endif
 
 #ifdef RECORDER
   setupRecorder();
@@ -425,6 +418,9 @@ void loop()
         SettingsPort.flush();
         SettingsPort.end();
         RunConfig = false;
+#ifdef EXTLED        
+        out(LED1RED);out(LED2RED);on(LED1RED);on(LED2RED);delay(500);off(LED1RED);off(LED2RED);
+#endif
       }
     }
   }
@@ -444,7 +440,7 @@ if (ServoRecorderIsON == true)
 }
 else
 {
-  mode0();/* main mode launched if no buttons pressed during start */ 
+  //mode0();/* main mode launched if no buttons pressed during start */ 
 }
 
 

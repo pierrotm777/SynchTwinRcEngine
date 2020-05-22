@@ -136,8 +136,10 @@ void loopRecorder()
   toggle ^= 1; // classic XOR stateChange
 //  delay(40); // give the LEDs some time to flash
 
+#ifdef EXTLED
   if(mode == REC){on(LED1RED);}else{off(LED1RED);}
-  if(mode == PLAY){on(LED2RED);}else{off(LED2RED);}
+  if(mode == PLAY){on(LED1GREEN);}else{off(LED1GREEN);}
+#endif
 
 }
 

@@ -1620,10 +1620,12 @@ Public Class Form1
     Private Sub ButtonSauvegardeConfig_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonSauvegardeConfig.Click
         ProgressBarSaveSettings.Visible = True
         ProgressBarSaveSettings.Value = 0
-        'format envoyé : 1656,1653,1385,1385,2,2073,1389,1225,2073,1,0,0,100,3,20,0,0,1000,20000
-        '                1500,1500,1000,1000,2,2000,1250,1200,1900,1,0,0,99.00,2,0,0,0,1000,20000
-        MessageToSend = ""
-        MessageToSend = textCentreServo1.Text & ","     'centerposServo1
+        'format envoyé : 
+        'S1, 1500, 1500, 1000, 1000, 2, 2000, 1250, 1200, 1900, 1,0
+        'S2,0,99.00,2,0,0,0,1000,20000,0
+
+        MessageToSend = "S1,"
+        MessageToSend &= textCentreServo1.Text & ","     'centerposServo1
         MessageToSend &= textCentreServo2.Text & ","    'centerposServo2
         MessageToSend &= textIdleServo1.Text & ","      'idelposServos1
         MessageToSend &= textIdleServo2.Text & ","      'idelposServos2
@@ -1633,7 +1635,17 @@ Public Class Form1
         MessageToSend &= textMiniGenerale.Text & ","    'minimumPulse_US
         MessageToSend &= textMaxiGenerale.Text & ","    'maximumPulse_US
         MessageToSend &= textAuxiliaireMode.Text & ","  'auxChannel
-        If CheckBoxInversionServo1.Checked = True Then MessageToSend &= "1," Else MessageToSend &= "0," 'reverseServo1
+        If CheckBoxInversionServo1.Checked = True Then MessageToSend &= "1" Else MessageToSend &= "0" 'reverseServo1
+
+        If term.Visible = True Then
+            term.TextBoxTerminalComPort.AppendText(MessageToSend & vbCrLf)
+        End If
+        SerialPort1.Write(Trim(MessageToSend) & vbCr)
+
+        Thread.Sleep(1000)
+
+
+        MessageToSend = "S2,"
         If CheckBoxInversionServo2.Checked = True Then MessageToSend &= "1," Else MessageToSend &= "0," 'reverseServo2
         MessageToSend &= TextBoxDiffSpeedSimuConsigne.Text & ","    'difference speeds accepted
         MessageToSend &= textNombrePales.Text & ","     'nbPales
@@ -1666,7 +1678,6 @@ Public Class Form1
             Exit Sub
         End If
 
-        'SerialPort1.Write("5000,1200,1385,1385,2,2073,1389,1225,2073,1,0,0,100,3,20,0,1000,20000,0" & vbCr)
         If term.Visible = True Then
             term.TextBoxTerminalComPort.AppendText(MessageToSend & vbCrLf)
         End If

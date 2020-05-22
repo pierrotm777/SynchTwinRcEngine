@@ -1,11 +1,11 @@
 #ifdef GLOWMANAGER
 
-#define COUPURE_GAZ   1080  // en µs
+#define COUPURE_GAZ     1080  // en µs
 #define DELAI_CHAUFFAGE 1500  // en ms
 #define COURANT_DEM     100   // en % courant moteur à l'arrêt pour démarrage
 #define COURANT_TRN     60    // en % courant moteur tournant
 #define VITESSE_GAZ     60    // 60 µS pour 20 ms (20ms = période impulsion RX)
-uint8_t variation, pwm_chauffe, pos_coupure;
+uint16_t variation, pwm_chauffe, pos_coupure;
 unsigned long timer_chauffe, temps_ms;
 bool cmd_chauffe, moteur_marche;
 int tpulse_0, tpulse_1, tpulse;
@@ -82,7 +82,9 @@ void glowUpdate()
  // 
  if ((cmd_chauffe == true) && (SecurityIsON == false))
  { // Gestion avec SecurityIsON
-   on(LED1RED);on(LED2RED);//LEDCHAU_ON
+#ifdef EXTLED
+   on(LED1YELLOW);on(LED2YELLOW);//LEDCHAU_ON
+#endif
    analogWrite(BROCHE_GLOW1, pwm_chauffe); // Commande PWM MOSFET , courant bougie
    analogWrite(BROCHE_GLOW2, pwm_chauffe); // Commande PWM MOSFET , courant bougie
    temps_ms = millis();   // temps courant depuis alimentation bougie en ms    
@@ -95,8 +97,12 @@ void glowUpdate()
    // coupure alimentation en courant de la bougie
    pwm_chauffe = 0;
    analogWrite(BROCHE_GLOW1, pwm_chauffe);
-   analogWrite(BROCHE_GLOW2, pwm_chauffe); 
+   analogWrite(BROCHE_GLOW2, pwm_chauffe);
+   
+#ifdef EXTLED
    off(LED1YELLOW);off(LED1YELLOW);//LEDCHAU_OFF
+#endif
+
  } 
 
 }

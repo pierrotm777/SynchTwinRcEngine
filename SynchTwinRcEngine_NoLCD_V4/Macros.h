@@ -54,8 +54,8 @@ LED6 B,5
 /* Macro function to set internal pullup resistor of input pin (same as "on" macro)*/
 #define pullup(x)   _on(x)
 /* Macro function to get state of input pin */
-//#define get(x)      _get(x) // PB avec EEPROM.get(0,ms)
-//#define _get(bit,port)  (PIN##port & (1 << bit))
+#define getin(x)      _getin(x)
+#define _getin(bit,port)  (PIN##port & (1 << bit))
 /* Macro function to toggle an output pin */
 #define flip(x)     _flip(x)
 #define _flip(bit,port) PORT##port ^= (1 << bit)

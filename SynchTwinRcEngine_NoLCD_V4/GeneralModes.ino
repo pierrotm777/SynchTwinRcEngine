@@ -132,11 +132,7 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
             
       SecurityIsON = false;
       static uint16_t posInUs;
-
-      //countVirgulesInMessage = CountChar(Message,',');
-//#ifdef DEBUG
-//      SettingsPort << F("New settings received: ") << countVirgulesInMessage + 1 << F("  ") << Message << endl;
-//#endif    
+  
       pos = atoi(Message); //conversion Message ASCII vers Entier (ATOI= Ascii TO Integer)
       if( (pos >= 0) && (pos <= 180))//reception curseur VB 'servos'
       { 
@@ -161,12 +157,7 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
           SoftRcPulseOut::refresh(1);      // generates the servo pulse
         } 
       }
-
-      else if (Message == RETOUR_CHARRIOT)
-      {
-        SettingsPort << F("RETOUR_CHARRIOT") << endl << endl;
-      }
-      
+     
       else if(pos == 360)//CPPM
       {             
         ms.InputMode = 0;
@@ -344,61 +335,49 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
       }
 
       if(CountChar(Message,',')>0)
-      //if(countVirgulesInMessage == 19)//reception settings from VB (test le nombre de virgule, pas de variables)
-      {//format received: 1500,1500,1000,1000,2,2000,1250,1200,1900,1,0,0,99,2,0,0,0,1000,20000,0
-        //                1500,1500,1000,1000,2,2000,1250,1000,2000,1,0,0,99,2,1,0,0,1000,20000,1
+      {/*format received: S1,1500,1500,1000,1000,2,2000,1250,1200,1900,1,0
+                          S2,0,99,2,0,0,0,1000,20000,0*/
+        static String checkMess;       
+        StrSplit(Message, ",",  StrTbl, SUB_STRING_NB_MAX, &SeparFound);
+        checkMess = StrTbl[0];
+        if (checkMess == "S1")
+        {
+            ms.centerposServo1 = atoi(StrTbl[1]);//centerposServo1
+            ms.centerposServo2 = atoi(StrTbl[2]);//centerposServo2
+            ms.idelposServos1  = atoi(StrTbl[3]);//idelposServos1
+            ms.idelposServos2  = atoi(StrTbl[4]);//idelposServos2
+            ms.responseTime    = atoi(StrTbl[5]);//responseTime
+            ms.fullThrottle    = atoi(StrTbl[6]);//fullThrottle
+            ms.beginSynchro    = atoi(StrTbl[7]);//beginSynchro
+            ms.minimumPulse_US = atoi(StrTbl[8]);//minimumPulse_US
+            ms.maximumPulse_US = atoi(StrTbl[9]);//maximumPulse_US
+            ms.auxChannel      = atoi(StrTbl[10]);//auxChannel
+            ms.reverseServo1   = atoi(StrTbl[11]);//reverseServo1
 #ifdef DEBUG
-        SettingsPort << F("New settings received: ") << Message << endl;
-        SettingsPort << sizeof(Message) << endl;
-#endif               
-        StrSplit(Message, ",",  StrTbl, SUB_STRING_NB_MAX, &SeparFound);     
-        ms.centerposServo1 = atoi(StrTbl[0]);//centerposServo1
-        ms.centerposServo2 = atoi(StrTbl[1]);//centerposServo2
-        ms.idelposServos1  = atoi(StrTbl[2]);//idelposServos1
-        ms.idelposServos2  = atoi(StrTbl[3]);//idelposServos2
-        ms.responseTime    = atoi(StrTbl[4]);//responseTime
-        ms.fullThrottle    = atoi(StrTbl[5]);//fullThrottle
-        ms.beginSynchro    = atoi(StrTbl[6]);//beginSynchro
-        ms.minimumPulse_US = atoi(StrTbl[7]);//minimumPulse_US
-        ms.maximumPulse_US = atoi(StrTbl[8]);//maximumPulse_US
-        ms.auxChannel      = atoi(StrTbl[9]);//auxChannel
-        ms.reverseServo1   = atoi(StrTbl[10]);//reverseServo1
-        ms.reverseServo2   = atoi(StrTbl[11]);//reverseServo2
-        ms.diffVitesseErr  = atoi(StrTbl[12]);//diffVitesseErr
-        ms.nbPales         = atoi(StrTbl[13]);//nbPales
-        ms.radioRcMode     = atoi(StrTbl[14]);//Rc radio mode (1 to 4)
-        ms.moduleMasterOrSlave = atoi(StrTbl[15]);//moduleMasterOrSlave
-        ms.fahrenheitDegrees = atoi(StrTbl[16]);//fahrenheitDegrees
-        ms.minimumSpeed    = atoi(StrTbl[17]);//minimum motor rpm
-        ms.maximumSpeed    = atoi(StrTbl[18]);//maximum motor rpm
-        ms.InputMode       = atoi(StrTbl[19]);//CPPM,SBUS or IBUS
-        //ms.telemetryType   = atoi(StrTbl[20]);//0 = Frsky
-        
+            SettingsPort << F("New settings S1: ") << endl;
+#endif
+        }
+        else if (checkMess == "S2")
+        {
+            ms.reverseServo2   = atoi(StrTbl[1]);//reverseServo2
+            ms.diffVitesseErr  = atoi(StrTbl[2]);//diffVitesseErr
+            ms.nbPales         = atoi(StrTbl[3]);//nbPales
+            ms.radioRcMode     = atoi(StrTbl[4]);//Rc radio mode (1 to 4)
+            ms.moduleMasterOrSlave = atoi(StrTbl[5]);//moduleMasterOrSlave
+            ms.fahrenheitDegrees = atoi(StrTbl[6]);//fahrenheitDegrees
+            ms.minimumSpeed    = atoi(StrTbl[7]);//minimum motor rpm
+            ms.maximumSpeed    = atoi(StrTbl[8]);//maximum motor rpm
+            ms.InputMode       = atoi(StrTbl[9]);//CPPM,SBUS or IBUS
+            //ms.telemetryType   = atoi(StrTbl[10]);//0 = Frsky
+#ifdef DEBUG
+            SettingsPort << F("New settings S2: ") << endl;           
+#endif
+        }
         StrSplitRestore(",", StrTbl, SeparFound);//Imperatif SeparFound <= SUB_STRING_NB_MAX
-        EEPROM.put(0,ms);
-        blinkNTime(5,100,100);
+        EEPROM.put(0,ms);        
+        blinkNTime(5,100,100);            
       }
-
-      
-//      else if(countVirgulesInMessage == 3)//check XXX,A,B,C 
-//      {
-//        StrSplit(Message, ",",  StrTbl, SUB_STRING_NB_MAX, &SeparFound);
-//        switch (atoi(StrTbl[0]))
-//        {
-//
-//          case 888://888,v1,v2,consigne
-//            simulateSpeed = true;
-//            vitesse1 = atoi(StrTbl[1]);
-//            vitesse2 = atoi(StrTbl[2]);
-//            ms.diffVitesseErr = atoi(StrTbl[3]);
-//            blinkNTime(5,LED_SIGNAL_FOUND,LED_SIGNAL_FOUND);
-//            break;                                 
-//        }
-//        StrSplitRestore(",", StrTbl, SeparFound);//Imperatif SeparFound <= SUB_STRING_NB_MAX
-//        //SettingsPort.flush(); // clear SettingsPort port
-//      } 
-    } 
-
+    }
     readAuxiliaryChannel();//read Auxiliary channel and his modes (1 to 6)
 
 }//end SettingsPortFromToVB()
@@ -411,28 +390,6 @@ uint8_t CountChar(String input, char c )
   retval ++;
   return retval;
 }
-
-//uint8_t checkVirgules(String Input , char c)
-//{
-//  
-//  // Count number of comma
-//  int count=0;
-//  int count_comma;
-//  int strlength = Input.length();
-// 
-//  do
-//  {
-//      if(String(Input[count]) == ",")
-//      {
-//        count_comma++;
-//      }
-//      count++;
-//   
-//  }while(count < strlength);
-// 
-//  Serial.print(F("Nombre de virgules: ")); Serial.println(count_comma);
-//}
-
 
 /**********************************************************************************************************
 Decompose une liste de chaines de caracteres separe par une chaine "separateur" en un tableau de chaines de

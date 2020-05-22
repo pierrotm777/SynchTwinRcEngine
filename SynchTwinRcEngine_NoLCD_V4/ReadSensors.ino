@@ -57,8 +57,11 @@ void readCaptorTransitions()
      }
     interrupts();
   }
-  
+
+#ifdef EXTLED
   if (vitesse1 !=0) {on(LED1RED);off(LED1RED);}
-  if (vitesse2 !=0) {on(LED1RED);off(LED1RED);}
+//  if (vitesse2 !=0) {on(LED2RED);off(LED2RED);}
+#endif
+
  
 }
