@@ -1907,28 +1907,28 @@ Public Class Form1
 
     Private Sub ButtonSpeedSimuOn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonSpeedSimuOn.Click
         If SimualtionSpeed = False Then
-            'format envoyé : 888,1656,1653,100
+            'format envoyé : S3,1656,1653,100
             SimualtionSpeed = True
             PictureBoxSimuOnOff.Image = My.Resources.rectangle_vert
             TrackBarSpeedSimu1.Value = CInt(TextBoxForceSpeedSimu1.Text)
             TrackBarSpeedSimu2.Value = CInt(TextBoxForceSpeedSimu2.Text)
 
             MessageToSend = ""
-            MessageToSend = "501" 'Simu ON
-            'MessageToSend &= TextBoxForceSpeedSimu1.Text & ","
-            'MessageToSend &= TextBoxForceSpeedSimu2.Text & ","
-            'MessageToSend &= TextBoxDiffSpeedSimuConsigne.Text
+            MessageToSend &= "S3," 'Simu ON
+            MessageToSend &= TextBoxForceSpeedSimu1.Text & ","
+            MessageToSend &= TextBoxForceSpeedSimu2.Text & ","
+            MessageToSend &= TextBoxDiffSpeedSimuConsigne.Text
 
             'MsgBox(MessageToSend)
             SerialPort1.Write(Trim(MessageToSend) & vbCr)
 
         Else
-            'format envoyé : 889,0,0,100
+            'format envoyé : S4,0,0,100
             SimualtionSpeed = False
             PictureBoxSimuOnOff.Image = My.Resources.rectangle_rouge
 
-            'MessageToSend = ""
-            MessageToSend = "500" 'Simu OFF
+            MessageToSend = ""
+            MessageToSend &= "S4,0,0,100" 'Simu OFF
 
             'MsgBox(MessageToSend)
             SerialPort1.Write(Trim(MessageToSend) & vbCr)
@@ -1939,11 +1939,12 @@ Public Class Form1
 
     Private Sub ButtonGlowPlugOnOff_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonGlowPlugOnOff.Click
         GlowPlugIsOn = Not GlowPlugIsOn
-        SerialPort1.Write(Trim(Str(404)) & vbCr)
         If GlowPlugIsOn = True Then
+            SerialPort1.Write(Trim(Str(405)) & vbCr)
             PictureBoxGlowPlugOnOff.Image = My.Resources.rectangle_vert
         Else
             PictureBoxGlowPlugOnOff.Image = My.Resources.rectangle_rouge
+            SerialPort1.Write(Trim(Str(404)) & vbCr)
         End If
 
     End Sub

@@ -36,7 +36,7 @@ SoftSerial SettingsPort(10,11);
 #define RECORDER                /* L'enregistreur est déplacé dans VB */
 //#define TELEMETRY_FRSKY           /* Frsky S-PORT Telemetry for VOLTAGE,RPM and TEMP */
 //#define FRAM_USED
-//#define EXTLED
+#define EXTLED
 
 /*
 0     INPUT PPM
@@ -382,14 +382,14 @@ void setup()
   /* init pins leds in output */
 #ifdef EXTLED
   out(LED);
-  out(LED1RED);on(LED1RED);
-  out(LED2RED);on(LED2RED);
+  //out(LED1RED);on(LED1RED);
+  //out(LED2RED);on(LED2RED);
   out(LED1GREEN);on(LED1GREEN);
   out(LED2GREEN);on(LED2GREEN);
   out(LED1YELLOW);on(LED1YELLOW);
   out(LED2YELLOW);on(LED2YELLOW);
   delay(500);
-  off(LED1RED);off(LED2RED);
+  //off(LED1RED);off(LED2RED);
   off(LED1GREEN);off(LED2GREEN);
   off(LED1YELLOW);off(LED2YELLOW);
 #endif
@@ -440,7 +440,7 @@ if (ServoRecorderIsON == true)
 }
 else
 {
-  //mode0();/* main mode launched if no buttons pressed during start */ 
+  mode0();/* main mode launched if no buttons pressed during start */ 
 }
 
 

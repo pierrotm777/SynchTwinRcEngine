@@ -232,28 +232,14 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
         SettingsPort <<  F("NOTUSED|") << endl;
 #endif
       }
-      else if(pos == 404)//On/Off Glow Plug command
+      else if(pos == 404)//On Glow Plug command
+      {
+        glowControlIsActive=true;
+      }
+      else if(pos == 405)//Off Glow Plug command
       { 
-        if (glowControlIsActive==false)
-        {
-          //PIN_HIGH(C,6);
-          glowControlIsActive=true;
-        }
-        else
-        { 
-          //PIN_LOW(C,6);
-          glowControlIsActive=false;        
-        }
-      }
-
-      else if (pos == 500)// simulation off
-      {
-        simulateSpeed = false;                   
-      }
-      else if (pos == 501)// simulation off
-      {
-        simulateSpeed = true;                   
-      }      
+        glowControlIsActive=false;
+      } 
 
 #ifdef FRAM_USED           
       else if(pos == 600)//read FRAM Infos
@@ -375,7 +361,23 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
         }
         StrSplitRestore(",", StrTbl, SeparFound);//Imperatif SeparFound <= SUB_STRING_NB_MAX
         EEPROM.put(0,ms);        
-        blinkNTime(5,100,100);            
+        blinkNTime(5,100,100);
+
+        else if (checkMess == "S3")// simulation on
+        {
+          simulateSpeed = true;
+          //v1   = atoi(StrTbl[1]);
+          //v2  = atoi(StrTbl[2]);
+          //DiffSpeedConsign = atoi(StrTbl[3]);
+        }
+        else if (checkMess == "S4")// simulation off
+        {
+          simulateSpeed = false;
+          //v1   = 0;
+          //v2  = 0;
+          //DiffSpeedConsign = 100;          
+        }
+        
       }
     }
     readAuxiliaryChannel();//read Auxiliary channel and his modes (1 to 6)
