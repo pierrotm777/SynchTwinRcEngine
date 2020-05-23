@@ -29,8 +29,7 @@ SoftSerial SettingsPort(10,11);
 #define ARDUINO2PC                /* PC interface (!!!!!! don't use this option with SettingsPortPLOTTER or READ_Button_AnalogPin !!!!!!) */
 #define EXTERNALVBATT             /* Read external battery voltage */
 #define GLOWMANAGER             /* Glow driver */
-//#define PIDCONTROL              /* Use PID control for define the variable stepMotor in SynchroMotors */
-//#define I2CSLAVEFOUND           /* for command a second module by the I2C port */
+#define I2CSLAVEFOUND           /* for command a second module by the I2C port */
 #define INT_REF                 /* internal 1.1v reference */
 //#define SerialPLOTTER           /* Multi plot in IDE (don't use this option with ARDUINO2PC) */
 #define RECORDER                /* L'enregistreur est déplacé dans VB */
@@ -128,21 +127,6 @@ uint8_t recoderMode /*= 1*/;
 bool releaseButtonMode = false;
 #endif
 
-/*
-#define RC_CHANS  12
-enum rc {ROLL,PITCH,YAW ,THROTTLE,AUX1,AUX2,
-         AUX3,AUX4 ,AUX5,AUX6    ,AUX7,AUX8};
-         
-//#define SettingsPort_SUM_PPM         PITCH,YAW,THROTTLE,ROLL,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For Graupner/Spektrum
-#define SettingsPort_SUM_PPM         ROLL,PITCH,THROTTLE,YAW,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For Robe/Hitec/Futaba
-//#define SettingsPort_SUM_PPM         ROLL,PITCH,YAW,THROTTLE,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For Multiplex
-//#define SettingsPort_SUM_PPM         PITCH,ROLL,THROTTLE,YAW,AUX1,AUX2,AUX3,AUX4,8,9,10,11 //For some Hitec/Sanwa/Others
-
-#if defined(SettingsPort_SUM_PPM) //Channel order for PPM SUM RX Configs
-  static uint8_t rcChannel[RC_CHANS] = {SettingsPort_SUM_PPM};
-#endif
-*/
-
 /** La structure permettant de stocker les données */
 //https://www.carnetdumaker.net/articles/stocker-des-donnees-en-memoire-eeprom-avec-une-carte-arduino-genuino/
 //struct __attribute__ ((packed)) MaStructure {
@@ -191,11 +175,6 @@ int readings_V2[5];                             //averaging last 5 readings_V2
 
 int index = 0;
 
-//#ifdef PIDCONTROL
-////http://www.ferdinandpiette.com/blog/2012/04/asservissement-en-vitesse-dun-moteur-avec-arduino/
-//#include <SimpleTimer.h>
-//
-//#endif
 
 /* ******************************************************************************
  * !!!!!! DOIT ETRE AU MINIMUM POUR BLOQUER LES HELICES SI PAS DE SIGNAL !!!!!! *
@@ -225,10 +204,10 @@ char *StrTbl[SUB_STRING_NB_MAX];          /* declaration de pointeurs sur chaine
 #endif
 uint16_t pos = 0;
 
-//#ifdef I2CSLAVEFOUND
-//#include <Wire.h>               /* Interface LCD I2C, SDA = A4, SCL = A5) */
-//#define SLAVE_ADRESS      20
-//#endif
+#ifdef I2CSLAVEFOUND
+#include <Wire.h>               /* Interface LCD I2C, SDA = A4, SCL = A5) */
+#define SLAVE_ADRESS      20
+#endif
 
 
 //https://www.rcgroups.com/forums/showthread.php?2245978-FrSky-S-Port-telemetry-library-easy-to-use-and-configurable

@@ -1,1 +1,0 @@
-http://www.codeproject.com/Articles/1110087/Oscillograph-Bargraph-and-Linegraph-in-NET

@@ -339,6 +339,9 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
             ms.maximumPulse_US = atoi(StrTbl[9]);//maximumPulse_US
             ms.auxChannel      = atoi(StrTbl[10]);//auxChannel
             ms.reverseServo1   = atoi(StrTbl[11]);//reverseServo1
+            StrSplitRestore(",", StrTbl, SeparFound);//Imperatif SeparFound <= SUB_STRING_NB_MAX
+            EEPROM.put(0,ms);        
+            blinkNTime(5,100,100);              
 #ifdef DEBUG
             SettingsPort << F("New settings S1: ") << endl;
 #endif
@@ -355,27 +358,26 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
             ms.maximumSpeed    = atoi(StrTbl[8]);//maximum motor rpm
             ms.InputMode       = atoi(StrTbl[9]);//CPPM,SBUS or IBUS
             //ms.telemetryType   = atoi(StrTbl[10]);//0 = Frsky
+            StrSplitRestore(",", StrTbl, SeparFound);//Imperatif SeparFound <= SUB_STRING_NB_MAX
+            EEPROM.put(0,ms);        
+            blinkNTime(5,100,100);            
 #ifdef DEBUG
             SettingsPort << F("New settings S2: ") << endl;           
 #endif
         }
-        StrSplitRestore(",", StrTbl, SeparFound);//Imperatif SeparFound <= SUB_STRING_NB_MAX
-        EEPROM.put(0,ms);        
-        blinkNTime(5,100,100);
-
         else if (checkMess == "S3")// simulation on
         {
           simulateSpeed = true;
-          //v1   = atoi(StrTbl[1]);
-          //v2  = atoi(StrTbl[2]);
-          //DiffSpeedConsign = atoi(StrTbl[3]);
+          vitesse1    = atoi(StrTbl[1]);
+          vitesse2    = atoi(StrTbl[2]);
+          diffVitesse = atoi(StrTbl[3]);
         }
         else if (checkMess == "S4")// simulation off
         {
           simulateSpeed = false;
-          //v1   = 0;
-          //v2  = 0;
-          //DiffSpeedConsign = 100;          
+          vitesse1    = 0;
+          vitesse2    = 0;
+          diffVitesse = 100;         
         }
         
       }
