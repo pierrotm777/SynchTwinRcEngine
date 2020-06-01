@@ -321,8 +321,10 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
       }
 
       if(CountChar(Message,',')>0)
-      {/*format received: S1,1500,1500,1000,1000,2,2000,1250,1200,1900,1,0
-                          S2,0,99,2,0,0,0,1000,20000,0*/
+      {/*formats received: S1,1500,1500,1000,1000,2,2000,1250,1200,1900,1,0
+                           S2,0,99,2,0,0,0,1000,20000,0,0
+                           S3,1000,1000,100
+                           S4,0,0,100*/
         static String checkMess;       
         StrSplit(Message, ",",  StrTbl, SUB_STRING_NB_MAX, &SeparFound);
         checkMess = StrTbl[0];
@@ -351,13 +353,14 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
             ms.reverseServo2   = atoi(StrTbl[1]);//reverseServo2
             ms.diffVitesseErr  = atoi(StrTbl[2]);//diffVitesseErr
             ms.nbPales         = atoi(StrTbl[3]);//nbPales
-            ms.radioRcMode     = atoi(StrTbl[4]);//Rc radio mode (1 to 4)
+            ms.channelsOrder   = atoi(StrTbl[4]);//AETR,AERT,ARET ...
             ms.moduleMasterOrSlave = atoi(StrTbl[5]);//moduleMasterOrSlave
             ms.fahrenheitDegrees = atoi(StrTbl[6]);//fahrenheitDegrees
             ms.minimumSpeed    = atoi(StrTbl[7]);//minimum motor rpm
             ms.maximumSpeed    = atoi(StrTbl[8]);//maximum motor rpm
             ms.InputMode       = atoi(StrTbl[9]);//CPPM,SBUS or IBUS
-            //ms.telemetryType   = atoi(StrTbl[10]);//0 = Frsky
+
+            //ms.telemetryType   = atoi(StrTbl[11]);//0 = Frsky
             StrSplitRestore(",", StrTbl, SeparFound);//Imperatif SeparFound <= SUB_STRING_NB_MAX
             EEPROM.put(0,ms);        
             blinkNTime(5,100,100);            

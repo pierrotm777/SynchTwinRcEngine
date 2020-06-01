@@ -349,8 +349,8 @@ Public Class Form1
 
                 textNombrePales.Text = array(14)
 
-                labelModeRcRadio.Text = array(15) + 1
-                RcMode.ComboBox_Select_ModeType.Text = array(15) + 1
+                labelChannelOrderRadio.Text = array(15)
+                RcMode.ComboBox_Select_ChannelsOrder.Text = array(15)
 
                 TextVoltageInterne.Text = array(16) & "v"
                 TextTempInterne.Text = array(17) & IIf(array(20) = "0", "°C", "°F")
@@ -1649,7 +1649,7 @@ Public Class Form1
         If CheckBoxInversionServo2.Checked = True Then MessageToSend &= "1," Else MessageToSend &= "0," 'reverseServo2
         MessageToSend &= TextBoxDiffSpeedSimuConsigne.Text & ","    'difference speeds accepted
         MessageToSend &= textNombrePales.Text & ","     'nbPales
-        MessageToSend &= labelModeRcRadio.Text - 1 & "," 'radio mode (1 à 4)
+        MessageToSend &= labelChannelOrderRadio.Text & "," 'radio channels order
         MessageToSend &= "0," 'array(15).ToString & "," 'type de module (0=maître, 1=esclave)
         If CheckBoxFahrenheitDegrees.Checked = True Then MessageToSend &= "1," Else MessageToSend &= "0," 'Celcius/Fahrenheit
 

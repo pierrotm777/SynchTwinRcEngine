@@ -11,7 +11,43 @@
 #define DISPLAY_EVERY_SERIAL_FRAME_NB   40 // To not flood the serial console!
 
 /* Select your radio's channels order (see Marcos.h for other modes) */
-#define AETR
+typedef struct{
+  uint8_t  Aileron; 
+  uint8_t  Elevator; 
+  uint8_t  Throttle; 
+  uint8_t  Rudder; 
+}ChannelOrderSt_t;
+enum {AETR = 0, AERT,ARET,ARTE,ATRE,ATER,EATR,EART,ERAT,ERTA,ETRA,ETAR,TEAR,TERA,TREA,TRAE,TARE,TAER,RETA,REAT,RAET,RATE,RTAE,RTEA};
+enum {AILERON = 0, ELEVATOR, THROTTLE, RUDDER};
+
+const ChannelOrderSt_t ChannelOrder[] PROGMEM = {
+                 /* AETR */   {0, 1, 2, 3},
+                 /* AERT */   {0, 1, 3, 2},
+                 /* ARET */   {0, 2, 3, 1},
+                 /* ARTE */   {0, 3, 2, 1},
+                 /* ATRE */   {0, 3, 1, 2},
+                 /* ATER */   {0, 2, 1, 3},
+                 /* EATR */   {1, 0, 2, 3},
+                 /* EART */   {1, 0, 3, 2},
+                 /* ERAT */   {2, 0, 3, 1},
+                 /* ERTA */   {3, 0, 2, 1},
+                 /* ETRA */   {3, 0, 1, 2},
+                 /* ETAR */   {2, 0, 1, 3},
+                 /* TEAR */   {2, 1, 0, 3},
+                 /* TERA */   {3, 1, 0, 2},
+                 /* TREA */   {3, 2, 0, 1},
+                 /* TRAE */   {2, 3, 0, 1},
+                 /* TARE */   {1, 3, 0, 2},
+                 /* TAER */   {1, 2, 0, 3},
+                 /* RETA */   {3, 1, 2, 0},
+                 /* REAT */   {2, 1, 3, 0},
+                 /* RAET */   {1, 2, 3, 0},
+                 /* RATE */   {1, 3, 2, 0},
+                 /* RTAE */   {2, 3, 1, 0},
+                 /* RTEA */   {3, 2, 1, 0}
+                            };
+
+//#define AETR
 #include "Macros.h"
 
 #include <SoftSerial.h>
@@ -27,15 +63,15 @@ SoftSerial SettingsPort(10,11);
 //#define DEBUG
 #define SECURITYENGINE          /* Engines security On/off */
 #define ARDUINO2PC                /* PC interface (!!!!!! don't use this option with SettingsPortPLOTTER or READ_Button_AnalogPin !!!!!!) */
-#define EXTERNALVBATT             /* Read external battery voltage */
-#define GLOWMANAGER             /* Glow driver */
-#define I2CSLAVEFOUND           /* for command a second module by the I2C port */
+//#define EXTERNALVBATT             /* Read external battery voltage */
+//#define GLOWMANAGER             /* Glow driver */ CONFLIT AVEC SOFTSERIAL
+//#define I2CSLAVEFOUND           /* for command a second module by the I2C port */
 #define INT_REF                 /* internal 1.1v reference */
 //#define SerialPLOTTER           /* Multi plot in IDE (don't use this option with ARDUINO2PC) */
 #define RECORDER                /* L'enregistreur est déplacé dans VB */
 //#define TELEMETRY_FRSKY           /* Frsky S-PORT Telemetry for VOLTAGE,RPM and TEMP */
 //#define FRAM_USED
-#define EXTLED
+#define EXTLED                /* bloque le port serie settings pins 10-11*/
 
 /*
 0     INPUT PPM
@@ -66,7 +102,7 @@ A7    External power V+
 */
 
 //affectation des pins des entrees RX et sorties servos
-#define BROCHE_PPMINPUT         0    /* PPM,SBUS or IBUS Input */
+#define BROCHE_PPMINPUT         0    /* PPM,SBUS,SRXL,SUMD,IBUS or JETI Input */
 #define BROCHE_SENSOR1          2    /* Hall or IR motor 1 */
 #define BROCHE_SENSOR2          3    /* Hall or IR motor 2 */
 #define BROCHE_MOTOR1           4    /* Servo motor 1 */
@@ -74,6 +110,7 @@ A7    External power V+
 #define BROCHE_RUDDER           6    /* Servo rudder */
 
 #ifdef GLOWMANAGER
+#include <TinySoftPwm.h>
 #define BROCHE_GLOW1            7  /* Glow driver motor 1 (PD7)*/ 
 #define BROCHE_GLOW2            8  /* Glow driver motor 2 (PB0)*/
 #endif
@@ -110,7 +147,7 @@ boolean simulateSpeed = false;
 unsigned long startedWaiting = millis();
 unsigned long started1s = millis();
 unsigned long ShutDownSerialSetting = millis();
-//unsigned long checkSBUSValues = millis();
+
 
 /* Variables Chronos*/
 uint32_t BeginIdleMode;//=0;
@@ -133,8 +170,8 @@ bool releaseButtonMode = false;
 struct MaStructure {
   /* Valeurs par defaut dans EEprom */
   byte ID;
-  uint8_t InputMode;                               //0-PPM, 1-SBUS, 2-SRXL, 3-SUMD, 4-IBUS
-  uint8_t radioRcMode;                             //Rc mode 1 to 4
+  uint8_t InputMode;                               //0-PPM, 1-SBUS, 2-SRXL, 3-SUMD, 4-IBUS, 5-JETI
+//  uint8_t radioRcMode;                             //Rc mode 1 to 4
   uint8_t AuxiliaryNbChannel;                      //default is channel 5
   uint16_t centerposServo1;                        //value in uS
   uint16_t centerposServo2;                        //value in uS
@@ -155,6 +192,7 @@ struct MaStructure {
   uint8_t fahrenheitDegrees;                       //0 = C degrees , 1= Fahrenheit degrees
   uint16_t minimumSpeed;                           //value in uS
   uint16_t maximumSpeed;                           //value in uS
+  uint8_t channelsOrder;                           //AETR(AILERON,ELEVATOR,THROTTLE,RUDDER),AERT(AILERON,ELEVATOR,RUDDER,THROTTLE),ARET(AILERON,RUDDER,ELEVATOR,THROTTLE) etc...
 }; // Ne pas oublier le point virgule !
 
 MaStructure ms;
@@ -236,6 +274,10 @@ void setup()
   SettingsPort.begin(57600);
   delay(500);//while (SettingsPort.available() > 0)
 
+#ifdef DEBUG
+  SettingsPort << F("SynchTwinRcEngine est demarre") << endl << endl;
+#endif//endif DEBUG
+
 #ifdef TELEMETRY_FRSKY// telemetrie sur ici pin 12 (pin 2 à 12 possibles)
   //decodFrsky.begin(FrSkySportSingleWireSerial::SOFT_SettingsPort_PIN_12, &ass, &fcs, &flvss1, &flvss2, &gps, &rpm, &sp2uart, &vario);
   decodFrsky.begin(FrSkySportSingleWireSerial::SOFT_SERIAL_PIN_9,&rpm );
@@ -244,21 +286,19 @@ void setup()
 //#ifdef I2CSLAVEFOUND
 //  Wire.begin(SLAVE_ADRESS,2);
 //#endif
-
-//#ifdef PIDCONTROL
-//#endif
-  
-#ifdef GLOWMANAGER
-  //initialisation du chauffage des bougies
-  //PIN_OUTPUT(D,BROCHE_GLOW1);PIN_OUTPUT(D,BROCHE_GLOW2);
-#endif  
-
-
+ 
   readAllEEprom();//read all settings from EEprom (save default's values in first start)
 
-  AileronNbChannel = AILERON + 1;
-  MotorNbChannel   = THROTTLE + 1;
-  RudderNbChannel  = RUDDER + 1;
+  AileronNbChannel = (uint8_t)pgm_read_byte(&ChannelOrder[ms.channelsOrder].Aileron) + 1;//AILERON + 1;
+  MotorNbChannel   = (uint8_t)pgm_read_byte(&ChannelOrder[ms.channelsOrder].Throttle) + 1;//THROTTLE + 1;
+  RudderNbChannel  = (uint8_t)pgm_read_byte(&ChannelOrder[ms.channelsOrder].Rudder) + 1;//RUDDER + 1;
+#ifdef DEBUG
+    SettingsPort << F("Aileron")<< F("=") << AileronNbChannel << endl;
+//    SettingsPort << F("Elevator")<< F("=")<< (uint8_t)pgm_read_byte(&ChannelOrder[Mode].Elevator) << endl;
+    SettingsPort << F("Throttle")<< F("=")<< MotorNbChannel << endl;
+    SettingsPort << F("Rudder")<< F("=") << RudderNbChannel << endl << endl;
+
+#endif
    
   //initialise les capteurs effet hall ou IR avec une interruption associee
   TinyPinChange_Init();
@@ -268,12 +308,7 @@ void setup()
   TinyPinChange_EnablePin(BROCHE_SENSOR1);
   TinyPinChange_EnablePin(BROCHE_SENSOR2);
   
-
-#ifdef DEBUG
-  SettingsPort << F("SynchTwinRcEngine est demarre") << endl << endl;
-#endif//endif DEBUG
-
-  switch (ms.InputMode)//CPPM,SBUS,SRXL,SUMD or IBUS
+  switch (ms.InputMode)//CPPM,SBUS,SRXL,SUMD,IBUS or JETI
   {
     case CPPM:
         blinkNTime(1,125,250);
@@ -324,7 +359,7 @@ void setup()
         RcBusRx.setProto(RC_BUS_RX_IBUS);
       break;
     case JETIEX:
-        blinkNTime(8,125,250);
+        blinkNTime(6,125,250);
         if (RunConfig == true)
         {
           SettingsPort << F("IBUS selected") << endl << endl;
@@ -377,6 +412,12 @@ void setup()
   setupRecorder();
 #endif
 
+#ifdef GLOWMANAGER
+  //initialisation du chauffage des bougies
+  TinySoftPwm_begin(255, 0); /* 255 x TinySoftPwm_process() calls before overlap (Frequency tuning), 0 = PWM init for all declared pins */
+  glowSetup();
+#endif  
+
   SettingsPort << F("Setup is DONE ...") << endl << endl;
 
 }//fin setup
@@ -390,10 +431,15 @@ void loop()
   {
     if (RunConfig == true)
     {
+      /* Check 1s */
+      if(millis()-started1s>=1000)
+      {
+        SettingsPort << F(".");started1s=millis();
+      }      
       /* Check 10s */
       if(millis()-ShutDownSerialSetting >= 10000)
       {
-        SettingsPort << F("Shut down Serial port ...") << endl << endl;
+        SettingsPort << endl << F("Shutdown Serial port ...") << endl << endl;
         SettingsPort.flush();
         SettingsPort.end();
         RunConfig = false;
@@ -422,6 +468,21 @@ else
   mode0();/* main mode launched if no buttons pressed during start */ 
 }
 
+#ifdef GLOWMANAGER
+static uint32_t StartUs = micros();
+  /***********************************************************/
+  /* Call TinySoftPwm_process() with a period of 40 us       */
+  /* The PWM frequency = 255 x 40 # 10.2 ms -> F # 100Hz     */
+  /* 255 is the first argument passed to TinySoftPwm_begin() */
+  /***********************************************************/
+  if((micros() - StartUs) >= 40)
+  {
+    /* We arrived here every 40 microseconds */
+    StartUs = micros();
+    TinySoftPwm_process(); /* This function shall be called periodically (like here, based on micros(), or in a timer ISR) */
+  }
+  glowUpdate();
+#endif  
 
 
 }//fin loop
@@ -432,7 +493,7 @@ void readAllEEprom()
 /*
   ms.ID                  = 0x99;//write the ID to indicate valid data
   ms.InputMode           = 1;   //0-PPM, 1-SBUS, 2,IBUS
-  ms.radioRcMode         = 1;   // mode is 1 to 4
+//  ms.radioRcMode         = 1;   // mode is 1 to 4
   ms.AuxiliaryNbChannel  = 5;
   ms.centerposServo1     = 1500;
   ms.centerposServo2     = 1500;
@@ -454,6 +515,7 @@ void readAllEEprom()
   ms.minimumSpeed        = 1000;//minimum motor rpm
   ms.maximumSpeed        = 20000;//maximum motor rpm
   ms.InputMode           = 0;//CPPM defaut
+  ms.channelsOrder       = 0;
  */
  
   EEPROM.get(0,ms);// Read all EEPROM settings in one time
@@ -486,7 +548,7 @@ void readAllEEpromOnSettingsPort()
   if (ms.InputMode == 3) SettingsPort << F("SUMD mode") << endl;
   if (ms.InputMode == 4) SettingsPort << F("IBUS mode") << endl;
   if (ms.InputMode == 5) SettingsPort << F("JETI mode") << endl;
-  SettingsPort << F("Radio Rc Mode: ") << ms.radioRcMode << endl;
+  SettingsPort << F("Channels Order: ") << ms.channelsOrder << endl;
   SettingsPort << F("Auxiliary Nb Channel: ") << ms.AuxiliaryNbChannel << endl;
   SettingsPort << F("Centre servo1: ") << ms.centerposServo1 << endl;
   SettingsPort << F("Centre servo2: ") << ms.centerposServo2 << endl;
@@ -525,56 +587,34 @@ void readAllEEpromOnSettingsPort()
 
 void SettingsWriteDefault()
 {
-/*
-  ms.centerposServo1 = atoi(StrTbl[0]);//centerposServo1
-  ms.centerposServo2 = atoi(StrTbl[1]);//centerposServo2
-  ms.idelposServos1  = atoi(StrTbl[2]);//idelposServos1
-  ms.idelposServos2  = atoi(StrTbl[3]);//idelposServos2
-  ms.responseTime    = atoi(StrTbl[4]);//responseTime
-  ms.fullThrottle    = atoi(StrTbl[5]);//fullThrottle
-  ms.beginSynchro    = atoi(StrTbl[6]);//beginSynchro
-  ms.minimumPulse_US = atoi(StrTbl[7]);//minimumPulse_US
-  ms.maximumPulse_US = atoi(StrTbl[8]);//maximumPulse_US
-  ms.auxChannel      = atoi(StrTbl[9]);//auxChannel
-  ms.reverseServo1   = atoi(StrTbl[10]);//reverseServo1
-  ms.reverseServo2   = atoi(StrTbl[11]);//reverseServo2
-  ms.diffVitesseErr  = atoi(StrTbl[12]);//diffVitesseErr
-  ms.nbPales         = atoi(StrTbl[13]);//nbPales
-  ms.radioRcMode     = atoi(StrTbl[14]);//Rc radio mode (1 to 4)
-  ms.moduleMasterOrSlave = atoi(StrTbl[15]);//moduleMasterOrSlave
-  ms.fahrenheitDegrees = atoi(StrTbl[16]);//fahrenheitDegrees
-  ms.minimumSpeed    = atoi(StrTbl[17]);//minimum motor rpm
-  ms.maximumSpeed    = atoi(StrTbl[18]);//maximum motor rpm
-  ms.InputMode       = atoi(StrTbl[19]);//CPPM,SBUS or IBUS
- */
-static uint8_t AddressMax = 0;
+//static uint8_t AddressMax = 0;
 
-  ms.ID                  = 0x99;AddressMax += sizeof(ms.ID); //write the ID to indicate valid data
-  ms.InputMode           = 1;AddressMax += sizeof(ms.InputMode);   //0-PPM, 1-SBUS, 2-SRXL, 3-SUMD, 4-IBUS, 5-JETI
-  ms.radioRcMode         = 1;AddressMax += sizeof(ms.radioRcMode);   // mode is 0 to 3 (mode 1 à 4)
-  ms.AuxiliaryNbChannel  = 5;AddressMax += sizeof(ms.AuxiliaryNbChannel);
-  ms.centerposServo1     = 1500;AddressMax += sizeof(ms.centerposServo1);
-  ms.centerposServo2     = 1500;AddressMax += sizeof(ms.centerposServo2);
-  ms.idelposServos1      = 1000;AddressMax += sizeof(ms.idelposServos1);
-  ms.idelposServos2      = 1000;AddressMax += sizeof(ms.idelposServos2);
-  ms.responseTime        = 2   ;AddressMax += sizeof(ms.responseTime);
-  ms.fullThrottle        = 2000;AddressMax += sizeof(ms.fullThrottle);
-  ms.beginSynchro        = 1250;AddressMax += sizeof(ms.beginSynchro);
-  ms.auxChannel          = 1;AddressMax += sizeof(ms.auxChannel);   
-  ms.reverseServo1       = 1;AddressMax += sizeof(ms.reverseServo1);
-  ms.reverseServo2       = 0;AddressMax += sizeof(ms.reverseServo2);
-  ms.diffVitesseErr      = 99;AddressMax += sizeof(ms.diffVitesseErr);//difference de vitesse entre les 2 moteurs en tr/mn toleree
-  ms.minimumPulse_US     = 1000;AddressMax += sizeof(ms.minimumPulse_US);
-  ms.maximumPulse_US     = 2000;AddressMax += sizeof(ms.maximumPulse_US);
-  ms.telemetryType       = 0;AddressMax += sizeof(ms.telemetryType); //mode2 0- Rien, 1- FrSky (S-Port), 2- Futaba Sbus, 3- Hitec, 4- Hott, 5- Jeti 6- Spektrum
-  ms.nbPales             = 2;AddressMax += sizeof(ms.nbPales);   
-  ms.moduleMasterOrSlave = 0;AddressMax += sizeof(ms.moduleMasterOrSlave);   
-  ms.fahrenheitDegrees   = 0;AddressMax += sizeof(ms.fahrenheitDegrees);
-  ms.minimumSpeed        = 1000;AddressMax += sizeof(ms.minimumSpeed);//minimum motor rpm
-  ms.maximumSpeed        = 20000;AddressMax += sizeof(ms.maximumSpeed);//maximum motor rpm
-  //PID
+  ms.ID                  = 0x99;//AddressMax += sizeof(ms.ID); //write the ID to indicate valid data
+  ms.InputMode           = 1;//AddressMax += sizeof(ms.InputMode);   //0-PPM, 1-SBUS, 2-SRXL, 3-SUMD, 4-IBUS, 5-JETI
+//  ms.radioRcMode         = 1;//AddressMax += sizeof(ms.radioRcMode);   // mode is 0 to 3 (mode 1 à 4)
+  ms.AuxiliaryNbChannel  = 5;//AddressMax += sizeof(ms.AuxiliaryNbChannel);
+  ms.centerposServo1     = 1500;//AddressMax += sizeof(ms.centerposServo1);
+  ms.centerposServo2     = 1500;//AddressMax += sizeof(ms.centerposServo2);
+  ms.idelposServos1      = 1000;//AddressMax += sizeof(ms.idelposServos1);
+  ms.idelposServos2      = 1000;//AddressMax += sizeof(ms.idelposServos2);
+  ms.responseTime        = 2   ;//AddressMax += sizeof(ms.responseTime);
+  ms.fullThrottle        = 2000;//AddressMax += sizeof(ms.fullThrottle);
+  ms.beginSynchro        = 1250;//AddressMax += sizeof(ms.beginSynchro);
+  ms.auxChannel          = 1;//AddressMax += sizeof(ms.auxChannel);   
+  ms.reverseServo1       = 1;//AddressMax += sizeof(ms.reverseServo1);
+  ms.reverseServo2       = 0;//AddressMax += sizeof(ms.reverseServo2);
+  ms.diffVitesseErr      = 99;//AddressMax += sizeof(ms.diffVitesseErr);//difference de vitesse entre les 2 moteurs en tr/mn toleree
+  ms.minimumPulse_US     = 1000;//AddressMax += sizeof(ms.minimumPulse_US);
+  ms.maximumPulse_US     = 2000;//AddressMax += sizeof(ms.maximumPulse_US);
+  ms.telemetryType       = 0;//AddressMax += sizeof(ms.telemetryType); //mode2 0- Rien, 1- FrSky (S-Port), 2- Futaba Sbus, 3- Hitec, 4- Hott, 5- Jeti 6- Spektrum
+  ms.nbPales             = 2;//AddressMax += sizeof(ms.nbPales);   
+  ms.moduleMasterOrSlave = 0;//AddressMax += sizeof(ms.moduleMasterOrSlave);   
+  ms.fahrenheitDegrees   = 0;//AddressMax += sizeof(ms.fahrenheitDegrees);
+  ms.minimumSpeed        = 1000;//AddressMax += sizeof(ms.minimumSpeed);//minimum motor rpm
+  ms.maximumSpeed        = 20000;//AddressMax += sizeof(ms.maximumSpeed);//maximum motor rpm
+  ms.channelsOrder       = 0;
 
-  SettingsPort << F("Address maxi: ") << AddressMax << endl;
+  //SettingsPort << F("Address maxi: ") << AddressMax << endl;
   EEPROM.put(0, ms);
   blinkNTime(5,LED_SIGNAL_FOUND,LED_SIGNAL_FOUND);
 }
@@ -616,7 +656,7 @@ void sendConfigToSettingsPort()
   SettingsPort << ms.diffVitesseErr << F("|");//array(12)
   SettingsPort << F("0|");//array(13) NON UTILISé
   SettingsPort << _DEC(ms.nbPales) << F("|"); //array(14)
-  SettingsPort << ms.radioRcMode << F("|");//array(15))
+  SettingsPort << ms.channelsOrder << F("|");//array(15))
   SettingsPort << _FLOAT(readVcc() / 1000, 3) << F("|"); //array(16)
   SettingsPort <<  GetTemp() << F("|");//array(17)
 #ifdef EXTERNALVBATT
@@ -629,7 +669,6 @@ void sendConfigToSettingsPort()
   SettingsPort << ms.minimumSpeed << F("|");//array(21)
   SettingsPort << ms.maximumSpeed << F("|");//array(22)
   SettingsPort << ms.InputMode << endl;//array(23)
-  
   //SettingsPort.flush(); // clear SettingsPort port
 }
 

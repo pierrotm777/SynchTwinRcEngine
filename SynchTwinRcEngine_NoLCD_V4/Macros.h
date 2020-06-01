@@ -69,6 +69,7 @@ LED6 B,5
 #define TINY_PIN_CHANGE     CONCAT3(TinyPinChange_, EDGE_TYPE,  Edge)
 /*  ^^^  Ne rien modifier aux 3 macros ci-dessus  ^^^ */
 
+/*
 //Channel order
 #ifdef AETR
   #define AILERON  0
@@ -217,4 +218,6 @@ LED6 B,5
   #define THROTTLE 1
   #define RUDDER   0
 #endif
+*/
+
 #endif /* _MACROS_H_ */

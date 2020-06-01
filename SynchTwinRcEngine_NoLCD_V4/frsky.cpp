@@ -18,7 +18,7 @@ void telemetryPPMInit()
 //  Usart0Set8N1();
 //  Usart0EnableRx(); // enable FrSky-Telemetry reception
   SoftSerial SettingsPort(9,9);
-  SettingsPort.begin();
+  SettingsPort.begin(57600);
 }
 
 void telemetryResetValue()

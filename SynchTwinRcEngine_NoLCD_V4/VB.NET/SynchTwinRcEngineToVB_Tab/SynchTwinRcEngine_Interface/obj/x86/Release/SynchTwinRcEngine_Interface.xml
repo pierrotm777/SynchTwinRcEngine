@@ -363,18 +363,6 @@ SynchTwinRcEngine_Interface
 	<summary>
   Recherche une ressource localisée de type System.Drawing.Bitmap.
 </summary>
-</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.mode2">
-	<summary>
-  Recherche une ressource localisée de type System.Drawing.Bitmap.
-</summary>
-</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.mode3">
-	<summary>
-  Recherche une ressource localisée de type System.Drawing.Bitmap.
-</summary>
-</member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.mode4">
-	<summary>
-  Recherche une ressource localisée de type System.Drawing.Bitmap.
-</summary>
 </member><member name="P:SynchTwinRcEngine_Interface.My.Resources.Resources.monitor">
 	<summary>
   Recherche une ressource localisée de type System.Drawing.Icon semblable à (Icône).

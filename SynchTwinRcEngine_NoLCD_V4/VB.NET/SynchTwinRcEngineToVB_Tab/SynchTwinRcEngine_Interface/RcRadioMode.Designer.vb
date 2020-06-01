@@ -23,12 +23,11 @@ Partial Class RcRadioMode
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Me.labelRcRadioMode = New System.Windows.Forms.Label()
-        Me.PictureBoxMode = New System.Windows.Forms.PictureBox()
-        Me.ComboBox_Select_ModeType = New System.Windows.Forms.ComboBox()
-        Me.Label_Select_ModeRc = New System.Windows.Forms.Label()
+        Me.ComboBox_Select_ChannelsOrder = New System.Windows.Forms.ComboBox()
+        Me.label_Select_ChannelOrder = New System.Windows.Forms.Label()
         Me.ComboBoxSignalType = New System.Windows.Forms.ComboBox()
-        Me.Label1 = New System.Windows.Forms.Label()
-        CType(Me.PictureBoxMode, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.labelInputFormat = New System.Windows.Forms.Label()
+        Me.labelOrderChannels = New System.Windows.Forms.Label()
         Me.SuspendLayout()
         '
         'labelRcRadioMode
@@ -41,36 +40,25 @@ Partial Class RcRadioMode
         Me.labelRcRadioMode.TabIndex = 56
         Me.labelRcRadioMode.Text = "Configuration des canaux RC:"
         '
-        'PictureBoxMode
+        'ComboBox_Select_ChannelsOrder
         '
-        Me.PictureBoxMode.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.PictureBoxMode.Image = Global.SynchTwinRcEngine_Interface.My.Resources.Resources.mode4
-        Me.PictureBoxMode.Location = New System.Drawing.Point(207, 60)
-        Me.PictureBoxMode.Name = "PictureBoxMode"
-        Me.PictureBoxMode.Size = New System.Drawing.Size(319, 258)
-        Me.PictureBoxMode.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage
-        Me.PictureBoxMode.TabIndex = 57
-        Me.PictureBoxMode.TabStop = False
+        Me.ComboBox_Select_ChannelsOrder.FormattingEnabled = True
+        Me.ComboBox_Select_ChannelsOrder.Items.AddRange(New Object() {"AETR", "AERT", "ARET", "ARTE", "ATRE", "ATER", "EATR", "EART", "ERAT", "ERTA", "ETRA", "ETAR", "TEAR", "TERA", "TREA", "TRAE", "TARE", "TAER", "RETA", "REAT", "RAET", "RATE", "RTAE", "RTEA"})
+        Me.ComboBox_Select_ChannelsOrder.Location = New System.Drawing.Point(91, 74)
+        Me.ComboBox_Select_ChannelsOrder.Name = "ComboBox_Select_ChannelsOrder"
+        Me.ComboBox_Select_ChannelsOrder.Size = New System.Drawing.Size(96, 21)
+        Me.ComboBox_Select_ChannelsOrder.TabIndex = 58
         '
-        'ComboBox_Select_ModeType
+        'label_Select_ChannelOrder
         '
-        Me.ComboBox_Select_ModeType.FormattingEnabled = True
-        Me.ComboBox_Select_ModeType.Items.AddRange(New Object() {"1", "2", "3", "4"})
-        Me.ComboBox_Select_ModeType.Location = New System.Drawing.Point(91, 123)
-        Me.ComboBox_Select_ModeType.Name = "ComboBox_Select_ModeType"
-        Me.ComboBox_Select_ModeType.Size = New System.Drawing.Size(96, 21)
-        Me.ComboBox_Select_ModeType.TabIndex = 58
-        '
-        'Label_Select_ModeRc
-        '
-        Me.Label_Select_ModeRc.AutoSize = True
-        Me.Label_Select_ModeRc.Location = New System.Drawing.Point(12, 126)
-        Me.Label_Select_ModeRc.Name = "Label_Select_ModeRc"
-        Me.Label_Select_ModeRc.RightToLeft = System.Windows.Forms.RightToLeft.No
-        Me.Label_Select_ModeRc.Size = New System.Drawing.Size(68, 13)
-        Me.Label_Select_ModeRc.TabIndex = 59
-        Me.Label_Select_ModeRc.Text = "Mode Radio:"
-        Me.Label_Select_ModeRc.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.label_Select_ChannelOrder.AutoSize = True
+        Me.label_Select_ChannelOrder.Location = New System.Drawing.Point(12, 77)
+        Me.label_Select_ChannelOrder.Name = "label_Select_ChannelOrder"
+        Me.label_Select_ChannelOrder.RightToLeft = System.Windows.Forms.RightToLeft.No
+        Me.label_Select_ChannelOrder.Size = New System.Drawing.Size(74, 13)
+        Me.label_Select_ChannelOrder.TabIndex = 59
+        Me.label_Select_ChannelOrder.Text = "Ordre canaux:"
+        Me.label_Select_ChannelOrder.TextAlign = System.Drawing.ContentAlignment.MiddleRight
         '
         'ComboBoxSignalType
         '
@@ -81,39 +69,50 @@ Partial Class RcRadioMode
         Me.ComboBoxSignalType.Size = New System.Drawing.Size(96, 21)
         Me.ComboBoxSignalType.TabIndex = 60
         '
-        'Label1
+        'labelInputFormat
         '
-        Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(12, 214)
-        Me.Label1.Name = "Label1"
-        Me.Label1.RightToLeft = System.Windows.Forms.RightToLeft.No
-        Me.Label1.Size = New System.Drawing.Size(66, 13)
-        Me.Label1.TabIndex = 61
-        Me.Label1.Text = "Signal Type:"
-        Me.Label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.labelInputFormat.AutoSize = True
+        Me.labelInputFormat.Location = New System.Drawing.Point(12, 214)
+        Me.labelInputFormat.Name = "labelInputFormat"
+        Me.labelInputFormat.RightToLeft = System.Windows.Forms.RightToLeft.No
+        Me.labelInputFormat.Size = New System.Drawing.Size(66, 13)
+        Me.labelInputFormat.TabIndex = 61
+        Me.labelInputFormat.Text = "Signal Type:"
+        Me.labelInputFormat.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+        '
+        'labelOrderChannels
+        '
+        Me.labelOrderChannels.AutoSize = True
+        Me.labelOrderChannels.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.labelOrderChannels.Location = New System.Drawing.Point(198, 77)
+        Me.labelOrderChannels.Name = "labelOrderChannels"
+        Me.labelOrderChannels.RightToLeft = System.Windows.Forms.RightToLeft.No
+        Me.labelOrderChannels.Size = New System.Drawing.Size(40, 13)
+        Me.labelOrderChannels.TabIndex = 62
+        Me.labelOrderChannels.Text = "AETR"
+        Me.labelOrderChannels.TextAlign = System.Drawing.ContentAlignment.MiddleRight
         '
         'RcRadioMode
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(538, 355)
-        Me.Controls.Add(Me.Label1)
+        Me.Controls.Add(Me.labelOrderChannels)
+        Me.Controls.Add(Me.labelInputFormat)
         Me.Controls.Add(Me.ComboBoxSignalType)
-        Me.Controls.Add(Me.Label_Select_ModeRc)
-        Me.Controls.Add(Me.ComboBox_Select_ModeType)
-        Me.Controls.Add(Me.PictureBoxMode)
+        Me.Controls.Add(Me.label_Select_ChannelOrder)
+        Me.Controls.Add(Me.ComboBox_Select_ChannelsOrder)
         Me.Controls.Add(Me.labelRcRadioMode)
         Me.Name = "RcRadioMode"
         Me.Text = "RcRadioMode"
-        CType(Me.PictureBoxMode, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
     Friend WithEvents labelRcRadioMode As System.Windows.Forms.Label
-    Friend WithEvents PictureBoxMode As System.Windows.Forms.PictureBox
-    Friend WithEvents ComboBox_Select_ModeType As System.Windows.Forms.ComboBox
-    Friend WithEvents Label_Select_ModeRc As System.Windows.Forms.Label
+    Friend WithEvents ComboBox_Select_ChannelsOrder As System.Windows.Forms.ComboBox
+    Friend WithEvents label_Select_ChannelOrder As System.Windows.Forms.Label
     Friend WithEvents ComboBoxSignalType As System.Windows.Forms.ComboBox
-    Friend WithEvents Label1 As System.Windows.Forms.Label
+    Friend WithEvents labelInputFormat As System.Windows.Forms.Label
+    Friend WithEvents labelOrderChannels As System.Windows.Forms.Label
 End Class
