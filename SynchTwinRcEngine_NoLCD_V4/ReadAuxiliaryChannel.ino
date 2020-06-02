@@ -16,7 +16,7 @@ void readAuxiliaryChannel()
   
 //  SettingsPort <<  "1/5 " << OneFifthThrottle << "| 1/3 " << OneThirdThrottle << "| 2/3 " << TwoThirdThrottle << "| Middle " << MiddleThrottle << endl;
   
-//  if(Width_us >= OneFifthThrottle){on(LED1GREEN);}else{off(LED1GREEN);}
+  (Width_us >= OneFifthThrottle?on(LED2YELLOW):off(LED2YELLOW));
 
   //ajouter gestion de l'entree AUX avec inters 2 ou 3 positions:
   switch (ms.auxChannel)

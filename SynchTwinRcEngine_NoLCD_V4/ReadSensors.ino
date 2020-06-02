@@ -59,8 +59,8 @@ void readCaptorTransitions()
   }
 
 #ifdef EXTLED
-  if (vitesse1 !=0) {on(LED1RED);off(LED1RED);}
-//  if (vitesse2 !=0) {on(LED2RED);off(LED2RED);}
+  if (vitesse1 !=0) {on(LED1GREEN);off(LED1GREEN);}
+  if (vitesse2 !=0) {on(LED2GREEN);off(LED2GREEN);}
 #endif
 
  

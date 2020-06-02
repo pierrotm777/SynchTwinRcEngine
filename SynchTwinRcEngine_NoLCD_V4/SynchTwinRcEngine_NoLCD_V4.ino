@@ -64,7 +64,7 @@ SoftSerial SettingsPort(10,11);
 #define SECURITYENGINE          /* Engines security On/off */
 #define ARDUINO2PC                /* PC interface (!!!!!! don't use this option with SettingsPortPLOTTER or READ_Button_AnalogPin !!!!!!) */
 //#define EXTERNALVBATT             /* Read external battery voltage */
-//#define GLOWMANAGER             /* Glow driver */ CONFLIT AVEC SOFTSERIAL
+#define GLOWMANAGER             /* Glow driver */ CONFLIT AVEC SOFTSERIAL
 //#define I2CSLAVEFOUND           /* for command a second module by the I2C port */
 #define INT_REF                 /* internal 1.1v reference */
 //#define SerialPLOTTER           /* Multi plot in IDE (don't use this option with ARDUINO2PC) */
@@ -109,10 +109,11 @@ A7    External power V+
 #define BROCHE_MOTOR2           5    /* Servo motor 2 */
 #define BROCHE_RUDDER           6    /* Servo rudder */
 
+// http://philsradial.blogspot.com/2013/02/glowplug-driver.html
 #ifdef GLOWMANAGER
-#include <TinySoftPwm.h>
 #define BROCHE_GLOW1            7  /* Glow driver motor 1 (PD7)*/ 
 #define BROCHE_GLOW2            8  /* Glow driver motor 2 (PB0)*/
+bool GlowDriverInUse = false;
 #endif
 
 // Frsky Telemetry input pin    9 /* see decodFrsky.begin(FrSkySportSingleWireSerial::SOFT_SERIAL_PIN_9, &ass, &fcs, &rpm ); */
@@ -127,12 +128,12 @@ A7    External power V+
 #define LED                   5,B // declare LED in PCB5 (D13)
 
 #ifdef EXTLED
-#define LED1RED               2,B //D10
-#define LED2RED               3,B //D11 
-#define LED1GREEN             0,C //A0
-#define LED2GREEN             1,C //A1
-#define LED1YELLOW            2,C //A2
-#define LED2YELLOW            3,C //A3
+#define LED1RED     /*LED1*/  2,B //D10 /*Flashes Status of Glowplug driver 1*/
+#define LED2RED     /*LED2*/  3,B //D11 /*Flashes Status of Glowplug driver 2*/ 
+#define LED1GREEN   /*LED5*/  0,C //A0 /*RPM Sensor for Engine1*/
+#define LED2GREEN   /*LED6*/  1,C //A1 /*RPM Sensor for Engine2*/
+#define LED1YELLOW  /*LED3*/  2,C //A2 /*On when device is managing sync and both engines running*/
+#define LED2YELLOW  /*LED4*/  3,C //A3 /*On when Transmitter stick above 1/5 throttle. Off when transmitter stick below 1/5th throttle.*/
 //Atmega328PB (A6(PE2) et A7(PE3) sont aussi dispo)
 #endif
 
@@ -147,7 +148,7 @@ boolean simulateSpeed = false;
 unsigned long startedWaiting = millis();
 unsigned long started1s = millis();
 unsigned long ShutDownSerialSetting = millis();
-
+unsigned long LedRedStartMs = millis();
 
 /* Variables Chronos*/
 uint32_t BeginIdleMode;//=0;
@@ -413,9 +414,26 @@ void setup()
 #endif
 
 #ifdef GLOWMANAGER
-  //initialisation du chauffage des bougies
-  TinySoftPwm_begin(255, 0); /* 255 x TinySoftPwm_process() calls before overlap (Frequency tuning), 0 = PWM init for all declared pins */
-  glowSetup();
+/*The two RED leds on the TwinSync will turn on continuous when the glow drivers are on. If
+the glow plug is not connected or burned out the RED led for that glow driver will flash
+slowly. If a glow driver battery is getting low (below 1.15 volts under load) the RED led
+for that glow driver on the TwinSync will flash rapidly.*/
+  pinMode(BROCHE_GLOW1,INPUT_PULLUP);
+  pinMode(BROCHE_GLOW2,INPUT_PULLUP);
+  if (digitalRead(BROCHE_GLOW1) == LOW && digitalRead(BROCHE_GLOW2) == LOW)
+  {
+    GlowDriverInUse = true;
+    pinMode(BROCHE_GLOW1,OUTPUT);
+    pinMode(BROCHE_GLOW2,OUTPUT);
+    on(LED1RED);on(LED2RED);   
+    //initialisation du chauffage des bougies
+    glowSetup();    
+  }
+  else
+  {
+    GlowDriverInUse = false;
+  }
+
 #endif  
 
   SettingsPort << F("Setup is DONE ...") << endl << endl;
@@ -442,10 +460,23 @@ void loop()
         SettingsPort << endl << F("Shutdown Serial port ...") << endl << endl;
         SettingsPort.flush();
         SettingsPort.end();
-        RunConfig = false;
+
+        
 #ifdef EXTLED        
-        out(LED1RED);out(LED2RED);on(LED1RED);on(LED2RED);delay(500);off(LED1RED);off(LED2RED);
+        out(LED1RED);out(LED2RED);
 #endif
+
+#ifdef GLOWMANAGER
+        if (GlowDriverInUse == true)
+        {
+          pinMode(BROCHE_GLOW1,OUTPUT);
+          pinMode(BROCHE_GLOW2,OUTPUT);
+#ifdef EXTLED          
+          on(LED1RED);on(LED2RED);delay(500);off(LED1RED);off(LED2RED);
+#endif          
+        }
+#endif
+        RunConfig = false;
       }
     }
   }
@@ -469,19 +500,20 @@ else
 }
 
 #ifdef GLOWMANAGER
-static uint32_t StartUs = micros();
-  /***********************************************************/
-  /* Call TinySoftPwm_process() with a period of 40 us       */
-  /* The PWM frequency = 255 x 40 # 10.2 ms -> F # 100Hz     */
-  /* 255 is the first argument passed to TinySoftPwm_begin() */
-  /***********************************************************/
-  if((micros() - StartUs) >= 40)
+  if (GlowDriverInUse == true)
   {
-    /* We arrived here every 40 microseconds */
-    StartUs = micros();
-    TinySoftPwm_process(); /* This function shall be called periodically (like here, based on micros(), or in a timer ISR) */
+    on(LED1RED);on(LED2RED);
+    glowUpdate();
   }
-  glowUpdate();
+  else
+  {
+    // Blink each 1s if GLOWDRIVER not found
+    if(millis()-LedRedStartMs>=LED_SIGNAL_NOTFOUND)
+    {
+      flip(LED1RED);flip(LED2RED); 
+      LedRedStartMs=millis(); // Restart the Chrono for the LED 
+    }          
+  }
 #endif  
 
 

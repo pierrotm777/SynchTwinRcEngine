@@ -21,8 +21,8 @@ void glowSetup()
 //  tempo_secu = false;
  
  // Sortie PWM chauffage = arrêt
- TinySoftPwm_analogWrite(BROCHE_GLOW1, 0); // Commande PWM MOSFET , courant bougie
- TinySoftPwm_analogWrite(BROCHE_GLOW2, 0); // Commande PWM MOSFET , courant bougie
+ analogWrite(BROCHE_GLOW1, 0); // Commande PWM MOSFET , courant bougie
+ analogWrite(BROCHE_GLOW2, 0); // Commande PWM MOSFET , courant bougie
  cmd_chauffe = false;
  pwm_chauffe = 0;
 
@@ -67,9 +67,9 @@ void glowUpdate()
   // 
   if ((cmd_chauffe == true) && (SecurityIsON == false))
   { // Gestion avec SecurityIsON
-    //digitalWriteFast(LED1,HIGH);//LEDCHAU_ON
-    TinySoftPwm_analogWrite(BROCHE_GLOW1, pwm_chauffe); // Commande PWM MOSFET , courant bougie
-    TinySoftPwm_analogWrite(BROCHE_GLOW2, pwm_chauffe); // Commande PWM MOSFET , courant bougie
+    //on(LED1RED);on(LED2RED);//LEDCHAU_ON
+    analogWrite(BROCHE_GLOW1, pwm_chauffe); // Commande PWM MOSFET , courant bougie
+    analogWrite(BROCHE_GLOW2, pwm_chauffe); // Commande PWM MOSFET , courant bougie
     temps_ms = millis();   // temps courant depuis alimentation bougie en ms    
     // Fin de temporisation
     if ((temps_ms > (timer_chauffe + DELAI_CHAUFFAGE)))// &&  (tempo_secu == false)) // Coupure après tempo sauf si secu en cours
@@ -79,9 +79,9 @@ void glowUpdate()
   {
     // coupure alimentation en courant de la bougie
     pwm_chauffe = 0;
-    TinySoftPwm_analogWrite(BROCHE_GLOW1, pwm_chauffe);
-    TinySoftPwm_analogWrite(BROCHE_GLOW2, pwm_chauffe); 
-    //digitalWriteFast(LED1,LOW);//LEDCHAU_OFF
+    analogWrite(BROCHE_GLOW1, pwm_chauffe);
+    analogWrite(BROCHE_GLOW2, pwm_chauffe); 
+    //off(LED1RED);off(LED2RED);//LEDCHAU_OFF
   } 
 
 }

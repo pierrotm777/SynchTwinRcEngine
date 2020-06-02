@@ -5,19 +5,6 @@ void UseSynchroMotors()
   diffVitesse = vitesse1 - vitesse2;
 
 #ifdef PIDCONTROL
-//  double gap = ms.diffVitesseErr-diffVitesse; //distance away from diffVitesseErr
-//  gap = abs(gap);
-//  if (gap < 10)
-//  {  //we're close to setpoint, use conservative tuning parameters
-//    myPID.SetTunings(ms.consKp, ms.consKi, ms.consKd);
-//  }
-//  else
-//  {
-//     //we're far from setpoint, use aggressive tuning parameters
-//     myPID.SetTunings(ms.aggKp, ms.aggKi, ms.aggKd);
-//  }
-//  
-//  myPID.Compute();
  
 #else
   stepMotor = 10;
@@ -40,6 +27,8 @@ void UseSynchroMotors()
   
   if ((vitesse1 > ms.minimumSpeed) && (vitesse2 > ms.minimumSpeed))//if diff exist synchro is active
   {
+    on(LED1YELLOW);
+   
     if(abs(diffVitesse) >=  ms.diffVitesseErr)//here, diffVitesseErr = 100;
     {
       if (diffVitesse < 0)//V1 < V2 
@@ -64,6 +53,7 @@ void UseSynchroMotors()
 /* security moteurs */
   else if(vitesse1 < ms.minimumSpeed && vitesse2 > ms.minimumSpeed )//arret des 2 moteurs pendant 1s puis mise en securite de 1 et reprise de 2
   {
+    off(LED1YELLOW);
     //ajouter mixage Aux avec gouvernail
     if(millis() - BeginIdleMode < 1000)/* Compteur mise en securite pendant 1s */
     {
@@ -80,6 +70,7 @@ void UseSynchroMotors()
   
   else if(vitesse2 < ms.minimumSpeed && vitesse1 > ms.minimumSpeed)//arret des 2 moteurs pendant 1s puis mise en securite de 2 et reprise de 1
   {
+    off(LED1YELLOW);
     //ajouter mixage Aux avec gouvernail
     if(millis() - BeginIdleMode < 1000)/* Compteur mise en securite pendant 1s */
     {
