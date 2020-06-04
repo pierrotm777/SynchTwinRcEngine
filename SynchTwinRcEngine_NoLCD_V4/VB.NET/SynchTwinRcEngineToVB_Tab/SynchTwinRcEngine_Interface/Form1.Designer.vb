@@ -277,10 +277,15 @@ Partial Class Form1
         Me.BackgroundWorkerThrottle = New System.ComponentModel.BackgroundWorker()
         Me.BackgroundWorkerAuxiliary = New System.ComponentModel.BackgroundWorker()
         Me.TimerProgressBars = New System.Windows.Forms.Timer(Me.components)
+        Me.ShapeContainer1 = New Microsoft.VisualBasic.PowerPacks.ShapeContainer()
+        Me.LineShape1 = New Microsoft.VisualBasic.PowerPacks.LineShape()
+        Me.LineShape2 = New Microsoft.VisualBasic.PowerPacks.LineShape()
+        Me.LineShape3 = New Microsoft.VisualBasic.PowerPacks.LineShape()
         Me.ProgressBarThrottleAuxiliary = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
         Me.ProgressBarThrottleMotors = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
         Me.UcV_ProgressBar1 = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
         Me.UcV_ProgressBar2 = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
+        Me.textBoxBatteryCoeff = New System.Windows.Forms.TextBox()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBoxSerialPort.SuspendLayout()
         CType(Me.PictureBoxConnectedOK, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -448,6 +453,7 @@ Partial Class Form1
         '
         'GroupBoxSettings
         '
+        Me.GroupBoxSettings.Controls.Add(Me.textBoxBatteryCoeff)
         Me.GroupBoxSettings.Controls.Add(Me.labelA)
         Me.GroupBoxSettings.Controls.Add(Me.labelM)
         Me.GroupBoxSettings.Controls.Add(Me.ButtonRcRadioMode)
@@ -537,6 +543,7 @@ Partial Class Form1
         Me.GroupBoxSettings.Controls.Add(Me.labelIdleServo1)
         Me.GroupBoxSettings.Controls.Add(Me.ButtonSauvegardeConfig)
         Me.GroupBoxSettings.Controls.Add(Me.labelConfigModule)
+        Me.GroupBoxSettings.Controls.Add(Me.ShapeContainer1)
         Me.GroupBoxSettings.Location = New System.Drawing.Point(3, 3)
         Me.GroupBoxSettings.Name = "GroupBoxSettings"
         Me.GroupBoxSettings.Size = New System.Drawing.Size(591, 360)
@@ -620,7 +627,7 @@ Partial Class Form1
         '
         Me.labelExtervalVoltageUsed.AutoSize = True
         Me.labelExtervalVoltageUsed.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.labelExtervalVoltageUsed.Location = New System.Drawing.Point(424, 126)
+        Me.labelExtervalVoltageUsed.Location = New System.Drawing.Point(360, 149)
         Me.labelExtervalVoltageUsed.Name = "labelExtervalVoltageUsed"
         Me.labelExtervalVoltageUsed.Size = New System.Drawing.Size(60, 13)
         Me.labelExtervalVoltageUsed.TabIndex = 145
@@ -629,7 +636,7 @@ Partial Class Form1
         'PictureBoxReadHardwareOnOff
         '
         Me.PictureBoxReadHardwareOnOff.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.PictureBoxReadHardwareOnOff.Location = New System.Drawing.Point(520, 126)
+        Me.PictureBoxReadHardwareOnOff.Location = New System.Drawing.Point(517, 148)
         Me.PictureBoxReadHardwareOnOff.Name = "PictureBoxReadHardwareOnOff"
         Me.PictureBoxReadHardwareOnOff.Size = New System.Drawing.Size(13, 16)
         Me.PictureBoxReadHardwareOnOff.TabIndex = 144
@@ -781,7 +788,7 @@ Partial Class Form1
         'labelSpeedMinMaxRPM
         '
         Me.labelSpeedMinMaxRPM.AutoSize = True
-        Me.labelSpeedMinMaxRPM.Location = New System.Drawing.Point(249, 192)
+        Me.labelSpeedMinMaxRPM.Location = New System.Drawing.Point(250, 191)
         Me.labelSpeedMinMaxRPM.Name = "labelSpeedMinMaxRPM"
         Me.labelSpeedMinMaxRPM.Size = New System.Drawing.Size(123, 13)
         Me.labelSpeedMinMaxRPM.TabIndex = 129
@@ -829,7 +836,7 @@ Partial Class Form1
         'CheckBoxFahrenheitDegrees
         '
         Me.CheckBoxFahrenheitDegrees.AutoSize = True
-        Me.CheckBoxFahrenheitDegrees.Location = New System.Drawing.Point(426, 149)
+        Me.CheckBoxFahrenheitDegrees.Location = New System.Drawing.Point(411, 170)
         Me.CheckBoxFahrenheitDegrees.Name = "CheckBoxFahrenheitDegrees"
         Me.CheckBoxFahrenheitDegrees.Size = New System.Drawing.Size(36, 17)
         Me.CheckBoxFahrenheitDegrees.TabIndex = 123
@@ -848,7 +855,7 @@ Partial Class Form1
         '
         'ButtonReadTempVoltage
         '
-        Me.ButtonReadTempVoltage.Location = New System.Drawing.Point(475, 124)
+        Me.ButtonReadTempVoltage.Location = New System.Drawing.Point(467, 146)
         Me.ButtonReadTempVoltage.Name = "ButtonReadTempVoltage"
         Me.ButtonReadTempVoltage.Size = New System.Drawing.Size(44, 20)
         Me.ButtonReadTempVoltage.TabIndex = 122
@@ -1063,7 +1070,7 @@ Partial Class Form1
         '
         'TextVoltageExterne
         '
-        Me.TextVoltageExterne.Location = New System.Drawing.Point(426, 124)
+        Me.TextVoltageExterne.Location = New System.Drawing.Point(361, 146)
         Me.TextVoltageExterne.Name = "TextVoltageExterne"
         Me.TextVoltageExterne.Size = New System.Drawing.Size(46, 20)
         Me.TextVoltageExterne.TabIndex = 91
@@ -1071,7 +1078,7 @@ Partial Class Form1
         '
         'TextTempInterne
         '
-        Me.TextTempInterne.Location = New System.Drawing.Point(361, 146)
+        Me.TextTempInterne.Location = New System.Drawing.Point(361, 168)
         Me.TextTempInterne.Name = "TextTempInterne"
         Me.TextTempInterne.Size = New System.Drawing.Size(46, 20)
         Me.TextTempInterne.TabIndex = 90
@@ -1079,9 +1086,9 @@ Partial Class Form1
         '
         'TextVoltageInterne
         '
-        Me.TextVoltageInterne.Location = New System.Drawing.Point(331, 123)
+        Me.TextVoltageInterne.Location = New System.Drawing.Point(362, 123)
         Me.TextVoltageInterne.Name = "TextVoltageInterne"
-        Me.TextVoltageInterne.Size = New System.Drawing.Size(42, 20)
+        Me.TextVoltageInterne.Size = New System.Drawing.Size(45, 20)
         Me.TextVoltageInterne.TabIndex = 89
         Me.TextVoltageInterne.Text = "0 v"
         '
@@ -1160,16 +1167,16 @@ Partial Class Form1
         'LabelExternalVoltage
         '
         Me.LabelExternalVoltage.AutoSize = True
-        Me.LabelExternalVoltage.Location = New System.Drawing.Point(379, 126)
+        Me.LabelExternalVoltage.Location = New System.Drawing.Point(250, 149)
         Me.LabelExternalVoltage.Name = "LabelExternalVoltage"
-        Me.LabelExternalVoltage.Size = New System.Drawing.Size(46, 13)
+        Me.LabelExternalVoltage.Size = New System.Drawing.Size(85, 13)
         Me.LabelExternalVoltage.TabIndex = 74
-        Me.LabelExternalVoltage.Text = "Externe:"
+        Me.LabelExternalVoltage.Text = "Voltage Externe:"
         '
         'Label19
         '
         Me.Label19.AutoSize = True
-        Me.Label19.Location = New System.Drawing.Point(249, 149)
+        Me.Label19.Location = New System.Drawing.Point(250, 169)
         Me.Label19.Name = "Label19"
         Me.Label19.Size = New System.Drawing.Size(108, 13)
         Me.Label19.TabIndex = 73
@@ -2965,6 +2972,40 @@ Partial Class Form1
         '
         Me.TimerProgressBars.Interval = 1000
         '
+        'ShapeContainer1
+        '
+        Me.ShapeContainer1.Location = New System.Drawing.Point(3, 16)
+        Me.ShapeContainer1.Margin = New System.Windows.Forms.Padding(0)
+        Me.ShapeContainer1.Name = "ShapeContainer1"
+        Me.ShapeContainer1.Shapes.AddRange(New Microsoft.VisualBasic.PowerPacks.Shape() {Me.LineShape3, Me.LineShape2, Me.LineShape1})
+        Me.ShapeContainer1.Size = New System.Drawing.Size(585, 341)
+        Me.ShapeContainer1.TabIndex = 154
+        Me.ShapeContainer1.TabStop = False
+        '
+        'LineShape1
+        '
+        Me.LineShape1.Name = "LineShape1"
+        Me.LineShape1.X1 = 458
+        Me.LineShape1.X2 = 458
+        Me.LineShape1.Y1 = 107
+        Me.LineShape1.Y2 = 168
+        '
+        'LineShape2
+        '
+        Me.LineShape2.Name = "LineShape2"
+        Me.LineShape2.X1 = 445
+        Me.LineShape2.X2 = 457
+        Me.LineShape2.Y1 = 107
+        Me.LineShape2.Y2 = 107
+        '
+        'LineShape3
+        '
+        Me.LineShape3.Name = "LineShape3"
+        Me.LineShape3.X1 = 445
+        Me.LineShape3.X2 = 457
+        Me.LineShape3.Y1 = 168
+        Me.LineShape3.Y2 = 168
+        '
         'ProgressBarThrottleAuxiliary
         '
         Me.ProgressBarThrottleAuxiliary._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
@@ -3016,6 +3057,14 @@ Partial Class Form1
         Me.UcV_ProgressBar2.Name = "UcV_ProgressBar2"
         Me.UcV_ProgressBar2.Size = New System.Drawing.Size(19, 191)
         Me.UcV_ProgressBar2.TabIndex = 139
+        '
+        'textBoxBatteryCoeff
+        '
+        Me.textBoxBatteryCoeff.Location = New System.Drawing.Point(419, 147)
+        Me.textBoxBatteryCoeff.Name = "textBoxBatteryCoeff"
+        Me.textBoxBatteryCoeff.Size = New System.Drawing.Size(36, 20)
+        Me.textBoxBatteryCoeff.TabIndex = 155
+        Me.textBoxBatteryCoeff.Text = "4.0"
         '
         'Form1
         '
@@ -3346,6 +3395,11 @@ Partial Class Form1
     Friend WithEvents BackgroundWorkerAuxiliary As System.ComponentModel.BackgroundWorker
     Friend WithEvents labelA As System.Windows.Forms.Label
     Friend WithEvents labelM As System.Windows.Forms.Label
+    Friend WithEvents ShapeContainer1 As Microsoft.VisualBasic.PowerPacks.ShapeContainer
+    Friend WithEvents LineShape3 As Microsoft.VisualBasic.PowerPacks.LineShape
+    Friend WithEvents LineShape2 As Microsoft.VisualBasic.PowerPacks.LineShape
+    Friend WithEvents LineShape1 As Microsoft.VisualBasic.PowerPacks.LineShape
+    Friend WithEvents textBoxBatteryCoeff As System.Windows.Forms.TextBox
 
 
 End Class

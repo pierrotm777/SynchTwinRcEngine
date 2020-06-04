@@ -194,74 +194,6 @@ Public Class Form1
             End Try
         End If
 
-        'If Strings.Left(SerialMessagRecieved, 3) = "SD|" Then 'return sd card is used
-        '    Try
-        '        If SerialMessagRecieved.Replace("SD|", "") = "0" Then
-        '            SDCardUsed = False
-        '            labelFRAMIsUsed.Text = "SD Card Used: NO"
-        '            labelFRAMType.Text = "SD Card Type: NO"
-        '            'labelSDCardSize.Text = "SD Card Size: NO"
-        '            labelSDCardSize.Text = "SD Card FAT: NO"
-        '        ElseIf SerialMessagRecieved.Replace("SD|", "") = "1" Then
-        '            SDCardUsed = True
-        '            labelFRAMIsUsed.Text = "SD Card Used: YES"
-        '        End If
-
-        '    Catch ex As Exception
-        '        ShowMsg(SerialMessagRecieved & vbCrLf & ex.Message, ShowMsgImage.Critical, "Erreur")
-        '    End Try
-        'End If
-        'If Strings.Left(SerialMessagRecieved, 3) = "SD1" Then 'return sd is v1 type
-        '    Try
-        '        labelFRAMType.Text = "SD Card Type: SD1"
-        '    Catch ex As Exception
-        '        ShowMsg(SerialMessagRecieved & vbCrLf & ex.Message, ShowMsgImage.Critical, "Erreur")
-        '    End Try
-        'End If
-        'If Strings.Left(SerialMessagRecieved, 3) = "SD2" Then 'return sd is v2 type
-        '    Try
-        '        labelFRAMType.Text = "SD Card Type: SD2"
-        '    Catch ex As Exception
-        '        ShowMsg(SerialMessagRecieved & vbCrLf & ex.Message, ShowMsgImage.Critical, "Erreur")
-        '    End Try
-        'End If
-        'If Strings.Left(SerialMessagRecieved, 3) = "SDH" Then 'return sd is sdhc type
-        '    Try
-        '        labelFRAMType.Text = "SD Card Type: SDHC"
-        '    Catch ex As Exception
-        '        ShowMsg(SerialMessagRecieved & vbCrLf & ex.Message, ShowMsgImage.Critical, "Erreur")
-        '    End Try
-        'End If
-        'If Strings.Left(SerialMessagRecieved, 3) = "SDU" Then 'return sd is unknow type
-        '    Try
-        '        labelFRAMType.Text = "SD Card Type: Unknow"
-        '    Catch ex As Exception
-        '        ShowMsg(SerialMessagRecieved & vbCrLf & ex.Message, ShowMsgImage.Critical, "Erreur")
-        '    End Try
-        'End If
-        'If Strings.Left(SerialMessagRecieved, 4) = "SDN|" Then 'return sd isn't formatted
-        '    Try
-        '        'ShowMsg("You need to format the SD Card (FAT or FAT32 only)!!!", ShowMsgImage.Critical, "Erreur")
-        '        labelSDCardSize.Text = "SD Card FAT: NO FAT !!!"
-        '    Catch ex As Exception
-        '        ShowMsg(SerialMessagRecieved & vbCrLf & ex.Message, ShowMsgImage.Critical, "Erreur")
-        '    End Try
-        'End If
-        'If Strings.Left(SerialMessagRecieved, 4) = "SDF|" Then 'return sd format type
-        '    Try
-        '        labelSDCardSize.Text = "SD Card FAT: " & SerialMessagRecieved.Replace("SDF|", "")
-        '    Catch ex As Exception
-        '        ShowMsg(SerialMessagRecieved & vbCrLf & ex.Message, ShowMsgImage.Critical, "Erreur")
-        '    End Try
-        'End If
-        'If Strings.Left(SerialMessagRecieved, 4) = "SDL|" Then 'return list
-        '    Try
-        '        Dim list As String = SerialMessagRecieved.Replace("SDL|", "")
-        '        ListBoxSDListFiles.Items.Add(list)
-        '    Catch ex As Exception
-        '        ShowMsg(SerialMessagRecieved & vbCrLf & ex.Message, ShowMsgImage.Critical, "Erreur")
-        '    End Try
-        'End If
         If Strings.Left(SerialMessagRecieved, 6) = "NOFRAM" Then 'fram isn't used
             Try
                 SDCardUsed = False
@@ -274,55 +206,6 @@ Public Class Form1
             End Try
         End If
 
-        'If Strings.Left(SerialMessagRecieved, 7) = "SDRErr|" Then
-        '    Try
-        '        Dim SDData As String = SerialMessagRecieved.Replace("SDRErr|", "")
-        '        If SDData = "0" Then
-        '            'SDCardUsed = True
-        '            MessageBox.Show("Read Data from SD Card return no file found !")
-        '        ElseIf SDData <> "0" Then
-        '            'SDCardUsed = True
-        '            MessageBox.Show("File " & SDData & " found on SD card !")
-        '        End If
-        '    Catch ex As Exception
-        '        ShowMsg(SerialMessagRecieved & vbCrLf & ex.Message, ShowMsgImage.Critical, "Erreur")
-        '    End Try
-        'End If
-
-        'If Strings.Left(SerialMessagRecieved, 7) = "SDWErr|" Then
-        '    Try
-        '        Dim Err As String = SerialMessagRecieved.Replace("SDWErr|", "")
-        '        If Err = "0" Then
-        '            MessageBox.Show("Write Data to SD Card return no file found !")
-        '        ElseIf Err <> "0" Then
-        '            MessageBox.Show(Err)
-        '        End If
-        '    Catch ex As Exception
-        '        ShowMsg(SerialMessagRecieved & vbCrLf & ex.Message, ShowMsgImage.Critical, "Erreur")
-        '    End Try
-        'End If
-
-        'list files in SD card
-        'If Strings.Left(SerialMessagRecieved, 7) = "SDData|" Then 'receive SDData|DATALOG.TXT   2000-01-01 01:00:00 59866
-        '    Try
-        '        Dim Err As String = SerialMessagRecieved.Replace("SDData", "").Replace("   ", " ")
-
-        '        'If GrahIsEnable = True Then 'lecture DataLogger
-        '        ' Make up some data points based on the Sine function
-        '        Dim i As Integer, x As Double ', y As Double, y2 As Double
-        '        If i < 10000 Then
-        '            x = New XDate(DateTime.Now) '(i + 11)
-        '            list.Add(x, Convert.ToInt32(SevenSegmentArray1.Value))
-        '            list2.Add(x, Convert.ToInt32(SevenSegmentArray2.Value))
-        '            i = i + 1
-
-        '        End If
-        '        GraphIsReady = True
-
-        '    Catch ex As Exception
-        '        ShowMsg(SerialMessagRecieved & vbCrLf & ex.Message, ShowMsgImage.Critical, "Erreur")
-        '    End Try
-        'End If
 
         'lecture config du module arduino 
         If Strings.Left(SerialMessagRecieved, 3) = "LLA" Then 'return module's settings
@@ -358,11 +241,14 @@ Public Class Form1
 
                 If array(18) <> "NOTUSED" Then
                     labelExtervalVoltageUsed.Visible = False
+                    textBoxBatteryCoeff.Visible = True
                     TextVoltageExterne.Visible = True
                     TextVoltageExterne.Text = array(18) & "v"
+                    textBoxBatteryCoeff.Text = array(24)
                     labelExtervalVoltageUsed.Text = ""
                 Else
                     labelExtervalVoltageUsed.Visible = True
+                    textBoxBatteryCoeff.Visible = False
                     TextVoltageExterne.Visible = False
                     labelExtervalVoltageUsed.Text = "Not Used"
                 End If
@@ -1656,21 +1542,22 @@ Public Class Form1
         MessageToSend &= textMiniMotorRPM.Text & ","    'speed motor mini
         MessageToSend &= textMaxiMotorRPM.Text & ","    'speed motor maxi
 
-        ' MessageToSend &= LabelSignalType.Text
         Select Case LabelSignalType.Text
             Case "CPPM"
-                MessageToSend &= "0"
+                MessageToSend &= "0,"
             Case "SBUS"
-                MessageToSend &= "1"
+                MessageToSend &= "1,"
             Case "SRXL"
-                MessageToSend &= "2"
+                MessageToSend &= "2,"
             Case "SUMD"
-                MessageToSend &= "3"
+                MessageToSend &= "3,"
             Case "IBUS"
-                MessageToSend &= "4"
+                MessageToSend &= "4,"
             Case "JETI"
-                MessageToSend &= "5"
+                MessageToSend &= "5,"
         End Select
+
+        MessageToSend &= textBoxBatteryCoeff.Text ' battery coefficient (~4.0)
 
         'MsgBox(MessageToSend)
         If TextBoxDiffSpeedSimuConsigne.Text = "0" Then

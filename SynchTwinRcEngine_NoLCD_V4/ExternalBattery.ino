@@ -117,7 +117,7 @@ float GetExternalVoltage()
         |
 ----.   # R1=3k3 = Orange Orange Rouge Or
     |   |
-  A3|---+
+  A7|---+
     |   |        
 NaNo|   # R2=1k1 = Marron Marron Rouge Or 
     |   |        
@@ -126,16 +126,16 @@ NaNo|   # R2=1k1 = Marron Marron Rouge Or
     |  GND      
 ----'        
   */  
-  static float coeff_division = 4.0;
+
   /* Mesure de la tension brute */
-  //uint16_t raw_bat = analogRead(BROCHE_BATTEXT); //attention a I2C qui utilise les pins A4 et A5
-  uint16_t raw_bat = anaRead(BROCHE_BATTEXT);
+  uint16_t raw_bat = analogRead(BROCHE_BATTEXT); //attention a I2C qui utilise les pins A4 et A5
+  //uint16_t raw_bat = anaRead(BROCHE_BATTEXT);
   
   /* Calcul de la tension reel -- Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V) */
-  //float real_bat = (raw_bat != 0 )?0:((raw_bat * (readVcc() * 1.0 / 1023)) * coeff_division);
+  float real_bat = (raw_bat == 0 )?0:((raw_bat * (readVcc() * 1.0 / 1023 / 1000)) * ms.coeff_division);
 
   //raw_bat = map(raw_bat, 0, 1023, 0, REFERENCE_VOLTAGE); // see https://www.youtube.com/watch?v=NPcAqJ30EwE 
-  float real_bat = (raw_bat != 0 )?0:((raw_bat * (5 * 1.0 / 1023)) * coeff_division);
+  //float real_bat = (raw_bat == 0 )?0:((raw_bat * (5 * 1.0 / 1023 / 1000)) * coeff_division);
   
   return (real_bat);
 

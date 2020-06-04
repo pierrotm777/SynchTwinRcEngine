@@ -62,9 +62,9 @@ SoftSerial SettingsPort(10,11);
 
 //#define DEBUG
 #define SECURITYENGINE          /* Engines security On/off */
-#define ARDUINO2PC                /* PC interface (!!!!!! don't use this option with SettingsPortPLOTTER or READ_Button_AnalogPin !!!!!!) */
-//#define EXTERNALVBATT             /* Read external battery voltage */
-#define GLOWMANAGER             /* Glow driver */ CONFLIT AVEC SOFTSERIAL
+#define ARDUINO2PC              /* PC interface (!!!!!! don't use this option with SettingsPortPLOTTER or READ_Button_AnalogPin !!!!!!) */
+#define EXTERNALVBATT           /* Read external battery voltage */
+#define GLOWMANAGER             /* Glow driver */
 //#define I2CSLAVEFOUND           /* for command a second module by the I2C port */
 #define INT_REF                 /* internal 1.1v reference */
 //#define SerialPLOTTER           /* Multi plot in IDE (don't use this option with ARDUINO2PC) */
@@ -111,6 +111,9 @@ A7    External power V+
 
 // http://philsradial.blogspot.com/2013/02/glowplug-driver.html
 #ifdef GLOWMANAGER
+//Declare the Pin(s) used in "TinySoftPwm.h"
+//In this sketch, #define TINY_SOFT_PWM_USES_P7 and #define TINY_SOFT_PWM_USES_P7 must be enabled (not commented).
+#include <TinySoftPwm.h>
 #define BROCHE_GLOW1            7  /* Glow driver motor 1 (PD7)*/ 
 #define BROCHE_GLOW2            8  /* Glow driver motor 2 (PB0)*/
 bool GlowDriverInUse = false;
@@ -149,6 +152,7 @@ unsigned long startedWaiting = millis();
 unsigned long started1s = millis();
 unsigned long ShutDownSerialSetting = millis();
 unsigned long LedRedStartMs = millis();
+static uint32_t StartPwmUs=micros();
 
 /* Variables Chronos*/
 uint32_t BeginIdleMode;//=0;
@@ -194,6 +198,7 @@ struct MaStructure {
   uint16_t minimumSpeed;                           //value in uS
   uint16_t maximumSpeed;                           //value in uS
   uint8_t channelsOrder;                           //AETR(AILERON,ELEVATOR,THROTTLE,RUDDER),AERT(AILERON,ELEVATOR,RUDDER,THROTTLE),ARET(AILERON,RUDDER,ELEVATOR,THROTTLE) etc...
+  float coeff_division;                            //4.0
 }; // Ne pas oublier le point virgule !
 
 MaStructure ms;
@@ -394,17 +399,14 @@ void setup()
   }
 #endif
 
-  /* init pins leds in output */
+  /* init pins leds in output (RED leds are defined here if SettingsPort not used for settings*/
 #ifdef EXTLED
   out(LED);
-  //out(LED1RED);on(LED1RED);
-  //out(LED2RED);on(LED2RED);
   out(LED1GREEN);on(LED1GREEN);
   out(LED2GREEN);on(LED2GREEN);
   out(LED1YELLOW);on(LED1YELLOW);
   out(LED2YELLOW);on(LED2YELLOW);
   delay(500);
-  //off(LED1RED);off(LED2RED);
   off(LED1GREEN);off(LED2GREEN);
   off(LED1YELLOW);off(LED2YELLOW);
 #endif
@@ -414,13 +416,15 @@ void setup()
 #endif
 
 #ifdef GLOWMANAGER
-/*The two RED leds on the TwinSync will turn on continuous when the glow drivers are on. If
+/*
+The two RED leds on the SyncTwinRcEngine will turn on continuous when the glow drivers are on. If
 the glow plug is not connected or burned out the RED led for that glow driver will flash
 slowly. If a glow driver battery is getting low (below 1.15 volts under load) the RED led
-for that glow driver on the TwinSync will flash rapidly.*/
-  pinMode(BROCHE_GLOW1,INPUT_PULLUP);
-  pinMode(BROCHE_GLOW2,INPUT_PULLUP);
-  if (digitalRead(BROCHE_GLOW1) == LOW && digitalRead(BROCHE_GLOW2) == LOW)
+for that glow driver on the TwinSync will flash rapidly.
+*/
+  pinMode(BROCHE_GLOW1,INPUT_PULLUP);//check if glow module is connected for motor 1
+  pinMode(BROCHE_GLOW2,INPUT_PULLUP);//check if glow module is connected for motor 2
+  if (digitalRead(BROCHE_GLOW1) == LOW && digitalRead(BROCHE_GLOW2) == LOW)// if Glow driver's resistor pull down found
   {
     GlowDriverInUse = true;
     pinMode(BROCHE_GLOW1,OUTPUT);
@@ -455,11 +459,11 @@ void loop()
         SettingsPort << F(".");started1s=millis();
       }      
       /* Check 10s */
-      if(millis()-ShutDownSerialSetting >= 10000)
+      if(millis()-ShutDownSerialSetting >= 10000)//Wait VB program 10s.
       {
         SettingsPort << endl << F("Shutdown Serial port ...") << endl << endl;
         SettingsPort.flush();
-        SettingsPort.end();
+        SettingsPort.end();//SettingsPort is shut down and release pins 10/11 for Red leds.
 
         
 #ifdef EXTLED        
@@ -502,7 +506,6 @@ else
 #ifdef GLOWMANAGER
   if (GlowDriverInUse == true)
   {
-    on(LED1RED);on(LED2RED);
     glowUpdate();
   }
   else
@@ -548,6 +551,7 @@ void readAllEEprom()
   ms.maximumSpeed        = 20000;//maximum motor rpm
   ms.InputMode           = 0;//CPPM defaut
   ms.channelsOrder       = 0;
+  ms.coeff_division      = 4.0;
  */
  
   EEPROM.get(0,ms);// Read all EEPROM settings in one time
@@ -645,6 +649,7 @@ void SettingsWriteDefault()
   ms.minimumSpeed        = 1000;//AddressMax += sizeof(ms.minimumSpeed);//minimum motor rpm
   ms.maximumSpeed        = 20000;//AddressMax += sizeof(ms.maximumSpeed);//maximum motor rpm
   ms.channelsOrder       = 0;
+  ms.coeff_division      = 4.0;
 
   //SettingsPort << F("Address maxi: ") << AddressMax << endl;
   EEPROM.put(0, ms);
@@ -700,7 +705,8 @@ void sendConfigToSettingsPort()
   SettingsPort << ms.fahrenheitDegrees << F("|");//array(20)
   SettingsPort << ms.minimumSpeed << F("|");//array(21)
   SettingsPort << ms.maximumSpeed << F("|");//array(22)
-  SettingsPort << ms.InputMode << endl;//array(23)
+  SettingsPort << ms.InputMode << F("|");//array(23)
+  SettingsPort << ms.coeff_division << endl;//array(24)
   //SettingsPort.flush(); // clear SettingsPort port
 }
 
@@ -797,32 +803,32 @@ void receiveCallback()
 /* I2C Slave DATA */
 #endif
 
-#ifdef EXTERNALVBATT
-//Start of ADC managements functions
-void ADC_setup(){
-  ADCSRA =  bit (ADEN);                      // turn ADC on
-  ADCSRA |= bit (ADPS0) |  bit (ADPS1) | bit (ADPS2);  // Prescaler of 128
-#ifdef INT_REF
-  ADMUX  =  bit (REFS0) | bit (REFS1);    // internal 1.1v reference
-#else
-  ADMUX  =  bit (REFS0) ;   // external 5v reference
-#endif
-}
-
-int anaRead(int adc_pin){
-  ADC_read_conversion();// read result of previously triggered conversion
-  ADC_start_conversion(adc_pin);// start a conversion for next loop 
-}
-
-void ADC_start_conversion(int adc_pin){
-  ADMUX &= ~(0x07) ; //clearing enabled channels
-  ADMUX  |= (adc_pin & 0x07) ;    // AVcc and select input port
-  bitSet (ADCSRA, ADSC) ;
-}
-
-int ADC_read_conversion(){
- while(bit_is_set(ADCSRA, ADSC));
- return ADC ;
-}
-//End of ADC management functions
-#endif
+//#ifdef EXTERNALVBATT
+////Start of ADC managements functions
+//void ADC_setup(){
+//  ADCSRA =  bit (ADEN);                      // turn ADC on
+//  ADCSRA |= bit (ADPS0) |  bit (ADPS1) | bit (ADPS2);  // Prescaler of 128
+//#ifdef INT_REF
+//  ADMUX  =  bit (REFS0) | bit (REFS1);    // internal 1.1v reference
+//#else
+//  ADMUX  =  bit (REFS0) ;   // external 5v reference
+//#endif
+//}
+//
+//int anaRead(int adc_pin){
+//  ADC_read_conversion();// read result of previously triggered conversion
+//  ADC_start_conversion(adc_pin);// start a conversion for next loop 
+//}
+//
+//void ADC_start_conversion(int adc_pin){
+//  ADMUX &= ~(0x07) ; //clearing enabled channels
+//  ADMUX  |= (adc_pin & 0x07) ;    // AVcc and select input port
+//  bitSet (ADCSRA, ADSC) ;
+//}
+//
+//int ADC_read_conversion(){
+// while(bit_is_set(ADCSRA, ADSC));
+// return ADC ;
+//}
+////End of ADC management functions
+//#endif
