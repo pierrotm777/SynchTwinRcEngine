@@ -230,6 +230,8 @@ Public Class Form1
                     TextBoxDiffSpeedSimuConsigne.Text = s(0)
                 End If
 
+                If array(13) = "1" Then CheckBoxTelemetry.Checked = True Else CheckBoxTelemetry.Checked = False
+
                 textNombrePales.Text = array(14)
 
                 labelChannelOrderRadio.Text = array(15)
@@ -773,6 +775,19 @@ Public Class Form1
             If (CheckBoxInversionServo2.Checked = True) Then CheckBoxInversionServo2.Text = "Yes" Else CheckBoxInversionServo2.Text = "No"
         End If
     End Sub
+
+    Private Sub CheckBoxTelemetry_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CheckBoxTelemetry.CheckStateChanged
+        LabelModifications.Enabled = True
+        LabelModifications.ForeColor = Color.Red
+        If My.Settings.Language = "French" Then LabelModifications.Text = "Modifications non sauvegardées !" Else LabelModifications.Text = "Changes not saved !"
+        If My.Settings.Language = "French" Then
+            If (CheckBoxTelemetry.Checked = True) Then CheckBoxTelemetry.Text = "Oui" Else CheckBoxTelemetry.Text = "Non"
+        ElseIf My.Settings.Language = "English" Then
+            If (CheckBoxTelemetry.Checked = True) Then CheckBoxTelemetry.Text = "Yes" Else CheckBoxTelemetry.Text = "No"
+        End If
+    End Sub
+
+
     Private Sub CheckBoxFahrenheitDegrees_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CheckBoxFahrenheitDegrees.CheckStateChanged
         LabelModifications.Enabled = True
         LabelModifications.ForeColor = Color.Red
@@ -1557,7 +1572,9 @@ Public Class Form1
                 MessageToSend &= "5,"
         End Select
 
-        MessageToSend &= textBoxBatteryCoeff.Text ' battery coefficient (~4.0)
+        MessageToSend &= textBoxBatteryCoeff.Text & ","  ' battery coefficient (~4.0)
+
+        If CheckBoxTelemetry.Checked = True Then MessageToSend &= "1" Else MessageToSend &= "0"
 
         'MsgBox(MessageToSend)
         If TextBoxDiffSpeedSimuConsigne.Text = "0" Then
@@ -2155,10 +2172,10 @@ Public Class Form1
 #Region "TabPages"
     'TabPage1
 
-    Private Sub LinkLabel1_LinkClicked(sender As System.Object, e As System.Windows.Forms.LinkLabelLinkClickedEventArgs)
+    Private Sub LinkLabel1_LinkClicked(ByVal sender As System.Object, ByVal e As System.Windows.Forms.LinkLabelLinkClickedEventArgs)
 
     End Sub
-    Private Sub ButtonAbout_Click(sender As System.Object, e As System.EventArgs) Handles ButtonAbout.Click
+    Private Sub ButtonAbout_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonAbout.Click
         'ShowMsg("Version Interface: " & InterfaceVersion & vbCrLf &
         '        "Version Module: " & ModuleVersion & vbCrLf & vbCrLf &
         '        "Copyright @2017" & vbCrLf & vbCrLf & "mailto:pierrotm777@gmail.com", ShowMsgImage.Info, "Info")
@@ -2168,7 +2185,7 @@ Public Class Form1
                 "Copyright @2017", ShowMsgImage.Info, "Info")
     End Sub
 
-    Private Sub ButtonSettings_Click(sender As System.Object, e As System.EventArgs) Handles TabPage2.Enter
+    Private Sub ButtonSettings_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TabPage2.Enter
         Me.Width = 620
         Me.Height = 430
         CheckBoxReadTracBarMotorOrMotorThrottle.Checked = False
@@ -2188,7 +2205,7 @@ Public Class Form1
 
     End Sub
 
-    Private Sub ButtonMoteurs_Click(sender As System.Object, e As System.EventArgs) Handles TabPage3.Enter
+    Private Sub ButtonMoteurs_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TabPage3.Enter
         AquaGaugeMoteur1.MaxValue = Convert.ToInt32(textMaxiMotorRPM.Text) '30000
         AquaGaugeMoteur1.Threshold1Stop = Convert.ToInt32(textMiniMotorRPM.Text) '2000 'end idle zone
         AquaGaugeMoteur1.Threshold2Stop = Convert.ToInt32(textMaxiMotorRPM.Text) '30000 'end red zone
@@ -2199,7 +2216,7 @@ Public Class Form1
         AquaGaugeMoteur2.Threshold2Start = AquaGaugeMoteur2.Threshold2Stop - 4000
     End Sub
 
-    Private Sub ButtonDataLogger_Click(sender As System.Object, e As System.EventArgs) Handles TabPage4.Enter
+    Private Sub ButtonDataLogger_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TabPage4.Enter
         zg1.GraphPane = New GraphPane()
 
         'http://www.codeproject.com/Articles/5431/A-flexible-charting-library-for-NET
@@ -2354,7 +2371,7 @@ Public Class Form1
         TimerDataLogger.Enabled = True
     End Sub
 
-    Private Sub ButtonSimulation_Click(sender As System.Object, e As System.EventArgs) Handles TabPage5.Enter
+    Private Sub ButtonSimulation_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TabPage5.Enter
         MessageToSend &= textBoxKpControl.Text & ","
         MessageToSend &= textBoxKiControl.Text & ","
         MessageToSend &= textBoxKdControl.Text
@@ -2431,7 +2448,7 @@ Public Class Form1
     'Tab programmer
     'https://skyduino.wordpress.com/2011/12/02/tutoriel-avrdude-en-ligne-de-commande/
 
-    Private Sub Programmer_Click(sender As System.Object, e As System.EventArgs) Handles TabPage7.Enter
+    Private Sub Programmer_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TabPage7.Enter
         If SerialPort1.IsOpen Then
             PictureBoxConnectedOK.Image = My.Resources.rectangle_rouge
             SerialPort1.Close()
@@ -2504,7 +2521,7 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub cboboardname_SelectedValueChanged(sender As System.Object, e As System.EventArgs) Handles cboboardname.SelectedValueChanged
+    Private Sub cboboardname_SelectedValueChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cboboardname.SelectedValueChanged
         Dim index As Integer
         index = cboboardname.FindString(cboboardname.Text)
         My.Settings.boardname = index
@@ -2586,7 +2603,7 @@ Public Class Form1
         'My.Settings.Save()
     End Sub
 
-    Private Sub ButtonUSBAspUpload_Click(sender As System.Object, e As System.EventArgs) Handles ButtonUSBAspUpload.Click
+    Private Sub ButtonUSBAspUpload_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonUSBAspUpload.Click
         Dim result As Integer = MessageBox.Show("Do you want realy upload a new firmware ?", "oo OO Question OO oo", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
         If result = DialogResult.No Then
             'MessageBox.Show("No pressed")
@@ -2636,7 +2653,7 @@ Public Class Form1
         ButtonUSBAspUpload.Enabled = True
     End Sub
 
-    Private Sub ButtonBootLoader_Click(sender As System.Object, e As System.EventArgs) Handles ButtonBootLoader.Click
+    Private Sub ButtonBootLoader_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonBootLoader.Click
         If cboboardname.Text = "" Then
             MsgBox("Select a board.")
             Exit Sub
@@ -2669,7 +2686,7 @@ Public Class Form1
         'My.Settings.Save()
     End Sub
 
-    Private Sub CheckBox1_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles CheckBoxUseUSBAsp.CheckedChanged
+    Private Sub CheckBox1_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CheckBoxUseUSBAsp.CheckedChanged
         If CheckBoxUseUSBAsp.Checked = True Then
             chktoggledtr.Visible = False
             lblinstallhw.Visible = True
@@ -2716,7 +2733,7 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub ButtonPinOutHelp_Click(sender As System.Object, e As System.EventArgs) Handles ButtonPinOutHelp.Click
+    Private Sub ButtonPinOutHelp_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonPinOutHelp.Click
         If PictureBoxPinOut.Visible = False Then
             PictureBoxPinOut.Visible = True
             txtoutput.Visible = False
@@ -2899,7 +2916,7 @@ Public Class Form1
     End Sub
 
 
-    Private Sub cmdreadfuse_Click(sender As System.Object, e As System.EventArgs) Handles cmdreadfuse.Click
+    Private Sub cmdreadfuse_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdreadfuse.Click
         'Dim txtlfuse As String = ""
         'Dim txtefuse As String = ""
         'Dim txthfuse As String = ""
@@ -3228,7 +3245,7 @@ Public Class Form1
         avrdude.process_output_string(outputstr, 5)
     End Sub
 
-    Private Sub cmddataviewer_Click(sender As System.Object, e As System.EventArgs) Handles cmddataviewer.Click
+    Private Sub cmddataviewer_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmddataviewer.Click
         If global_chipname <> "" Then
             Dim msg As MsgBoxResult = MsgBox("Do you want to load the interface for the Microcontroller detected?" & vbCrLf & "Pressing No will provide you with a standalone interface independent of the microcontroller detected" & vbCrLf & "with an option to choose a microcontroller for your own work", vbInformation + vbYesNo, "Flash/EEPROM viewer/editor")
             If msg = vbYes Then
@@ -3259,7 +3276,7 @@ Public Class Form1
         dataeditor.Show()
     End Sub
 
-    Private Sub ButtonReadHexaEditor_Click(sender As System.Object, e As System.EventArgs) Handles ButtonReadHexaEditor.Click
+    Private Sub ButtonReadHexaEditor_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonReadHexaEditor.Click
         If TextBoxHexaEditor.Visible = False Then
             TextBoxHexaEditor.Visible = True
             txtoutput.Visible = False
@@ -3325,7 +3342,7 @@ Public Class Form1
 #End Region
 
 #Region "Gaming Hidden"
-    Private Sub form1_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
+    Private Sub form1_KeyDown(ByVal sender As Object, ByVal e As KeyEventArgs) Handles MyBase.KeyDown
 
         Select Case e.KeyData
             Case (Keys.Control + Keys.Alt + Keys.G)
@@ -3343,7 +3360,7 @@ Public Class Form1
         End Select
     End Sub
 
-    Private Sub ButtonPlayGame_Click(sender As System.Object, e As System.EventArgs) Handles ButtonPlayGame.Click
+    Private Sub ButtonPlayGame_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonPlayGame.Click
         frmGdiGaming.Show()
     End Sub
 
@@ -3458,10 +3475,13 @@ Public Class Form1
         If My.Settings.Language = "French" Then
             If (CheckBoxInversionServo1.Checked = True) Then CheckBoxInversionServo1.Text = "Oui" Else CheckBoxInversionServo1.Text = "Non"
             If (CheckBoxInversionServo2.Checked = True) Then CheckBoxInversionServo2.Text = "Oui" Else CheckBoxInversionServo2.Text = "Non"
+            If (CheckBoxTelemetry.Checked = True) Then CheckBoxTelemetry.Text = "Oui" Else CheckBoxTelemetry.Text = "Non"
+
             optLangFR.Checked = True
         ElseIf My.Settings.Language = "English" Then
             If (CheckBoxInversionServo1.Checked = True) Then CheckBoxInversionServo1.Text = "Yes" Else CheckBoxInversionServo1.Text = "No"
             If (CheckBoxInversionServo2.Checked = True) Then CheckBoxInversionServo2.Text = "Yes" Else CheckBoxInversionServo2.Text = "No"
+            If (CheckBoxTelemetry.Checked = True) Then CheckBoxTelemetry.Text = "Yes" Else CheckBoxTelemetry.Text = "No"
             optLangEN.Checked = True
         End If
 
@@ -3552,6 +3572,7 @@ Public Class Form1
 
         labelInternalVoltage.Text = My.Resources.labelIntVoltage_FR
         labelMode.Text = My.Resources.labelMode_FR
+        labelTelemetry.Text = "Télémétrie"
     End Sub
 
     Private Sub SetEnglish()
@@ -3638,9 +3659,10 @@ Public Class Form1
 
         labelInternalVoltage.Text = My.Resources.labelIntVoltage_EN
         labelMode.Text = My.Resources.labelMode_EN
+        labelTelemetry.Text = "Telemetry"
     End Sub
 
-    Private Sub optLangFR_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles optLangFR.CheckedChanged
+    Private Sub optLangFR_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles optLangFR.CheckedChanged
         If optLangFR.Checked Then
             SetFrench()
             SetLanguages()
@@ -3649,7 +3671,7 @@ Public Class Form1
         LabelInterType.Text = ModeAuxiliaireTypeText(Convert.ToInt16(textAuxiliaireMode.Text))
     End Sub
 
-    Private Sub optLangEN_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles optLangEN.CheckedChanged
+    Private Sub optLangEN_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles optLangEN.CheckedChanged
         If optLangEN.Checked Then
             SetEnglish()
             SetLanguages()
@@ -3658,7 +3680,7 @@ Public Class Form1
         LabelInterType.Text = ModeAuxiliaireTypeText(Convert.ToInt16(textAuxiliaireMode.Text))
     End Sub
 
-    Private Sub CheckBoxChronoOnOff_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles CheckBoxChronoOnOff.CheckedChanged
+    Private Sub CheckBoxChronoOnOff_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CheckBoxChronoOnOff.CheckedChanged
         'If My.Settings.Language = "French" Then
 
         'ElseIf My.Settings.Language = "English" Then
@@ -3666,7 +3688,7 @@ Public Class Form1
         'End If
     End Sub
 
-    Private Sub CheckBoxReadTracBarMotorOrMotorThrottle_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles CheckBoxReadTracBarMotorOrMotorThrottle.CheckedChanged
+    Private Sub CheckBoxReadTracBarMotorOrMotorThrottle_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CheckBoxReadTracBarMotorOrMotorThrottle.CheckedChanged
         If CheckBoxReadTracBarMotorOrMotorThrottle.Checked = True Then
             If SerialPort1.IsOpen = True Then
                 SerialPort1.Write("704" & vbCr)
@@ -3705,7 +3727,7 @@ Public Class Form1
 
 #End Region
 
-    Private Sub MakeBold(txtBox As RichTextBox, text As String)
+    Private Sub MakeBold(ByVal txtBox As RichTextBox, ByVal text As String)
         'Format the output.
         Dim loc As Integer
         loc = InStr(1, txtBox.Text, text, CompareMethod.Text)
@@ -3717,11 +3739,11 @@ Public Class Form1
         txtBox.Select(0, 0)
     End Sub
 
-    Private Function mapValue(x As Long, in_min As Long, in_max As Long, out_min As Long, out_max As Long) As Long
+    Private Function mapValue(ByVal x As Long, ByVal in_min As Long, ByVal in_max As Long, ByVal out_min As Long, ByVal out_max As Long) As Long
         Return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
     End Function
 
-    Private Sub ButtonCmdWindow_Click(sender As System.Object, e As System.EventArgs) Handles ButtonCmdWindow.Click
+    Private Sub ButtonCmdWindow_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonCmdWindow.Click
         Shell("cmd.exe", AppWinStyle.NormalFocus)
     End Sub
 
@@ -3754,7 +3776,7 @@ Public Class Form1
     'End Sub
 
 
-    Private Sub cmddata_Click(sender As System.Object, e As System.EventArgs) Handles cmddata.Click
+    Private Sub cmddata_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmddata.Click
 
         txtoutput.BringToFront()
 
@@ -3789,7 +3811,7 @@ Public Class Form1
             'End If
 
             Me.ProgressBarThrottleMotors._Value = NewPulse
-            labelM.Text = NewPulse
+
         End While
     End Sub
 
@@ -3822,7 +3844,7 @@ Public Class Form1
 
             'MsgBox(NewPulseAux)
             Me.ProgressBarThrottleAuxiliary._Value = NewPulseAux
-            labelA.Text = NewPulseAux
+
         End While
     End Sub
 

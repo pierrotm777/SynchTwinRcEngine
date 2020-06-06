@@ -20,14 +20,20 @@
 /* Function called in interruption in case of change on pins */
 void InterruptFunctionToCall(void)
 {
-  if(TINY_PIN_CHANGE(VirtualPortNb, BROCHE_SENSOR1)) /* Check BROCHE_SENSOR1 has changed (falling or rising edge) */
+  if(TINY_PIN_CHANGE(VirtualPortNb, BROCHE_SENSOR1)) /* Check BROCHE_SENSOR1 has changed (rising edge) See Macros.h */
   {
-      FirstInputChangeCount++; /* Rising AND Falling edges are counted */
+      FirstInputChangeCount++; /* Rising edges are counted */
+#ifdef RMPOUTPUT      
+      flip(RPMOUT1);
+#endif
   }
 
-  if(TINY_PIN_CHANGE(VirtualPortNb_, BROCHE_SENSOR2)) /* Check BROCHE_SENSOR1 has changed (falling or rising edge) */
+  if(TINY_PIN_CHANGE(VirtualPortNb_, BROCHE_SENSOR2)) /* Check BROCHE_SENSOR2 has changed (rising edge) See Macros.h */
   {
-      SecondInputChangeCount++; /* Rising AND Falling edges are counted */
+      SecondInputChangeCount++; /* Rising edges are counted */
+#ifdef RMPOUTPUT      
+      flip(RPMOUT2);
+#endif      
   }
 }
 

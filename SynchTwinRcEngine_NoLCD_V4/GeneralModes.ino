@@ -360,8 +360,7 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
             ms.maximumSpeed    = atoi(StrTbl[8]);//maximum motor rpm
             ms.InputMode       = atoi(StrTbl[9]);//CPPM,SBUS or IBUS
             ms.coeff_division  = atof(StrTbl[10]);//coeff_division external battery
-            
-            //ms.telemetryType   = atoi(StrTbl[11]);//0 = Frsky
+            ms.telemetryInUse   = atoi(StrTbl[11]);//0=no , 1=yes
             StrSplitRestore(",", StrTbl, SeparFound);//Imperatif SeparFound <= SUB_STRING_NB_MAX
             EEPROM.put(0,ms);        
             blinkNTime(5,100,100);            

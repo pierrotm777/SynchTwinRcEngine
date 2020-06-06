@@ -69,13 +69,13 @@ SoftSerial SettingsPort(10,11);
 #define INT_REF                 /* internal 1.1v reference */
 //#define SerialPLOTTER           /* Multi plot in IDE (don't use this option with ARDUINO2PC) */
 #define RECORDER                /* L'enregistreur est déplacé dans VB */
-//#define TELEMETRY_FRSKY           /* Frsky S-PORT Telemetry for VOLTAGE,RPM and TEMP */
 //#define FRAM_USED
-#define EXTLED                /* bloque le port serie settings pins 10-11*/
+#define EXTLED                  
+#define RPMOUTPUT               /* ouput sensor on D1 and D9 for RPM telemetry */
 
 /*
 0     INPUT PPM
-1     Led Red
+1     RPM Out 1 to oXs
 2     Hall or IR motor 1 
 3     Hall or IR motor 2 
 4     Servo motor 1 
@@ -83,10 +83,10 @@ SoftSerial SettingsPort(10,11);
 6     Servo rudder 
 7     Glow driver motor 1
 8     Glow driver motor 2
-9     Telemetry Frsky S-Port
+9     RPM Out 2 to oXs
 
-10    Setting's Port RX
-11    Setting's Port TX
+10    Setting's Port RX/Led Red 1
+11    Setting's Port TX/Led Red 2
 12    Led Yellow
 13    Led Yellow (Pro Mini LED)
 
@@ -96,7 +96,7 @@ A2    Led Yellow
 A3    Led Yellow
 A4    SDA // Connexion SD I2C
 A5    SCL // Connexion SD I2C
-A6    Led Red
+A6    NC
 A7    External power V+
 
 */
@@ -138,6 +138,11 @@ bool GlowDriverInUse = false;
 #define LED1YELLOW  /*LED3*/  2,C //A2 /*On when device is managing sync and both engines running*/
 #define LED2YELLOW  /*LED4*/  3,C //A3 /*On when Transmitter stick above 1/5 throttle. Off when transmitter stick below 1/5th throttle.*/
 //Atmega328PB (A6(PE2) et A7(PE3) sont aussi dispo)
+#endif
+
+#ifdef RMPOUTPUT
+#define RPMOUT1                1,D //D1 /*RPM output to oXs telemetry*/
+#define RPMOUT2                1,B //D1 /*RPM output to oXs telemetry*/
 #endif
 
 boolean RunConfig = true;
@@ -191,7 +196,7 @@ struct MaStructure {
   double diffVitesseErr;                           //difference de vitesse entre les 2 moteurs en tr/mn toleree
   uint16_t minimumPulse_US;                        //value in uS
   uint16_t maximumPulse_US;                        //value in uS
-  uint8_t telemetryType;                           //mode2 0- Rien, 1- FrSky (S-Port), 2- Futaba Sbus, 3- Hitec, 4- Hott, 5- Jeti 6- Spektrum
+  uint8_t telemetryInUse;                           //0- Rien, 1- Sortie sur pins D1 et D9
   uint8_t nbPales;                                 //number of blades or nb of magnets
   uint8_t moduleMasterOrSlave;                     //0 = module maitre , 1= module esclave
   uint8_t fahrenheitDegrees;                       //0 = C degrees , 1= Fahrenheit degrees
@@ -411,6 +416,11 @@ void setup()
   off(LED1YELLOW);off(LED2YELLOW);
 #endif
 
+#ifdef RMPOUTPUT
+  out(RMPOUT1);
+  out(RMPOUT2);
+#endif
+
 #ifdef RECORDER
   setupRecorder();
 #endif
@@ -543,7 +553,7 @@ void readAllEEprom()
   ms.diffVitesseErr      = 99;//difference de vitesse entre les 2 moteurs en tr/mn toleree
   ms.minimumPulse_US     = 1000;
   ms.maximumPulse_US     = 2000;
-  ms.telemetryType       = 0; //mode2 0- Rien, 1- FrSky (S-Port), 2- Futaba Sbus, 3- Hitec, 4- Hott, 5- Jeti 6- Spektrum
+  ms.telemetryInUse       = 0; //mode2 0- Rien, 1- FrSky (S-Port), 2- Futaba Sbus, 3- Hitec, 4- Hott, 5- Jeti 6- Spektrum
   ms.nbPales             = 2;   
   ms.moduleMasterOrSlave = 0;   
   ms.fahrenheitDegrees   = 0;
@@ -642,7 +652,7 @@ void SettingsWriteDefault()
   ms.diffVitesseErr      = 99;//AddressMax += sizeof(ms.diffVitesseErr);//difference de vitesse entre les 2 moteurs en tr/mn toleree
   ms.minimumPulse_US     = 1000;//AddressMax += sizeof(ms.minimumPulse_US);
   ms.maximumPulse_US     = 2000;//AddressMax += sizeof(ms.maximumPulse_US);
-  ms.telemetryType       = 0;//AddressMax += sizeof(ms.telemetryType); //mode2 0- Rien, 1- FrSky (S-Port), 2- Futaba Sbus, 3- Hitec, 4- Hott, 5- Jeti 6- Spektrum
+  ms.telemetryInUse       = 0;//AddressMax += sizeof(ms.telemetryInUse); //mode2 0- Rien, 1- yes
   ms.nbPales             = 2;//AddressMax += sizeof(ms.nbPales);   
   ms.moduleMasterOrSlave = 0;//AddressMax += sizeof(ms.moduleMasterOrSlave);   
   ms.fahrenheitDegrees   = 0;//AddressMax += sizeof(ms.fahrenheitDegrees);
@@ -691,7 +701,7 @@ void sendConfigToSettingsPort()
   SettingsPort << ms.reverseServo1 << F("|");//array(10)
   SettingsPort << ms.reverseServo2 << F("|");//array(11)
   SettingsPort << ms.diffVitesseErr << F("|");//array(12)
-  SettingsPort << F("0|");//array(13) NON UTILISé
+  SettingsPort << ms.telemetryInUse << F("|");//array(13)
   SettingsPort << _DEC(ms.nbPales) << F("|"); //array(14)
   SettingsPort << ms.channelsOrder << F("|");//array(15))
   SettingsPort << _FLOAT(readVcc() / 1000, 3) << F("|"); //array(16)

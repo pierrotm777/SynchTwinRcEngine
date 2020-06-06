@@ -37,8 +37,9 @@ Partial Class Form1
         Me.PictureBoxConnectedOK = New System.Windows.Forms.PictureBox()
         Me.Button_Connect = New System.Windows.Forms.Button()
         Me.GroupBoxSettings = New System.Windows.Forms.GroupBox()
-        Me.labelA = New System.Windows.Forms.Label()
-        Me.labelM = New System.Windows.Forms.Label()
+        Me.CheckBoxTelemetry = New System.Windows.Forms.CheckBox()
+        Me.labelTelemetry = New System.Windows.Forms.Label()
+        Me.textBoxBatteryCoeff = New System.Windows.Forms.TextBox()
         Me.ButtonRcRadioMode = New System.Windows.Forms.Button()
         Me.Label17 = New System.Windows.Forms.Label()
         Me.labelChannelOrderRadio = New System.Windows.Forms.Label()
@@ -59,6 +60,8 @@ Partial Class Form1
         Me.textCentreServo2 = New System.Windows.Forms.TextBox()
         Me.Label12 = New System.Windows.Forms.Label()
         Me.Label11 = New System.Windows.Forms.Label()
+        Me.ProgressBarThrottleAuxiliary = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
+        Me.ProgressBarThrottleMotors = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
         Me.ButtonDiffSpeedSimuConsigne = New System.Windows.Forms.Label()
         Me.TextBoxDiffSpeedSimuConsigne = New System.Windows.Forms.TextBox()
         Me.textMaxiMotorRPM = New System.Windows.Forms.TextBox()
@@ -122,6 +125,10 @@ Partial Class Form1
         Me.labelIdleServo1 = New System.Windows.Forms.Label()
         Me.ButtonSauvegardeConfig = New System.Windows.Forms.Button()
         Me.labelConfigModule = New System.Windows.Forms.Label()
+        Me.ShapeContainer1 = New Microsoft.VisualBasic.PowerPacks.ShapeContainer()
+        Me.LineShape3 = New Microsoft.VisualBasic.PowerPacks.LineShape()
+        Me.LineShape2 = New Microsoft.VisualBasic.PowerPacks.LineShape()
+        Me.LineShape1 = New Microsoft.VisualBasic.PowerPacks.LineShape()
         Me.TimerRXAuxiliaire = New System.Windows.Forms.Timer(Me.components)
         Me.TimerRXMotors = New System.Windows.Forms.Timer(Me.components)
         Me.TimerHardwareInfos = New System.Windows.Forms.Timer(Me.components)
@@ -185,6 +192,8 @@ Partial Class Form1
         Me.TrackBarRudder = New System.Windows.Forms.TrackBar()
         Me.Label4 = New System.Windows.Forms.Label()
         Me.Label13 = New System.Windows.Forms.Label()
+        Me.UcV_ProgressBar1 = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
+        Me.UcV_ProgressBar2 = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
         Me.labelAuxRudderSimulation = New System.Windows.Forms.Label()
         Me.PictureBoxGlowPlugOnOff = New System.Windows.Forms.PictureBox()
         Me.ButtonServoTest = New System.Windows.Forms.Button()
@@ -277,15 +286,6 @@ Partial Class Form1
         Me.BackgroundWorkerThrottle = New System.ComponentModel.BackgroundWorker()
         Me.BackgroundWorkerAuxiliary = New System.ComponentModel.BackgroundWorker()
         Me.TimerProgressBars = New System.Windows.Forms.Timer(Me.components)
-        Me.ShapeContainer1 = New Microsoft.VisualBasic.PowerPacks.ShapeContainer()
-        Me.LineShape1 = New Microsoft.VisualBasic.PowerPacks.LineShape()
-        Me.LineShape2 = New Microsoft.VisualBasic.PowerPacks.LineShape()
-        Me.LineShape3 = New Microsoft.VisualBasic.PowerPacks.LineShape()
-        Me.ProgressBarThrottleAuxiliary = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
-        Me.ProgressBarThrottleMotors = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
-        Me.UcV_ProgressBar1 = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
-        Me.UcV_ProgressBar2 = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
-        Me.textBoxBatteryCoeff = New System.Windows.Forms.TextBox()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBoxSerialPort.SuspendLayout()
         CType(Me.PictureBoxConnectedOK, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -453,9 +453,9 @@ Partial Class Form1
         '
         'GroupBoxSettings
         '
+        Me.GroupBoxSettings.Controls.Add(Me.CheckBoxTelemetry)
+        Me.GroupBoxSettings.Controls.Add(Me.labelTelemetry)
         Me.GroupBoxSettings.Controls.Add(Me.textBoxBatteryCoeff)
-        Me.GroupBoxSettings.Controls.Add(Me.labelA)
-        Me.GroupBoxSettings.Controls.Add(Me.labelM)
         Me.GroupBoxSettings.Controls.Add(Me.ButtonRcRadioMode)
         Me.GroupBoxSettings.Controls.Add(Me.Label17)
         Me.GroupBoxSettings.Controls.Add(Me.labelChannelOrderRadio)
@@ -551,23 +551,32 @@ Partial Class Form1
         Me.GroupBoxSettings.TabStop = False
         Me.GroupBoxSettings.Text = "Configuration"
         '
-        'labelA
+        'CheckBoxTelemetry
         '
-        Me.labelA.AutoSize = True
-        Me.labelA.Location = New System.Drawing.Point(424, 56)
-        Me.labelA.Name = "labelA"
-        Me.labelA.Size = New System.Drawing.Size(48, 13)
-        Me.labelA.TabIndex = 153
-        Me.labelA.Text = "Auxiliaire"
+        Me.CheckBoxTelemetry.AutoSize = True
+        Me.CheckBoxTelemetry.Location = New System.Drawing.Point(461, 38)
+        Me.CheckBoxTelemetry.Name = "CheckBoxTelemetry"
+        Me.CheckBoxTelemetry.Size = New System.Drawing.Size(46, 17)
+        Me.CheckBoxTelemetry.TabIndex = 157
+        Me.CheckBoxTelemetry.Text = "Non"
+        Me.CheckBoxTelemetry.UseVisualStyleBackColor = True
         '
-        'labelM
+        'labelTelemetry
         '
-        Me.labelM.AutoSize = True
-        Me.labelM.Location = New System.Drawing.Point(423, 38)
-        Me.labelM.Name = "labelM"
-        Me.labelM.Size = New System.Drawing.Size(45, 13)
-        Me.labelM.TabIndex = 152
-        Me.labelM.Text = "Moteurs"
+        Me.labelTelemetry.AutoSize = True
+        Me.labelTelemetry.Location = New System.Drawing.Point(398, 38)
+        Me.labelTelemetry.Name = "labelTelemetry"
+        Me.labelTelemetry.Size = New System.Drawing.Size(59, 13)
+        Me.labelTelemetry.TabIndex = 156
+        Me.labelTelemetry.Text = "Télémétrie:"
+        '
+        'textBoxBatteryCoeff
+        '
+        Me.textBoxBatteryCoeff.Location = New System.Drawing.Point(419, 147)
+        Me.textBoxBatteryCoeff.Name = "textBoxBatteryCoeff"
+        Me.textBoxBatteryCoeff.Size = New System.Drawing.Size(36, 20)
+        Me.textBoxBatteryCoeff.TabIndex = 155
+        Me.textBoxBatteryCoeff.Text = "4.0"
         '
         'ButtonRcRadioMode
         '
@@ -752,6 +761,32 @@ Partial Class Form1
         Me.Label11.TabIndex = 137
         Me.Label11.Text = "Thr"
         '
+        'ProgressBarThrottleAuxiliary
+        '
+        Me.ProgressBarThrottleAuxiliary._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
+        Me.ProgressBarThrottleAuxiliary._Maxi = 100
+        Me.ProgressBarThrottleAuxiliary._Mini = 0
+        Me.ProgressBarThrottleAuxiliary._Value = 50
+        Me.ProgressBarThrottleAuxiliary.BackColor = System.Drawing.SystemColors.ButtonHighlight
+        Me.ProgressBarThrottleAuxiliary.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.ProgressBarThrottleAuxiliary.Location = New System.Drawing.Point(567, 37)
+        Me.ProgressBarThrottleAuxiliary.Name = "ProgressBarThrottleAuxiliary"
+        Me.ProgressBarThrottleAuxiliary.Size = New System.Drawing.Size(19, 241)
+        Me.ProgressBarThrottleAuxiliary.TabIndex = 136
+        '
+        'ProgressBarThrottleMotors
+        '
+        Me.ProgressBarThrottleMotors._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
+        Me.ProgressBarThrottleMotors._Maxi = 100
+        Me.ProgressBarThrottleMotors._Mini = 0
+        Me.ProgressBarThrottleMotors._Value = 50
+        Me.ProgressBarThrottleMotors.BackColor = System.Drawing.SystemColors.ButtonHighlight
+        Me.ProgressBarThrottleMotors.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.ProgressBarThrottleMotors.Location = New System.Drawing.Point(536, 37)
+        Me.ProgressBarThrottleMotors.Name = "ProgressBarThrottleMotors"
+        Me.ProgressBarThrottleMotors.Size = New System.Drawing.Size(19, 241)
+        Me.ProgressBarThrottleMotors.TabIndex = 135
+        '
         'ButtonDiffSpeedSimuConsigne
         '
         Me.ButtonDiffSpeedSimuConsigne.AutoSize = True
@@ -771,7 +806,7 @@ Partial Class Form1
         '
         'textMaxiMotorRPM
         '
-        Me.textMaxiMotorRPM.Location = New System.Drawing.Point(463, 190)
+        Me.textMaxiMotorRPM.Location = New System.Drawing.Point(416, 190)
         Me.textMaxiMotorRPM.Name = "textMaxiMotorRPM"
         Me.textMaxiMotorRPM.Size = New System.Drawing.Size(42, 20)
         Me.textMaxiMotorRPM.TabIndex = 131
@@ -779,7 +814,7 @@ Partial Class Form1
         '
         'textMiniMotorRPM
         '
-        Me.textMiniMotorRPM.Location = New System.Drawing.Point(422, 190)
+        Me.textMiniMotorRPM.Location = New System.Drawing.Point(375, 190)
         Me.textMiniMotorRPM.Name = "textMiniMotorRPM"
         Me.textMiniMotorRPM.Size = New System.Drawing.Size(35, 20)
         Me.textMiniMotorRPM.TabIndex = 130
@@ -1317,6 +1352,40 @@ Partial Class Form1
         Me.labelConfigModule.Size = New System.Drawing.Size(286, 17)
         Me.labelConfigModule.TabIndex = 54
         Me.labelConfigModule.Text = "Editeur de la configuration du module:"
+        '
+        'ShapeContainer1
+        '
+        Me.ShapeContainer1.Location = New System.Drawing.Point(3, 16)
+        Me.ShapeContainer1.Margin = New System.Windows.Forms.Padding(0)
+        Me.ShapeContainer1.Name = "ShapeContainer1"
+        Me.ShapeContainer1.Shapes.AddRange(New Microsoft.VisualBasic.PowerPacks.Shape() {Me.LineShape3, Me.LineShape2, Me.LineShape1})
+        Me.ShapeContainer1.Size = New System.Drawing.Size(585, 341)
+        Me.ShapeContainer1.TabIndex = 154
+        Me.ShapeContainer1.TabStop = False
+        '
+        'LineShape3
+        '
+        Me.LineShape3.Name = "LineShape3"
+        Me.LineShape3.X1 = 445
+        Me.LineShape3.X2 = 457
+        Me.LineShape3.Y1 = 168
+        Me.LineShape3.Y2 = 168
+        '
+        'LineShape2
+        '
+        Me.LineShape2.Name = "LineShape2"
+        Me.LineShape2.X1 = 445
+        Me.LineShape2.X2 = 457
+        Me.LineShape2.Y1 = 107
+        Me.LineShape2.Y2 = 107
+        '
+        'LineShape1
+        '
+        Me.LineShape1.Name = "LineShape1"
+        Me.LineShape1.X1 = 458
+        Me.LineShape1.X2 = 458
+        Me.LineShape1.Y1 = 107
+        Me.LineShape1.Y2 = 168
         '
         'TimerRXAuxiliaire
         '
@@ -2083,6 +2152,32 @@ Partial Class Form1
         Me.Label13.Size = New System.Drawing.Size(33, 17)
         Me.Label13.TabIndex = 141
         Me.Label13.Text = "Thr"
+        '
+        'UcV_ProgressBar1
+        '
+        Me.UcV_ProgressBar1._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
+        Me.UcV_ProgressBar1._Maxi = 100
+        Me.UcV_ProgressBar1._Mini = 0
+        Me.UcV_ProgressBar1._Value = 50
+        Me.UcV_ProgressBar1.BackColor = System.Drawing.SystemColors.ButtonHighlight
+        Me.UcV_ProgressBar1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.UcV_ProgressBar1.Location = New System.Drawing.Point(357, 30)
+        Me.UcV_ProgressBar1.Name = "UcV_ProgressBar1"
+        Me.UcV_ProgressBar1.Size = New System.Drawing.Size(19, 191)
+        Me.UcV_ProgressBar1.TabIndex = 140
+        '
+        'UcV_ProgressBar2
+        '
+        Me.UcV_ProgressBar2._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
+        Me.UcV_ProgressBar2._Maxi = 100
+        Me.UcV_ProgressBar2._Mini = 0
+        Me.UcV_ProgressBar2._Value = 50
+        Me.UcV_ProgressBar2.BackColor = System.Drawing.SystemColors.ButtonHighlight
+        Me.UcV_ProgressBar2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.UcV_ProgressBar2.Location = New System.Drawing.Point(326, 30)
+        Me.UcV_ProgressBar2.Name = "UcV_ProgressBar2"
+        Me.UcV_ProgressBar2.Size = New System.Drawing.Size(19, 191)
+        Me.UcV_ProgressBar2.TabIndex = 139
         '
         'labelAuxRudderSimulation
         '
@@ -2972,100 +3067,6 @@ Partial Class Form1
         '
         Me.TimerProgressBars.Interval = 1000
         '
-        'ShapeContainer1
-        '
-        Me.ShapeContainer1.Location = New System.Drawing.Point(3, 16)
-        Me.ShapeContainer1.Margin = New System.Windows.Forms.Padding(0)
-        Me.ShapeContainer1.Name = "ShapeContainer1"
-        Me.ShapeContainer1.Shapes.AddRange(New Microsoft.VisualBasic.PowerPacks.Shape() {Me.LineShape3, Me.LineShape2, Me.LineShape1})
-        Me.ShapeContainer1.Size = New System.Drawing.Size(585, 341)
-        Me.ShapeContainer1.TabIndex = 154
-        Me.ShapeContainer1.TabStop = False
-        '
-        'LineShape1
-        '
-        Me.LineShape1.Name = "LineShape1"
-        Me.LineShape1.X1 = 458
-        Me.LineShape1.X2 = 458
-        Me.LineShape1.Y1 = 107
-        Me.LineShape1.Y2 = 168
-        '
-        'LineShape2
-        '
-        Me.LineShape2.Name = "LineShape2"
-        Me.LineShape2.X1 = 445
-        Me.LineShape2.X2 = 457
-        Me.LineShape2.Y1 = 107
-        Me.LineShape2.Y2 = 107
-        '
-        'LineShape3
-        '
-        Me.LineShape3.Name = "LineShape3"
-        Me.LineShape3.X1 = 445
-        Me.LineShape3.X2 = 457
-        Me.LineShape3.Y1 = 168
-        Me.LineShape3.Y2 = 168
-        '
-        'ProgressBarThrottleAuxiliary
-        '
-        Me.ProgressBarThrottleAuxiliary._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
-        Me.ProgressBarThrottleAuxiliary._Maxi = 100
-        Me.ProgressBarThrottleAuxiliary._Mini = 0
-        Me.ProgressBarThrottleAuxiliary._Value = 50
-        Me.ProgressBarThrottleAuxiliary.BackColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.ProgressBarThrottleAuxiliary.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.ProgressBarThrottleAuxiliary.Location = New System.Drawing.Point(567, 37)
-        Me.ProgressBarThrottleAuxiliary.Name = "ProgressBarThrottleAuxiliary"
-        Me.ProgressBarThrottleAuxiliary.Size = New System.Drawing.Size(19, 241)
-        Me.ProgressBarThrottleAuxiliary.TabIndex = 136
-        '
-        'ProgressBarThrottleMotors
-        '
-        Me.ProgressBarThrottleMotors._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
-        Me.ProgressBarThrottleMotors._Maxi = 100
-        Me.ProgressBarThrottleMotors._Mini = 0
-        Me.ProgressBarThrottleMotors._Value = 50
-        Me.ProgressBarThrottleMotors.BackColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.ProgressBarThrottleMotors.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.ProgressBarThrottleMotors.Location = New System.Drawing.Point(536, 37)
-        Me.ProgressBarThrottleMotors.Name = "ProgressBarThrottleMotors"
-        Me.ProgressBarThrottleMotors.Size = New System.Drawing.Size(19, 241)
-        Me.ProgressBarThrottleMotors.TabIndex = 135
-        '
-        'UcV_ProgressBar1
-        '
-        Me.UcV_ProgressBar1._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
-        Me.UcV_ProgressBar1._Maxi = 100
-        Me.UcV_ProgressBar1._Mini = 0
-        Me.UcV_ProgressBar1._Value = 50
-        Me.UcV_ProgressBar1.BackColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.UcV_ProgressBar1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.UcV_ProgressBar1.Location = New System.Drawing.Point(357, 30)
-        Me.UcV_ProgressBar1.Name = "UcV_ProgressBar1"
-        Me.UcV_ProgressBar1.Size = New System.Drawing.Size(19, 191)
-        Me.UcV_ProgressBar1.TabIndex = 140
-        '
-        'UcV_ProgressBar2
-        '
-        Me.UcV_ProgressBar2._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
-        Me.UcV_ProgressBar2._Maxi = 100
-        Me.UcV_ProgressBar2._Mini = 0
-        Me.UcV_ProgressBar2._Value = 50
-        Me.UcV_ProgressBar2.BackColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.UcV_ProgressBar2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.UcV_ProgressBar2.Location = New System.Drawing.Point(326, 30)
-        Me.UcV_ProgressBar2.Name = "UcV_ProgressBar2"
-        Me.UcV_ProgressBar2.Size = New System.Drawing.Size(19, 191)
-        Me.UcV_ProgressBar2.TabIndex = 139
-        '
-        'textBoxBatteryCoeff
-        '
-        Me.textBoxBatteryCoeff.Location = New System.Drawing.Point(419, 147)
-        Me.textBoxBatteryCoeff.Name = "textBoxBatteryCoeff"
-        Me.textBoxBatteryCoeff.Size = New System.Drawing.Size(36, 20)
-        Me.textBoxBatteryCoeff.TabIndex = 155
-        Me.textBoxBatteryCoeff.Text = "4.0"
-        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -3393,13 +3394,13 @@ Partial Class Form1
     Public WithEvents TimerProgressBars As System.Windows.Forms.Timer
     Friend WithEvents BackgroundWorkerThrottle As System.ComponentModel.BackgroundWorker
     Friend WithEvents BackgroundWorkerAuxiliary As System.ComponentModel.BackgroundWorker
-    Friend WithEvents labelA As System.Windows.Forms.Label
-    Friend WithEvents labelM As System.Windows.Forms.Label
     Friend WithEvents ShapeContainer1 As Microsoft.VisualBasic.PowerPacks.ShapeContainer
     Friend WithEvents LineShape3 As Microsoft.VisualBasic.PowerPacks.LineShape
     Friend WithEvents LineShape2 As Microsoft.VisualBasic.PowerPacks.LineShape
     Friend WithEvents LineShape1 As Microsoft.VisualBasic.PowerPacks.LineShape
     Friend WithEvents textBoxBatteryCoeff As System.Windows.Forms.TextBox
+    Friend WithEvents CheckBoxTelemetry As System.Windows.Forms.CheckBox
+    Friend WithEvents labelTelemetry As System.Windows.Forms.Label
 
 
 End Class
