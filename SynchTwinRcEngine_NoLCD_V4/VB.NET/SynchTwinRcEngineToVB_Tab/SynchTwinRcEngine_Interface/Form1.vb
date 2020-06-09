@@ -3573,6 +3573,10 @@ Public Class Form1
         labelInternalVoltage.Text = My.Resources.labelIntVoltage_FR
         labelMode.Text = My.Resources.labelMode_FR
         labelTelemetry.Text = "Télémétrie"
+
+        RcMode.labelOrderChannelTitle.Text = "Configuration des canaux RC:"
+        RcMode.labelIntputTypeTitle.Text = "Configuration Signal Entrée:"
+
     End Sub
 
     Private Sub SetEnglish()
@@ -3660,6 +3664,9 @@ Public Class Form1
         labelInternalVoltage.Text = My.Resources.labelIntVoltage_EN
         labelMode.Text = My.Resources.labelMode_EN
         labelTelemetry.Text = "Telemetry"
+
+        RcMode.labelOrderChannelTitle.Text = "Setting of Rc Channels:"
+        RcMode.labelIntputTypeTitle.Text = "Setting of Signal Input:"
     End Sub
 
     Private Sub optLangFR_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles optLangFR.CheckedChanged
