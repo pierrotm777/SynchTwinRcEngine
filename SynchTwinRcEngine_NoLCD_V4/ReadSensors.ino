@@ -21,10 +21,20 @@
 void InterruptFunctionToCall1(void)
 {
   FirstInputChangeCount++; /* Rising edges are counted */
+#ifdef RPMOUTPUT      
+  on(RPMOUT1);
+  delayMicroseconds(50);      // pauses for 50 microseconds
+  off(RPMOUT1);
+#endif
 }
 void InterruptFunctionToCall2(void)
 {
   SecondInputChangeCount++; /* Rising edges are counted */
+#ifdef RPMOUTPUT      
+  on(RPMOUT2);
+  delayMicroseconds(50);      // pauses for 50 microseconds
+  off(RPMOUT2);
+#endif
 }
 
 void readCaptorTransitions()

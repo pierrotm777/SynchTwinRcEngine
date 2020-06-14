@@ -73,7 +73,7 @@ SoftSerial SettingsPort(10,11);
 //#define FRAM_USED
 #define EXTLED                  
 #define RPMOUTPUT               /* ouput sensor on D1 and D9 for RPM telemetry */
-//#define TELEMETRY_FRSKY
+#define TELEMETRY_FRSKY
 /*
 0     INPUT PPM
 1     RPM Out 1 to oXs
