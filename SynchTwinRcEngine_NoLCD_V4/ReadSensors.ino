@@ -13,28 +13,18 @@
 	
   Pour un moteur brushless on pourra utiliser ce type de montage:
   http://openrcforums.com/forum/posting.php?mode=quote&f=95&p=61185&sid=95230e0106f4ab92d7a5d9ea5117509b
-  oue celui-ci:
+  ou celui-ci:
   http://www.bhabbott.net.nz/wattmeter.html
 */
 
 /* Function called in interruption in case of change on pins */
-void InterruptFunctionToCall(void)
+void InterruptFunctionToCall1(void)
 {
-  if(TINY_PIN_CHANGE(VirtualPortNb, BROCHE_SENSOR1)) /* Check BROCHE_SENSOR1 has changed (rising edge) See Macros.h */
-  {
-      FirstInputChangeCount++; /* Rising edges are counted */
-#ifdef RMPOUTPUT      
-      flip(RPMOUT1);
-#endif
-  }
-
-  if(TINY_PIN_CHANGE(VirtualPortNb_, BROCHE_SENSOR2)) /* Check BROCHE_SENSOR2 has changed (rising edge) See Macros.h */
-  {
-      SecondInputChangeCount++; /* Rising edges are counted */
-#ifdef RMPOUTPUT      
-      flip(RPMOUT2);
-#endif      
-  }
+  FirstInputChangeCount++; /* Rising edges are counted */
+}
+void InterruptFunctionToCall2(void)
+{
+  SecondInputChangeCount++; /* Rising edges are counted */
 }
 
 void readCaptorTransitions()
@@ -42,26 +32,14 @@ void readCaptorTransitions()
   /* Display Transition numbers every second */
   if((millis()-ReadCaptorsMs >= 1000))
   {
-    noInterrupts(); /* Mandatory since counters are 16 bits */
-    ReadCaptorsMs=millis();
+    ReadCaptorsMs=millis();     
     if (simulateSpeed == false)
     {
-      vitesse1=0;vitesse2=0;
-      readings_V1[index] = FirstInputChangeCount * 60;  /* Convert frecuency to RPM, note: this works for one interruption per full rotation. For two interrups per full rotation use rpmcount * 30.*/
-      readings_V2[index] = SecondInputChangeCount * 60;  /* Convert frecuency to RPM, note: this works for one interruption per full rotation. For two interrups per full rotation use rpmcount * 30.*/
-      while (index <= 4)
-      {
-        vitesse1 = vitesse1 + readings_V1[index];
-        vitesse2 = vitesse2 + readings_V2[index];
-        FirstInputChangeCount = 0;SecondInputChangeCount = 0; //Set NbTops to 0 ready for calculations 
-        index++;          
-      }
-        vitesse1 = vitesse1 / 5;
-        vitesse2 = vitesse2 / 5;
-        vitesse1 = (vitesse1 > 0)?vitesse1/ms.nbPales:0;// preventing 0/nbPales
-        vitesse2 = (vitesse2 > 0)?vitesse2/ms.nbPales:0;
+       vitesse1 = FirstInputChangeCount/2*60;
+       vitesse2 = SecondInputChangeCount/2*60;
+       FirstInputChangeCount = 0;
+       SecondInputChangeCount = 0;
      }
-    interrupts();
   }
 
 #ifdef EXTLED
@@ -69,5 +47,8 @@ void readCaptorTransitions()
   if (vitesse2 !=0) {on(LED2GREEN);off(LED2GREEN);}
 #endif
 
+#ifdef DEBUG
+      SettingsPort << _DEC(getin(RPMOUT1)) << "," << _DEC(getin(RPMOUT2))<< endl;
+#endif
  
 }

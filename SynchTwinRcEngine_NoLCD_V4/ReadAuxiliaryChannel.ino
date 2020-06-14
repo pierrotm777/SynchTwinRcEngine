@@ -15,9 +15,9 @@ void readAuxiliaryChannel()
   /* a remplacer par les center servo 1&2 ? */
   
 //  SettingsPort <<  "1/5 " << OneFifthThrottle << "| 1/3 " << OneThirdThrottle << "| 2/3 " << TwoThirdThrottle << "| Middle " << MiddleThrottle << endl;
-  
+#ifdef EXTLED  
   (Width_us >= OneFifthThrottle?on(LED2YELLOW):off(LED2YELLOW));
-
+#endif
   //ajouter gestion de l'entree AUX avec inters 2 ou 3 positions:
   switch (ms.auxChannel)
   {

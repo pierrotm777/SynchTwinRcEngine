@@ -3,9 +3,6 @@ void mode0()//run mode
 {   
   readCaptorTransitions();/* read sensors */
 
-//#ifdef SettingsPortPLOTTER /* You can read the battery voltage, speeds and throttle and auxiliary pulses with the SettingsPort Plotter (IDE >= 1.6.6) */
-//   SettingsPort << ((GetExternalVoltage()>1)?GetExternalVoltage()*1000:0) << "," << Width_us << "," << WidthAux_us << "," << vitesse1 << "," << vitesse2 << endl;
-//#endif
   static uint32_t BeginChronoServoMs = millis();
 
   /* Receiver pulse acquisition and command of 2 servos */
@@ -58,7 +55,6 @@ void mode0()//run mode
     }
   }
 
-
   if (InputSignalExist == true)
   {    
 #ifdef SECURITYENGINE/* Security motors */    
@@ -90,7 +86,7 @@ void mode0()//run mode
     readAuxiliaryChannel();//read Auxiliary channel (1 to 6)
     
     SoftRcPulseOut::refresh(1); /* (=1) allows to synchronize outgoing pulses with incoming pulses */
-    // Blink each 250ms if PPM found on pin 2
+    // Blink each 250ms if PPM found on pin Rx
     if(millis()-LedStartMs>=LED_SIGNAL_FOUND)
     {
       flip(LED);
@@ -101,7 +97,7 @@ void mode0()//run mode
   }
   else//Si absence du canal RX
   {
-    // Blink each 1s if PPM not found on pin 2
+    // Blink each 1s if PPM not found on pin Rx
     if(millis()-LedStartMs>=LED_SIGNAL_NOTFOUND)
     {
       flip(LED);
@@ -119,13 +115,16 @@ void mode0()//run mode
       BeginChronoServoMs=millis(); /* Restart the Chrono for Pulse */
     }  
   }
+
+#ifdef PLOTTER /* You can read the battery voltage, speeds and throttle and auxiliary pulses with the SettingsPort Plotter (IDE >= 1.6.6) */
+   SettingsPort << ((GetExternalVoltage()>1)?GetExternalVoltage()*1000:0) << "," << Width_us << "," << WidthAux_us << "," << WidthRud_us << "," << WidthAil_us << "," << vitesse1 << "," << vitesse2 << endl;
+#endif  
  
 }//end mode0()
 
 #ifdef ARDUINO2PC//interface between arduino and PC
 void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
 {
-  //SettingsPort.flush();
   
   if( MsgDisponible() >= 0) //MsgDisponible() retourne la longueur du message recu; le message est disponible dans Message
   {
@@ -216,6 +215,7 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
       else if(pos == 401)//run or stop speed read
       {  
         SettingsPort << F("V") << vitesse1 << F("|") << vitesse2 << endl;/* Send speed to VB interface */
+        //SettingsPort << F("V") << 8500 << F("|") << 8400 << endl;/* Send speed to VB interface */
       } 
       else if(pos == 402)//lecture de la position du canal auxiliaire:
       {        

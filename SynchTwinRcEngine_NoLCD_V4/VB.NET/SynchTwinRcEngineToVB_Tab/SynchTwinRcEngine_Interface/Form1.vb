@@ -293,37 +293,6 @@ Public Class Form1
 
         End If
 
-        'lecture position canal moteur, auxiliaire,v1 et v2
-        If Strings.Left(SerialMessagRecieved, 8) = "ALLINONE" Then 'return all values
-            Dim AllInOne() As String
-            AllInOne = SerialMessagRecieved.Replace("ALLINONE", "").Split("|")
-            pulseValue = CInt(AllInOne(0))
-            pulseValueAux = CInt(AllInOne(1))
-
-            'SevenSegmentArray1.Value = AllInOne(2)
-            'SevenSegmentArray2.Value = AllInOne(3)
-            ''SevenSegmentArray1.Value = Convert.ToString(GetRandom(0, 20000))
-            ''SevenSegmentArray2.Value = Convert.ToString(GetRandom(0, 20000))
-
-            'AquaGaugeMoteur1.Value = Convert.ToInt32(SevenSegmentArray1.Value)
-            'AquaGaugeMoteur2.Value = Convert.ToInt32(SevenSegmentArray2.Value)
-            'AquaGaugeMoteur1.ValueToDigital = Convert.ToInt32(SevenSegmentArray1.Value)
-            'AquaGaugeMoteur2.ValueToDigital = Convert.ToInt32(SevenSegmentArray2.Value)
-
-            ''If GrahIsEnable = True Then 'lecture DataLogger
-            '' Make up some data points based on the Sine function
-            'Dim i As Integer, x As Double ', y As Double, y2 As Double
-            'If i < 10000 Then
-            '    x = New XDate(DateTime.Now) '(i + 11)
-            '    list.Add(x, Convert.ToInt32(SevenSegmentArray1.Value))
-            '    list2.Add(x, Convert.ToInt32(SevenSegmentArray2.Value))
-            '    i = i + 1
-
-            'End If
-            'GraphIsReady = True
-
-        End If
-
         'lecture position canal moteur
         If Strings.Left(SerialMessagRecieved, 1) = "M" Then 'return throttle stick position
             pulseValue = CInt(SerialMessagRecieved.Replace("M", ""))
@@ -602,6 +571,7 @@ Public Class Form1
             ShowMsg(ex.Message, ShowMsgImage.Info, "Error")
         End Try
     End Sub
+
 
     Private Sub SetLanguages()
         ' Create the ToolTip and associate with the Form container.
@@ -1523,7 +1493,7 @@ Public Class Form1
         ProgressBarSaveSettings.Value = 0
         'format envoyé : 
         'S1, 1500, 1500, 1000, 1000, 2, 2000, 1250, 1200, 1900, 1,0
-        'S2,0,99.00,2,0,0,0,1000,20000,0
+        'S2,0,99.00,2,0,0,0,1000,20000,0,0,4.0
 
         MessageToSend = "S1,"
         MessageToSend &= textCentreServo1.Text & ","     'centerposServo1
@@ -1758,7 +1728,7 @@ Public Class Form1
             TextBoxForceSpeedSimu1.Text = Str(TrackBarSpeedSimu1.Value)
 
             MessageToSend = ""
-            MessageToSend = "888" & ","
+            MessageToSend = "S3" & ","
             MessageToSend &= TextBoxForceSpeedSimu1.Text & ","
             MessageToSend &= TextBoxForceSpeedSimu2.Text & ","
             MessageToSend &= TextBoxDiffSpeedSimuConsigne.Text

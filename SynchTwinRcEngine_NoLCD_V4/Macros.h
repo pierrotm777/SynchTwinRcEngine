@@ -55,7 +55,7 @@ LED6 B,5
 #define pullup(x)   _on(x)
 /* Macro function to get state of input pin */
 #define getin(x)      _getin(x)
-#define _getin(bit,port)  (PIN##port & (1 << bit))
+#define _getin(bit,port)  PIN##port & (1 << bit)
 /* Macro function to toggle an output pin */
 #define flip(x)     _flip(x)
 #define _flip(bit,port) PORT##port ^= (1 << bit)
@@ -64,9 +64,9 @@ LED6 B,5
 #define EDGE_TYPE           Rising
 
 /*  vvv  Ne rien modifier aux 3 macros ci-dessous vvv */
-#define CONCAT3_(a, b, c)   a##b##c
-#define CONCAT3(a, b, c)    CONCAT3_(a, b, c)
-#define TINY_PIN_CHANGE     CONCAT3(TinyPinChange_, EDGE_TYPE,  Edge)
+//#define CONCAT3_(a, b, c)   a##b##c
+//#define CONCAT3(a, b, c)    CONCAT3_(a, b, c)
+//#define TINY_PIN_CHANGE     CONCAT3(TinyPinChange_, EDGE_TYPE,  Edge)
 /*  ^^^  Ne rien modifier aux 3 macros ci-dessus  ^^^ */
 
 #endif /* _MACROS_H_ */

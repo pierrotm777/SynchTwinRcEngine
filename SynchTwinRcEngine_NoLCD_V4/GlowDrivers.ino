@@ -13,8 +13,12 @@ int tpulse_0, tpulse_1, tpulse;
 void glowSetup()
 {
 
+  if (GlowDriverInUse == true)
+  {
+    pinMode(BROCHE_GLOW1,OUTPUT);
+    pinMode(BROCHE_GLOW2,OUTPUT);
+  }
 
-  
   //position_gaz = 1100;
   variation = 0;
  
@@ -85,7 +89,9 @@ void glowUpdate()
   // 
   if ((cmd_chauffe == true) && (SecurityIsON == false))
   { // Gestion avec SecurityIsON
+#ifdef EXTLED    
     on(LED1RED);on(LED2RED);//LEDCHAU_ON
+#endif
     TinySoftPwm_analogWrite(BROCHE_GLOW1, pwm_chauffe); // Commande PWM MOSFET , courant bougie
     TinySoftPwm_analogWrite(BROCHE_GLOW2, pwm_chauffe); // Commande PWM MOSFET , courant bougie
     temps_ms = millis();   // temps courant depuis alimentation bougie en ms    
@@ -98,8 +104,10 @@ void glowUpdate()
     // coupure alimentation en courant de la bougie
     pwm_chauffe = 0;
     TinySoftPwm_analogWrite(BROCHE_GLOW1, pwm_chauffe);
-    TinySoftPwm_analogWrite(BROCHE_GLOW2, pwm_chauffe); 
+    TinySoftPwm_analogWrite(BROCHE_GLOW2, pwm_chauffe);
+#ifdef EXTLED
     off(LED1RED);off(LED2RED);//LEDCHAU_OFF
+#endif
   } 
 
 }

@@ -1,14 +1,15 @@
 /* SyncTwinRcEngine */
 /* Compile only with IDE version '1.0.6' or '1.5.7 beta' or '1.5.8 beta' or '1.6.0' to '1.8.13' */
 
-#include <EEPROM.h>
-#include <Streaming.h>          /* Librairie remplacant SettingsPort.print() */
 #include <TinyPinChange.h>
 #include <SoftRcPulseOut.h>     /* Librairie utilisee pour creer un signal pwm en sortie */
 //Input libraries
 #include <TinyCppmReader.h>
 #include <RcBusRx.h>
 #define DISPLAY_EVERY_SERIAL_FRAME_NB   40 // To not flood the serial console!
+
+#include <EEPROM.h>
+#include <Streaming.h>          /* Librairie remplacant SettingsPort.print() */
 
 /* Select your radio's channels order (see Marcos.h for other modes) */
 typedef struct{
@@ -62,17 +63,17 @@ SoftSerial SettingsPort(10,11);
 
 //#define DEBUG
 #define SECURITYENGINE          /* Engines security On/off */
-#define ARDUINO2PC              /* PC interface (!!!!!! don't use this option with SettingsPortPLOTTER or READ_Button_AnalogPin !!!!!!) */
+#define ARDUINO2PC              /* PC interface (!!!!!! don't use this option with PLOTTER  !!!!!!) */
 #define EXTERNALVBATT           /* Read external battery voltage */
 #define GLOWMANAGER             /* Glow driver */
 //#define I2CSLAVEFOUND           /* for command a second module by the I2C port */
 #define INT_REF                 /* internal 1.1v reference */
-//#define SerialPLOTTER           /* Multi plot in IDE (don't use this option with ARDUINO2PC) */
+//#define PLOTTER           /* Multi plot in IDE (don't use this option with ARDUINO2PC) */
 #define RECORDER                /* L'enregistreur est déplacé dans VB */
 //#define FRAM_USED
 #define EXTLED                  
 #define RPMOUTPUT               /* ouput sensor on D1 and D9 for RPM telemetry */
-
+//#define TELEMETRY_FRSKY
 /*
 0     INPUT PPM
 1     RPM Out 1 to oXs
@@ -87,8 +88,8 @@ SoftSerial SettingsPort(10,11);
 
 10    Setting's Port RX/Led Red 1
 11    Setting's Port TX/Led Red 2
-12    Led Yellow
-13    Led Yellow (Pro Mini LED)
+12    NC
+13    Pro Mini LED
 
 A0    Led Green
 A1    Led Green
@@ -112,15 +113,12 @@ A7    External power V+
 // http://philsradial.blogspot.com/2013/02/glowplug-driver.html
 #ifdef GLOWMANAGER
 //Declare the Pin(s) used in "TinySoftPwm.h"
-//In this sketch, #define TINY_SOFT_PWM_USES_P7 and #define TINY_SOFT_PWM_USES_P7 must be enabled (not commented).
+//In this sketch, #define TINY_SOFT_PWM_USES_P7 and #define TINY_SOFT_PWM_USES_P8 must be enabled (not commented).
 #include <TinySoftPwm.h>
 #define BROCHE_GLOW1            7  /* Glow driver motor 1 (PD7)*/ 
 #define BROCHE_GLOW2            8  /* Glow driver motor 2 (PB0)*/
 bool GlowDriverInUse = false;
 #endif
-
-// Frsky Telemetry input pin    9 /* see decodFrsky.begin(FrSkySportSingleWireSerial::SOFT_SERIAL_PIN_9, &ass, &fcs, &rpm ); */
-
 
 #ifdef EXTERNALVBATT
 #define BROCHE_BATTEXT          A7  /* External battery voltage (V+) */
@@ -140,7 +138,7 @@ bool GlowDriverInUse = false;
 //Atmega328PB (A6(PE2) et A7(PE3) sont aussi dispo)
 #endif
 
-#ifdef RMPOUTPUT
+#ifdef RPMOUTPUT
 #define RPMOUT1                1,D //D1 /*RPM output to oXs telemetry*/
 #define RPMOUT2                1,B //D1 /*RPM output to oXs telemetry*/
 #endif
@@ -213,10 +211,9 @@ uint8_t RudderNbChannel;
 uint8_t AileronNbChannel;
 
 /* comptage tr/mn */
-volatile uint16_t FirstInputChangeCount=0, SecondInputChangeCount=0;
-uint8_t VirtualPortNb, VirtualPortNb_;
+volatile long FirstInputChangeCount=0, SecondInputChangeCount=0;
+//uint8_t VirtualPortNb, VirtualPortNb_;
 uint16_t vitesse1, vitesse2;                    //blades speeds in rpm
-//double diffVitesseErr;                          //difference de vitesse entre les 2 moteurs en tr/mn toleree
 double diffVitesse;                             //difference de vitesse entre les 2 moteurs en tr/mn (peut etre negatif !!!)
 double stepMotor;                               //nb de micro secondes ajoutes ou enleves
 int readings_V1[5];                             //averaging last 5 readings_V1
@@ -259,18 +256,6 @@ uint16_t pos = 0;
 #endif
 
 
-//https://www.rcgroups.com/forums/showthread.php?2245978-FrSky-S-Port-telemetry-library-easy-to-use-and-configurable
-#ifdef TELEMETRY_FRSKY
-//#define FASTSERIAL
-//#include <FastSerial.h>
-//FastSerialPort0(Serial);
-#include "FrSkySportSensorRpm.h"
-#include "FrSkySportSingleWireSerial.h"
-#include "FrSkySportTelemetry.h"
-FrSkySportSensorRpm rpm;             // Create RPM sensor with default ID
-FrSkySportTelemetry decodFrsky;      // Create telemetry object without polling
-#endif
-
 void setup()
 {
 
@@ -289,11 +274,6 @@ void setup()
   SettingsPort << F("SynchTwinRcEngine est demarre") << endl << endl;
 #endif//endif DEBUG
 
-#ifdef TELEMETRY_FRSKY// telemetrie sur ici pin 12 (pin 2 à 12 possibles)
-  //decodFrsky.begin(FrSkySportSingleWireSerial::SOFT_SettingsPort_PIN_12, &ass, &fcs, &flvss1, &flvss2, &gps, &rpm, &sp2uart, &vario);
-  decodFrsky.begin(FrSkySportSingleWireSerial::SOFT_SERIAL_PIN_9,&rpm );
-#endif
-  
 //#ifdef I2CSLAVEFOUND
 //  Wire.begin(SLAVE_ADRESS,2);
 //#endif
@@ -312,12 +292,8 @@ void setup()
 #endif
    
   //initialise les capteurs effet hall ou IR avec une interruption associee
-  TinyPinChange_Init();
-  VirtualPortNb=TinyPinChange_RegisterIsr(BROCHE_SENSOR1, InterruptFunctionToCall);
-  VirtualPortNb_=TinyPinChange_RegisterIsr(BROCHE_SENSOR2, InterruptFunctionToCall);
-  /* Enable Pin Change for each pin */
-  TinyPinChange_EnablePin(BROCHE_SENSOR1);
-  TinyPinChange_EnablePin(BROCHE_SENSOR2);
+  attachInterrupt(0, InterruptFunctionToCall1, RISING); // attache l'interruption externe n°0 (pin D2)
+  attachInterrupt(1, InterruptFunctionToCall2, RISING); // attache l'interruption externe n°1 (pin D3)
   
   switch (ms.InputMode)//CPPM,SBUS,SRXL,SUMD,IBUS or JETI
   {
@@ -417,8 +393,8 @@ void setup()
 #endif
 
 #ifdef RMPOUTPUT
-  out(RMPOUT1);
-  out(RMPOUT2);
+  out(RPMOUT1);
+  out(RPMOUT2);
 #endif
 
 #ifdef RECORDER
@@ -438,10 +414,9 @@ for that glow driver on the TwinSync will flash rapidly.
   {
     GlowDriverInUse = true;
     pinMode(BROCHE_GLOW1,OUTPUT);
-    pinMode(BROCHE_GLOW2,OUTPUT);
-    on(LED1RED);on(LED2RED);   
+    pinMode(BROCHE_GLOW2,OUTPUT);   
     //initialisation du chauffage des bougies
-    glowSetup();    
+    glowSetup();
   }
   else
   {
@@ -471,24 +446,10 @@ void loop()
       /* Check 10s */
       if(millis()-ShutDownSerialSetting >= 10000)//Wait VB program 10s.
       {
+#if !defined(DEBUG)        
         SettingsPort << endl << F("Shutdown Serial port ...") << endl << endl;
         SettingsPort.flush();
-        SettingsPort.end();//SettingsPort is shut down and release pins 10/11 for Red leds.
-
-        
-#ifdef EXTLED        
-        out(LED1RED);out(LED2RED);
-#endif
-
-#ifdef GLOWMANAGER
-        if (GlowDriverInUse == true)
-        {
-          pinMode(BROCHE_GLOW1,OUTPUT);
-          pinMode(BROCHE_GLOW2,OUTPUT);
-#ifdef EXTLED          
-          on(LED1RED);on(LED2RED);delay(500);off(LED1RED);off(LED2RED);
-#endif          
-        }
+        SettingsPort.end();//SettingsPort is shut down and release pins 10/11 for Red leds.      
 #endif
         RunConfig = false;
       }
@@ -499,33 +460,47 @@ void loop()
   {
     SerialFromToVB();    
   }
+  else
+  {
+#ifdef EXTLED
+    out(LED1RED);out(LED2RED);
+    on(LED1RED);on(LED2RED);
+    delay(500);
+    off(LED1RED);off(LED2RED);
+#endif  
+  }
 
 #endif
 
-if (ServoRecorderIsON == true)
-{
+  if (ServoRecorderIsON == true)
+  {
 #ifdef RECORDER
-  loopRecorder();
+    loopRecorder();
 #endif
-}
-else
-{
-  mode0();/* main mode launched if no buttons pressed during start */ 
-}
+  }
+  else
+  {
+    mode0();/* main mode launched if no buttons pressed during start */ 
+  }
 
 #ifdef GLOWMANAGER
   if (GlowDriverInUse == true)
-  {
+  {  
     glowUpdate();
   }
   else
   {
-    // Blink each 1s if GLOWDRIVER not found
-    if(millis()-LedRedStartMs>=LED_SIGNAL_NOTFOUND)
+#ifdef EXTLED
+    if (RunConfig == false)
     {
-      flip(LED1RED);flip(LED2RED); 
-      LedRedStartMs=millis(); // Restart the Chrono for the LED 
-    }          
+      // Blink each 1s if GLOWDRIVER not found
+      if(millis()-LedRedStartMs>=LED_SIGNAL_NOTFOUND)
+      {
+        flip(LED1RED);flip(LED2RED); 
+        LedRedStartMs=millis(); // Restart the Chrono for the LED 
+      }
+    }
+#endif
   }
 #endif  
 
@@ -537,8 +512,7 @@ void readAllEEprom()
 
 /*
   ms.ID                  = 0x99;//write the ID to indicate valid data
-  ms.InputMode           = 1;   //0-PPM, 1-SBUS, 2,IBUS
-//  ms.radioRcMode         = 1;   // mode is 1 to 4
+  ms.InputMode           = 1;
   ms.AuxiliaryNbChannel  = 5;
   ms.centerposServo1     = 1500;
   ms.centerposServo2     = 1500;
