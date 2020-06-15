@@ -1649,12 +1649,21 @@ Public Class Form1
         LabelMotors.Visible = True
         labelMotorsSimulation.Visible = True
         LabelOnSimuMoveThrottle.Visible = False
-        If SerialPort1.IsOpen Then
-            Dim t As New Threading.Thread(AddressOf TestServo)
-            t.Start()
+
+        If SimualtionSpeed = False Then
+            SimualtionSpeed = True
+            If SerialPort1.IsOpen Then
+                SerialPort1.WriteLine("SIMU,1")
+                Dim t As New Threading.Thread(AddressOf TestServo)
+                t.Start()
+            Else
+                ShowMsg("The module isn't connected !", ShowMsgImage.Info, "Error")
+            End If
         Else
-            ShowMsg("The module isn't connected !", ShowMsgImage.Info, "Error")
+            SimualtionSpeed = False
+            SerialPort1.WriteLine("SIMU,0")
         End If
+
 
     End Sub
     Private Sub TestServo()
@@ -1663,9 +1672,6 @@ Public Class Form1
             LabelMotors.Text = t.ToString
             ProgressBarThrottle.Value = t
             SerialPort1.WriteLine(t.ToString)
-            If term.Visible = True Then
-                term.TextBoxTerminalComPort.AppendText(Str(t) & vbCrLf)
-            End If
             Thread.Sleep(5)
         Next
         Thread.Sleep(1000)
@@ -1674,11 +1680,14 @@ Public Class Form1
             LabelMotors.Text = t.ToString
             ProgressBarThrottle.Value = t
             SerialPort1.WriteLine(t.ToString)
-            If term.Visible = True Then
-                term.TextBoxTerminalComPort.AppendText(Str(t) & vbCrLf)
-            End If
             Thread.Sleep(5)
         Next
+        SimualtionSpeed = False
+        If SerialPort1.IsOpen Then
+            SerialPort1.WriteLine("SIMU,0")
+        Else
+            ShowMsg("The module isn't connected !", ShowMsgImage.Info, "Error")
+        End If
     End Sub
 
     Private Sub TrackBarMotors_ValueChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles TrackBarMotors.ValueChanged

@@ -84,8 +84,7 @@ void mode0()//run mode
 #endif/* End Security motors */
 
     readAuxiliaryChannel();//read Auxiliary channel (1 to 6)
-    
-    SoftRcPulseOut::refresh(1); /* (=1) allows to synchronize outgoing pulses with incoming pulses */
+    SoftRcPulseOut::refresh(1); /* (=1) allows to synchronize outgoing pulses with incoming pulses */      
     // Blink each 250ms if PPM found on pin Rx
     if(millis()-LedStartMs>=LED_SIGNAL_FOUND)
     {
@@ -111,7 +110,7 @@ void mode0()//run mode
       (ms.reverseServo1 == 0)?ServoMotor1.write_us(ms.idelposServos1):ServoMotor1.write_us((ms.centerposServo1*2)-ms.idelposServos1);               
       (ms.reverseServo2 == 0)?ServoMotor2.write_us(ms.idelposServos2):ServoMotor2.write_us((ms.centerposServo2*2)-ms.idelposServos2); 
       /* Refresh the servos with the last known position in order to avoid "flabby" servos */
-      SoftRcPulseOut::refresh(1); /* Immediate refresh of outgoing pulses */
+      SoftRcPulseOut::refresh(1); /* Immediate refresh of outgoing pulses */        
       BeginChronoServoMs=millis(); /* Restart the Chrono for Pulse */
     }  
   }
@@ -136,7 +135,7 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
       if( (pos >= 0) && (pos <= 180))//reception curseur VB 'servos'
       { 
         //if(pos<=1) {pos=2;} //Servo making noise at 0 and 1. Need to be at least 2.
-        if (InputSignalExist == true && simulateSpeed == true)//verifie si Ch Moteur est inactif !!!
+        if (InputSignalExist == false && simulateSpeed == true)//verifie si Ch Moteur est inactif !!!
         {
           posInUs = map(pos, 0, 180, ms.minimumPulse_US, ms.maximumPulse_US);
           if (ms.reverseServo1 == 0) {ServoMotor1.write_us(posInUs);}else{ServoMotor1.write_us((ms.centerposServo1*2)-posInUs);}               
@@ -149,14 +148,13 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
       {        
         if (InputSignalExist == true && simulateSpeed == true)//verifie si Ch Moteur est inactif !!!
         {
-          //posInUs = map(pos,0,180,minimumPulse_US,maximumPulse_US);
           if (ms.reverseServo1 == 0) {ServoMotor1.write_us(pos);}else{ServoMotor1.write_us((ms.centerposServo1*2)-pos);}               
           if (ms.reverseServo2 == 0) {ServoMotor2.write_us(pos);}else{ServoMotor2.write_us((ms.centerposServo2*2)-pos);}
           waitMs(5);
           SoftRcPulseOut::refresh(1);      // generates the servo pulse
         } 
       }
-     
+    
       else if(pos == 360)//CPPM
       {             
         ms.InputMode = 0;
@@ -325,9 +323,10 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
                            S2,0,99,2,0,0,0,1000,20000,0,0,4.0
                            S3,1000,1000,100
                            S4,0,0,100*/
-        static String checkMess;       
+        static String checkMess, checkMess2;     
         StrSplit(Message, ",",  StrTbl, SUB_STRING_NB_MAX, &SeparFound);
         checkMess = StrTbl[0];
+        checkMess2 = StrTbl[1];
         if (checkMess == "S1")
         {
             ms.centerposServo1 = atoi(StrTbl[1]);//centerposServo1
@@ -368,6 +367,14 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
             SettingsPort << F("New settings S2: ") << endl;           
 #endif
         }
+        else if ((checkMess == "SIMU")&&(checkMess2 == "0"))// simulation off
+        {
+          simulateSpeed = false;        
+        }
+        else if ((checkMess == "SIMU")&&(checkMess2 == "1"))// simulation on
+        {
+          simulateSpeed = true;        
+        } 
         else if (checkMess == "S3")// simulation on
         {
           simulateSpeed = true;
@@ -381,8 +388,7 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
           vitesse1    = 0;
           vitesse2    = 0;
           diffVitesse = 100;         
-        }
-        
+        }        
       }
     }
     readAuxiliaryChannel();//read Auxiliary channel and his modes (1 to 6)

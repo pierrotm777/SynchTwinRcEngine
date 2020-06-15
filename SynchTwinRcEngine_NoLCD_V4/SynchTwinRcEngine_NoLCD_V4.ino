@@ -62,18 +62,18 @@ SoftSerial SettingsPort(10,11);
 
 
 //#define DEBUG
-#define SECURITYENGINE          /* Engines security On/off */
+//#define SECURITYENGINE          /* Engines security On/off */
 #define ARDUINO2PC              /* PC interface (!!!!!! don't use this option with PLOTTER  !!!!!!) */
-#define EXTERNALVBATT           /* Read external battery voltage */
-#define GLOWMANAGER             /* Glow driver */
+//#define EXTERNALVBATT           /* Read external battery voltage */
+//#define GLOWMANAGER             /* Glow driver */
 //#define I2CSLAVEFOUND           /* for command a second module by the I2C port */
-#define INT_REF                 /* internal 1.1v reference */
+//#define INT_REF                 /* internal 1.1v reference */
 //#define PLOTTER           /* Multi plot in IDE (don't use this option with ARDUINO2PC) */
-#define RECORDER                /* L'enregistreur est déplacé dans VB */
+//#define RECORDER                /* L'enregistreur est déplacé dans VB */
 //#define FRAM_USED
-#define EXTLED                  
-#define RPMOUTPUT               /* ouput sensor on D1 and D9 for RPM telemetry */
-#define TELEMETRY_FRSKY
+//#define EXTLED                  
+//#define RPMOUTPUT               /* ouput sensor on D1 and D9 for RPM telemetry */
+//#define TELEMETRY_FRSKY
 /*
 0     INPUT PPM
 1     RPM Out 1 to oXs
@@ -480,7 +480,10 @@ void loop()
   }
   else
   {
-    mode0();/* main mode launched if no buttons pressed during start */ 
+    if (simulateSpeed == false)
+    {
+      mode0();     
+    }
   }
 
 #ifdef GLOWMANAGER
