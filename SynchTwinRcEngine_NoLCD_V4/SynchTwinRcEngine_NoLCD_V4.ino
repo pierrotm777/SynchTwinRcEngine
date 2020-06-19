@@ -10,6 +10,7 @@
 
 #include <EEPROM.h>
 #include <Streaming.h>          /* Librairie remplacant SettingsPort.print() */
+#include <avdweb_VirtualDelay.h>
 
 /* Select your radio's channels order (see Marcos.h for other modes) */
 typedef struct{
@@ -62,13 +63,13 @@ SoftSerial SettingsPort(10,11);
 
 
 //#define DEBUG
-//#define SECURITYENGINE          /* Engines security On/off */
-#define ARDUINO2PC              /* PC interface (!!!!!! don't use this option with PLOTTER  !!!!!!) */
+#define SECURITYENGINE          /* Engines security On/off */
+//#define ARDUINO2PC              /* PC interface (!!!!!! don't use this option with PLOTTER  !!!!!!) */
 //#define EXTERNALVBATT           /* Read external battery voltage */
 //#define GLOWMANAGER             /* Glow driver */
 //#define I2CSLAVEFOUND           /* for command a second module by the I2C port */
 //#define INT_REF                 /* internal 1.1v reference */
-//#define PLOTTER           /* Multi plot in IDE (don't use this option with ARDUINO2PC) */
+//#define PLOTTER                 /* Multi plot in IDE (don't use this option with ARDUINO2PC) */
 //#define RECORDER                /* L'enregistreur est déplacé dans VB */
 //#define FRAM_USED
 //#define EXTLED                  
@@ -140,7 +141,7 @@ bool GlowDriverInUse = false;
 
 #ifdef RPMOUTPUT
 #define RPMOUT1                1,D //D1 /*RPM output to oXs telemetry*/
-#define RPMOUT2                1,B //D1 /*RPM output to oXs telemetry*/
+#define RPMOUT2                1,B //D9 /*RPM output to oXs telemetry*/
 #endif
 
 boolean RunConfig = true;
@@ -151,18 +152,18 @@ boolean glowControlIsActive = false;
 boolean SecurityIsON = false;
 boolean simulateSpeed = false;
 
-unsigned long startedWaiting = millis();
-unsigned long started1s = millis();
-unsigned long ShutDownSerialSetting = millis();
-unsigned long LedRedStartMs = millis();
-static uint32_t StartPwmUs=micros();
+uint32_t startedWaiting = millis();
+uint32_t started1s = millis();
+uint32_t ShutDownSerialSetting = millis();
+uint32_t LedRedStartMs = millis();
+uint32_t StartPwmUs = micros();
+uint32_t BeginChronoServoMs = millis();
 
 /* Variables Chronos*/
-uint32_t BeginIdleMode;//=0;
-uint32_t ReadCaptorsMs;//=millis();
-uint32_t BeginSecurityMs;//=millis();
-uint32_t LedStartMs;//=millis();
-uint32_t SendMotorsToVBMs;//=millis();
+uint32_t BeginIdleMode = millis();
+uint32_t ReadCaptorsMs = millis();
+uint32_t BeginSecurityMs = millis();
+uint32_t LedStartMs = millis();
 
 enum { CPPM=0, SBUS, SRXL, SUMD, IBUS, JETIEX };
 bool InputSignalExist = false;
@@ -185,7 +186,7 @@ struct MaStructure {
   uint16_t centerposServo2;                        //value in uS
   uint16_t idelposServos1;//600                    //value in uS
   uint16_t idelposServos2;//600                    //value in uS
-  uint8_t responseTime;                            //mode2 (= a TAUX_DE_MOYENNAGE) (in address 4)
+  uint8_t responseTime;                            //TAUX_DE_MOYENNAGE
   uint16_t fullThrottle;//2400                     //value in uS
   uint16_t beginSynchro;//                         //value in uS
   uint8_t auxChannel;                              //1 to 4
@@ -216,10 +217,8 @@ volatile long FirstInputChangeCount=0, SecondInputChangeCount=0;
 uint16_t vitesse1, vitesse2;                    //blades speeds in rpm
 double diffVitesse;                             //difference de vitesse entre les 2 moteurs en tr/mn (peut etre negatif !!!)
 double stepMotor;                               //nb de micro secondes ajoutes ou enleves
-int readings_V1[5];                             //averaging last 5 readings_V1
-int readings_V2[5];                             //averaging last 5 readings_V2
-
-int index = 0;
+//int readings_V1[5];                             //averaging last 5 readings_V1
+//int readings_V2[5];                             //averaging last 5 readings_V2
 
 
 /* ******************************************************************************
@@ -250,16 +249,14 @@ char *StrTbl[SUB_STRING_NB_MAX];          /* declaration de pointeurs sur chaine
 #endif
 uint16_t pos = 0;
 
-#ifdef I2CSLAVEFOUND
-#include <Wire.h>               /* Interface LCD I2C, SDA = A4, SCL = A5) */
-#define SLAVE_ADRESS      20
-#endif
+//#ifdef I2CSLAVEFOUND
+//#include <Wire.h>               /* Interface LCD I2C, SDA = A4, SCL = A5) */
+//#define SLAVE_ADRESS      20
+//#endif
 
 
 void setup()
 {
-
-//  clearEEprom();
 
 #ifdef FRAM_USED
   setupFRAM();
@@ -449,41 +446,32 @@ void loop()
 #if !defined(DEBUG)        
         SettingsPort << endl << F("Shutdown Serial port ...") << endl << endl;
         SettingsPort.flush();
-        SettingsPort.end();//SettingsPort is shut down and release pins 10/11 for Red leds.      
+        SettingsPort.end();//SettingsPort is shut down and release pins 10/11 for Red leds.
+#ifdef EXTLED
+    out(LED1RED);out(LED2RED);
+//    on(LED1RED);on(LED2RED);
+//    delay(500);
+//    off(LED1RED);off(LED2RED);
+#endif         
 #endif
         RunConfig = false;
       }
     }
   }
 
-  if (RunConfig == true)
+  if ((RunConfig == true)&&(CheckIfVBUsed == true))
   {
-    SerialFromToVB();    
-  }
-  else
-  {
-#ifdef EXTLED
-    out(LED1RED);out(LED2RED);
-    on(LED1RED);on(LED2RED);
-    delay(500);
-    off(LED1RED);off(LED2RED);
-#endif  
-  }
-
-#endif
-
-  if (ServoRecorderIsON == true)
-  {
+    SerialFromToVB();
 #ifdef RECORDER
     loopRecorder();
 #endif
   }
-  else
+
+#endif //ARDUINO2PC
+
+  if (simulateSpeed == false)
   {
-    if (simulateSpeed == false)
-    {
-      mode0();     
-    }
+    mode0();     
   }
 
 #ifdef GLOWMANAGER
@@ -530,7 +518,7 @@ void readAllEEprom()
   ms.diffVitesseErr      = 99;//difference de vitesse entre les 2 moteurs en tr/mn toleree
   ms.minimumPulse_US     = 1000;
   ms.maximumPulse_US     = 2000;
-  ms.telemetryInUse       = 0; //mode2 0- Rien, 1- FrSky (S-Port), 2- Futaba Sbus, 3- Hitec, 4- Hott, 5- Jeti 6- Spektrum
+  //ms.telemetryInUse       = 0; //0- Rien
   ms.nbPales             = 2;   
   ms.moduleMasterOrSlave = 0;   
   ms.fahrenheitDegrees   = 0;
@@ -546,7 +534,7 @@ void readAllEEprom()
   {
     blinkNTime(5,100,100);
     SettingsWriteDefault();
-    waitMs(500);
+    delay(500);
     readAllEEprom();
   }
   else
@@ -629,7 +617,7 @@ void SettingsWriteDefault()
   ms.diffVitesseErr      = 99;//AddressMax += sizeof(ms.diffVitesseErr);//difference de vitesse entre les 2 moteurs en tr/mn toleree
   ms.minimumPulse_US     = 1000;//AddressMax += sizeof(ms.minimumPulse_US);
   ms.maximumPulse_US     = 2000;//AddressMax += sizeof(ms.maximumPulse_US);
-  ms.telemetryInUse       = 0;//AddressMax += sizeof(ms.telemetryInUse); //mode2 0- Rien, 1- yes
+  ms.telemetryInUse       = 0;//AddressMax += sizeof(ms.telemetryInUse); //0- Rien, 1- yes
   ms.nbPales             = 2;//AddressMax += sizeof(ms.nbPales);   
   ms.moduleMasterOrSlave = 0;//AddressMax += sizeof(ms.moduleMasterOrSlave);   
   ms.fahrenheitDegrees   = 0;//AddressMax += sizeof(ms.fahrenheitDegrees);
@@ -693,7 +681,8 @@ void sendConfigToSettingsPort()
   SettingsPort << ms.minimumSpeed << F("|");//array(21)
   SettingsPort << ms.maximumSpeed << F("|");//array(22)
   SettingsPort << ms.InputMode << F("|");//array(23)
-  SettingsPort << ms.coeff_division << endl;//array(24)
+  SettingsPort << ms.coeff_division << F("|");//array(24)
+  SettingsPort << ms.AuxiliaryNbChannel << endl;//array(25)
   //SettingsPort.flush(); // clear SettingsPort port
 }
 

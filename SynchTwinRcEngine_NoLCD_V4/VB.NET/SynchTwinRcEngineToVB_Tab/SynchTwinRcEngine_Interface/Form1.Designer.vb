@@ -282,6 +282,8 @@ Partial Class Form1
         Me.BackgroundWorkerThrottle = New System.ComponentModel.BackgroundWorker()
         Me.BackgroundWorkerAuxiliary = New System.ComponentModel.BackgroundWorker()
         Me.TimerProgressBars = New System.Windows.Forms.Timer(Me.components)
+        Me.textBoxAuxChannel = New System.Windows.Forms.TextBox()
+        Me.labelAuxChannel = New System.Windows.Forms.Label()
         Me.ProgressBarThrottleAuxiliary = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
         Me.ProgressBarThrottleMotors = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
         Me.UcV_ProgressBar1 = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
@@ -453,6 +455,8 @@ Partial Class Form1
         '
         'GroupBoxSettings
         '
+        Me.GroupBoxSettings.Controls.Add(Me.labelAuxChannel)
+        Me.GroupBoxSettings.Controls.Add(Me.textBoxAuxChannel)
         Me.GroupBoxSettings.Controls.Add(Me.CheckBoxTelemetry)
         Me.GroupBoxSettings.Controls.Add(Me.labelTelemetry)
         Me.GroupBoxSettings.Controls.Add(Me.textBoxBatteryCoeff)
@@ -626,7 +630,7 @@ Partial Class Form1
         '
         'ProgressBarSaveSettings
         '
-        Me.ProgressBarSaveSettings.Location = New System.Drawing.Point(120, 278)
+        Me.ProgressBarSaveSettings.Location = New System.Drawing.Point(162, 278)
         Me.ProgressBarSaveSettings.Name = "ProgressBarSaveSettings"
         Me.ProgressBarSaveSettings.Size = New System.Drawing.Size(300, 18)
         Me.ProgressBarSaveSettings.Step = 5
@@ -673,7 +677,7 @@ Partial Class Form1
         '
         'ButtonSettingsHelp
         '
-        Me.ButtonSettingsHelp.Location = New System.Drawing.Point(541, 332)
+        Me.ButtonSettingsHelp.Location = New System.Drawing.Point(541, 331)
         Me.ButtonSettingsHelp.Name = "ButtonSettingsHelp"
         Me.ButtonSettingsHelp.Size = New System.Drawing.Size(44, 23)
         Me.ButtonSettingsHelp.TabIndex = 142
@@ -826,7 +830,7 @@ Partial Class Form1
         'CheckBoxInversionAux
         '
         Me.CheckBoxInversionAux.AutoSize = True
-        Me.CheckBoxInversionAux.Location = New System.Drawing.Point(356, 258)
+        Me.CheckBoxInversionAux.Location = New System.Drawing.Point(340, 258)
         Me.CheckBoxInversionAux.Name = "CheckBoxInversionAux"
         Me.CheckBoxInversionAux.Size = New System.Drawing.Size(46, 17)
         Me.CheckBoxInversionAux.TabIndex = 126
@@ -855,9 +859,9 @@ Partial Class Form1
         'ButtonModuleType
         '
         Me.ButtonModuleType.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonModuleType.Location = New System.Drawing.Point(421, 255)
+        Me.ButtonModuleType.Location = New System.Drawing.Point(26, 276)
         Me.ButtonModuleType.Name = "ButtonModuleType"
-        Me.ButtonModuleType.Size = New System.Drawing.Size(74, 20)
+        Me.ButtonModuleType.Size = New System.Drawing.Size(63, 20)
         Me.ButtonModuleType.TabIndex = 120
         Me.ButtonModuleType.Text = "Maître"
         Me.ButtonModuleType.UseVisualStyleBackColor = True
@@ -1039,7 +1043,7 @@ Partial Class Form1
         Me.LabelModifications.Enabled = False
         Me.LabelModifications.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelModifications.ForeColor = System.Drawing.Color.Red
-        Me.LabelModifications.Location = New System.Drawing.Point(120, 278)
+        Me.LabelModifications.Location = New System.Drawing.Point(162, 278)
         Me.LabelModifications.MaximumSize = New System.Drawing.Size(300, 0)
         Me.LabelModifications.MinimumSize = New System.Drawing.Size(300, 0)
         Me.LabelModifications.Name = "LabelModifications"
@@ -3015,6 +3019,23 @@ Partial Class Form1
         '
         Me.TimerProgressBars.Interval = 1000
         '
+        'textBoxAuxChannel
+        '
+        Me.textBoxAuxChannel.Location = New System.Drawing.Point(457, 256)
+        Me.textBoxAuxChannel.Name = "textBoxAuxChannel"
+        Me.textBoxAuxChannel.Size = New System.Drawing.Size(28, 20)
+        Me.textBoxAuxChannel.TabIndex = 158
+        Me.textBoxAuxChannel.Text = "0"
+        '
+        'labelAuxChannel
+        '
+        Me.labelAuxChannel.AutoSize = True
+        Me.labelAuxChannel.Location = New System.Drawing.Point(387, 259)
+        Me.labelAuxChannel.Name = "labelAuxChannel"
+        Me.labelAuxChannel.Size = New System.Drawing.Size(58, 13)
+        Me.labelAuxChannel.TabIndex = 159
+        Me.labelAuxChannel.Text = "Canal Aux:"
+        '
         'ProgressBarThrottleAuxiliary
         '
         Me.ProgressBarThrottleAuxiliary._Dessin = SynchTwinRcEngine_Interface.UcV_ProgressBar.Look.LookSmooth
@@ -3401,6 +3422,8 @@ Partial Class Form1
     Friend WithEvents textBoxBatteryCoeff As System.Windows.Forms.TextBox
     Friend WithEvents CheckBoxTelemetry As System.Windows.Forms.CheckBox
     Friend WithEvents labelTelemetry As System.Windows.Forms.Label
+    Friend WithEvents labelAuxChannel As System.Windows.Forms.Label
+    Friend WithEvents textBoxAuxChannel As System.Windows.Forms.TextBox
 
 
 End Class

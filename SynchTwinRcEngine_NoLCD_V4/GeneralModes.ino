@@ -1,9 +1,8 @@
+
 // Definition des modes:
 void mode0()//run mode
 {   
   readCaptorTransitions();/* read sensors */
-
-  static uint32_t BeginChronoServoMs = millis();
 
   /* Receiver pulse acquisition and command of 2 servos */
   if (ms.InputMode == 0)//PPM
@@ -77,21 +76,22 @@ void mode0()//run mode
       /* Blink LED Management */
       if(millis()-LedStartMs>=1000)
       {
-        flip(LED);//blinkNTime(1,125,1000);
+        flip(LED);//blinkNTime(2,125,1000);// blink 2 times if Security is on
         LedStartMs=millis(); /* Restart the Chrono for the LED */
       }
     } 
 #endif/* End Security motors */
 
-    readAuxiliaryChannel();//read Auxiliary channel (1 to 6)
-    SoftRcPulseOut::refresh(1); /* (=1) allows to synchronize outgoing pulses with incoming pulses */      
+    readAuxiliaryChannel();//read Auxiliary channel (1 to 6) 
+    SoftRcPulseOut::refresh(1); /* (=1) allows to synchronize outgoing pulses with incoming pulses */
+    BeginChronoServoMs = millis();  /* Restart the Chrono for Pulse */
+    
     // Blink each 250ms if PPM found on pin Rx
     if(millis()-LedStartMs>=LED_SIGNAL_FOUND)
     {
       flip(LED);
       LedStartMs=millis(); // Restart the Chrono for the LED 
     }  
-    BeginChronoServoMs=millis();  /* Restart the Chrono for Pulse */
   
   }
   else//Si absence du canal RX
@@ -127,8 +127,6 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
   
   if( MsgDisponible() >= 0) //MsgDisponible() retourne la longueur du message recu; le message est disponible dans Message
   {
-            
-      SecurityIsON = false;
       static uint16_t posInUs;
   
       pos = atoi(Message); //conversion Message ASCII vers Entier (ATOI= Ascii TO Integer)
@@ -140,7 +138,7 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
           posInUs = map(pos, 0, 180, ms.minimumPulse_US, ms.maximumPulse_US);
           if (ms.reverseServo1 == 0) {ServoMotor1.write_us(posInUs);}else{ServoMotor1.write_us((ms.centerposServo1*2)-posInUs);}               
           if (ms.reverseServo2 == 0) {ServoMotor2.write_us(posInUs);}else{ServoMotor2.write_us((ms.centerposServo2*2)-posInUs);}
-          waitMs(5);
+          //waitMs(5);
           SoftRcPulseOut::refresh(1);      // generates the servo pulse
         } 
       }
@@ -150,7 +148,7 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
         {
           if (ms.reverseServo1 == 0) {ServoMotor1.write_us(pos);}else{ServoMotor1.write_us((ms.centerposServo1*2)-pos);}               
           if (ms.reverseServo2 == 0) {ServoMotor2.write_us(pos);}else{ServoMotor2.write_us((ms.centerposServo2*2)-pos);}
-          waitMs(5);
+          //waitMs(5);
           SoftRcPulseOut::refresh(1);      // generates the servo pulse
         } 
       }
@@ -314,6 +312,7 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
       }  
       else if(pos == 999)//send Module Version
       { 
+        SecurityIsON = false;
         CheckIfVBUsed = true;
         SettingsPort << F("FIRM|") << FirmwareVersion << endl;
       }
@@ -340,6 +339,7 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
             ms.maximumPulse_US = atoi(StrTbl[9]);//maximumPulse_US
             ms.auxChannel      = atoi(StrTbl[10]);//auxChannel
             ms.reverseServo1   = atoi(StrTbl[11]);//reverseServo1
+            ms.AuxiliaryNbChannel = atoi(StrTbl[12]);//AuxiliaryNbChannel
             StrSplitRestore(",", StrTbl, SeparFound);//Imperatif SeparFound <= SUB_STRING_NB_MAX
             EEPROM.put(0,ms);        
             blinkNTime(5,100,100);              

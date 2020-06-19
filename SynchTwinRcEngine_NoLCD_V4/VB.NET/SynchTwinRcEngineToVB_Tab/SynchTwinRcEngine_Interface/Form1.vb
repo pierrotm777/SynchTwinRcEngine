@@ -281,6 +281,8 @@ Public Class Form1
                 End Select
                 RcMode.ComboBoxSignalType.SelectedIndex = array(23)
 
+                textBoxAuxChannel.Text = array(25)
+
                 LabelModifications.Enabled = False
                 LabelModifications.Text = "..."
 
@@ -1180,29 +1182,29 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub ButtonModuleType_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonModuleType.Click
-        array(19) = IIf(array(19) = "0", "1", "0")
-        Dim master As String = ""
-        Dim slave As String = ""
-        If My.Settings.Language = "French" Then
-            master = "Maître"
-            slave = "Esclave"
-        ElseIf My.Settings.Language = "English" Then
-            master = "Master"
-            slave = "Slave"
-        End If
+    'Private Sub ButtonModuleType_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonModuleType.Click
+    '    array(19) = IIf(array(19) = "0", "1", "0")
+    '    Dim master As String = ""
+    '    Dim slave As String = ""
+    '    If My.Settings.Language = "French" Then
+    '        master = "Maître"
+    '        slave = "Esclave"
+    '    ElseIf My.Settings.Language = "English" Then
+    '        master = "Master"
+    '        slave = "Slave"
+    '    End If
 
-        If My.Settings.Language = "French" Then
-            Me.Text = "SynchTwinRcEngine Programmateur (module " & IIf(array(19) = "0", master & ")", slave & ") v" & InterfaceVersion) 'type de module ajouté au titre
-        ElseIf My.Settings.Language = "English" Then
-            Me.Text = "SynchTwinRcEngine Programer(module " & IIf(array(19) = "0", master & ")", slave & ") v" & InterfaceVersion) 'type de module ajouté au titre
-        End If
+    '    If My.Settings.Language = "French" Then
+    '        Me.Text = "SynchTwinRcEngine Programmateur (module " & IIf(array(19) = "0", master & ")", slave & ") v" & InterfaceVersion) 'type de module ajouté au titre
+    '    ElseIf My.Settings.Language = "English" Then
+    '        Me.Text = "SynchTwinRcEngine Programer(module " & IIf(array(19) = "0", master & ")", slave & ") v" & InterfaceVersion) 'type de module ajouté au titre
+    '    End If
 
-        ButtonModuleType.Text = IIf(array(19) = "0", master, slave)
-        LabelModifications.Enabled = True
-        LabelModifications.ForeColor = Color.Red
-        If My.Settings.Language = "French" Then LabelModifications.Text = "Modifications non sauvegardées !" Else LabelModifications.Text = "Changes not saved !"
-    End Sub
+    '    ButtonModuleType.Text = IIf(array(19) = "0", master, slave)
+    '    LabelModifications.Enabled = True
+    '    LabelModifications.ForeColor = Color.Red
+    '    If My.Settings.Language = "French" Then LabelModifications.Text = "Modifications non sauvegardées !" Else LabelModifications.Text = "Changes not saved !"
+    'End Sub
 
     Private Function ModeAuxiliaireTypeText(ByVal mode As Integer) As String
         Dim StringMode As String = ""
@@ -1506,7 +1508,8 @@ Public Class Form1
         MessageToSend &= textMiniGenerale.Text & ","    'minimumPulse_US
         MessageToSend &= textMaxiGenerale.Text & ","    'maximumPulse_US
         MessageToSend &= textAuxiliaireMode.Text & ","  'auxChannel
-        If CheckBoxInversionServo1.Checked = True Then MessageToSend &= "1" Else MessageToSend &= "0" 'reverseServo1
+        If CheckBoxInversionServo1.Checked = True Then MessageToSend &= "1," Else MessageToSend &= "0," 'reverseServo1
+        MessageToSend &= textBoxAuxChannel.Text 'AuxiliaryNbChannel
 
         If term.Visible = True Then
             term.TextBoxTerminalComPort.AppendText(MessageToSend & vbCrLf)
@@ -3555,6 +3558,7 @@ Public Class Form1
 
         RcMode.labelOrderChannelTitle.Text = "Configuration des canaux RC:"
         RcMode.labelIntputTypeTitle.Text = "Configuration Signal Entrée:"
+        labelAuxChannel.Text = "Canal Aux:"
 
     End Sub
 
@@ -3646,6 +3650,8 @@ Public Class Form1
 
         RcMode.labelOrderChannelTitle.Text = "Setting of Rc Channels:"
         RcMode.labelIntputTypeTitle.Text = "Setting of Signal Input:"
+
+        labelAuxChannel.Text = "Aux Channel:"
     End Sub
 
     Private Sub optLangFR_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles optLangFR.CheckedChanged
