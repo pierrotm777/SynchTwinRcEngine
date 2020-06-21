@@ -37,11 +37,14 @@ Partial Class Form1
         Me.PictureBoxConnectedOK = New System.Windows.Forms.PictureBox()
         Me.Button_Connect = New System.Windows.Forms.Button()
         Me.GroupBoxSettings = New System.Windows.Forms.GroupBox()
+        Me.PictureBoxInternalVoltage = New System.Windows.Forms.PictureBox()
+        Me.labelAuxChannel = New System.Windows.Forms.Label()
+        Me.textBoxAuxChannel = New System.Windows.Forms.TextBox()
         Me.CheckBoxTelemetry = New System.Windows.Forms.CheckBox()
         Me.labelTelemetry = New System.Windows.Forms.Label()
         Me.textBoxBatteryCoeff = New System.Windows.Forms.TextBox()
         Me.ButtonRcRadioMode = New System.Windows.Forms.Button()
-        Me.Label17 = New System.Windows.Forms.Label()
+        Me.labelModeSeparator = New System.Windows.Forms.Label()
         Me.labelChannelOrderRadio = New System.Windows.Forms.Label()
         Me.LabelSignalType = New System.Windows.Forms.Label()
         Me.ButtonClear = New System.Windows.Forms.Button()
@@ -66,8 +69,6 @@ Partial Class Form1
         Me.textMiniMotorRPM = New System.Windows.Forms.TextBox()
         Me.labelSpeedMinMaxRPM = New System.Windows.Forms.Label()
         Me.textGeneralMinMaxStopWatch = New System.Windows.Forms.Label()
-        Me.labelReverseAuxi = New System.Windows.Forms.Label()
-        Me.CheckBoxInversionAux = New System.Windows.Forms.CheckBox()
         Me.LabelDEBUG = New System.Windows.Forms.Label()
         Me.CheckBoxFahrenheitDegrees = New System.Windows.Forms.CheckBox()
         Me.ButtonModuleType = New System.Windows.Forms.Button()
@@ -107,7 +108,7 @@ Partial Class Form1
         Me.textIdleServo2 = New System.Windows.Forms.TextBox()
         Me.textIdleServo1 = New System.Windows.Forms.TextBox()
         Me.LabelExternalVoltage = New System.Windows.Forms.Label()
-        Me.Label19 = New System.Windows.Forms.Label()
+        Me.labelInternalTemp = New System.Windows.Forms.Label()
         Me.labelInternalVoltage = New System.Windows.Forms.Label()
         Me.labelNbrBlades = New System.Windows.Forms.Label()
         Me.labelMode = New System.Windows.Forms.Label()
@@ -282,8 +283,8 @@ Partial Class Form1
         Me.BackgroundWorkerThrottle = New System.ComponentModel.BackgroundWorker()
         Me.BackgroundWorkerAuxiliary = New System.ComponentModel.BackgroundWorker()
         Me.TimerProgressBars = New System.Windows.Forms.Timer(Me.components)
-        Me.textBoxAuxChannel = New System.Windows.Forms.TextBox()
-        Me.labelAuxChannel = New System.Windows.Forms.Label()
+        Me.TimerCheckInternalVoltage = New System.Windows.Forms.Timer(Me.components)
+        Me.PictureBoxExternalVoltage = New System.Windows.Forms.PictureBox()
         Me.ProgressBarThrottleAuxiliary = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
         Me.ProgressBarThrottleMotors = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
         Me.UcV_ProgressBar1 = New SynchTwinRcEngine_Interface.UcV_ProgressBar()
@@ -292,6 +293,7 @@ Partial Class Form1
         Me.GroupBoxSerialPort.SuspendLayout()
         CType(Me.PictureBoxConnectedOK, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBoxSettings.SuspendLayout()
+        CType(Me.PictureBoxInternalVoltage, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.PictureBoxReadHardwareOnOff, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.PictureBoxTimer2OnOff, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBoxMoteurs.SuspendLayout()
@@ -333,6 +335,7 @@ Partial Class Form1
         Me.GroupBoxOperations.SuspendLayout()
         Me.grpfile.SuspendLayout()
         Me.TabPage8.SuspendLayout()
+        CType(Me.PictureBoxExternalVoltage, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'ComboPort
@@ -455,13 +458,15 @@ Partial Class Form1
         '
         'GroupBoxSettings
         '
+        Me.GroupBoxSettings.Controls.Add(Me.PictureBoxExternalVoltage)
+        Me.GroupBoxSettings.Controls.Add(Me.PictureBoxInternalVoltage)
         Me.GroupBoxSettings.Controls.Add(Me.labelAuxChannel)
         Me.GroupBoxSettings.Controls.Add(Me.textBoxAuxChannel)
         Me.GroupBoxSettings.Controls.Add(Me.CheckBoxTelemetry)
         Me.GroupBoxSettings.Controls.Add(Me.labelTelemetry)
         Me.GroupBoxSettings.Controls.Add(Me.textBoxBatteryCoeff)
         Me.GroupBoxSettings.Controls.Add(Me.ButtonRcRadioMode)
-        Me.GroupBoxSettings.Controls.Add(Me.Label17)
+        Me.GroupBoxSettings.Controls.Add(Me.labelModeSeparator)
         Me.GroupBoxSettings.Controls.Add(Me.labelChannelOrderRadio)
         Me.GroupBoxSettings.Controls.Add(Me.LabelSignalType)
         Me.GroupBoxSettings.Controls.Add(Me.ButtonClear)
@@ -488,8 +493,6 @@ Partial Class Form1
         Me.GroupBoxSettings.Controls.Add(Me.textMiniMotorRPM)
         Me.GroupBoxSettings.Controls.Add(Me.labelSpeedMinMaxRPM)
         Me.GroupBoxSettings.Controls.Add(Me.textGeneralMinMaxStopWatch)
-        Me.GroupBoxSettings.Controls.Add(Me.labelReverseAuxi)
-        Me.GroupBoxSettings.Controls.Add(Me.CheckBoxInversionAux)
         Me.GroupBoxSettings.Controls.Add(Me.LabelDEBUG)
         Me.GroupBoxSettings.Controls.Add(Me.CheckBoxFahrenheitDegrees)
         Me.GroupBoxSettings.Controls.Add(Me.ButtonModuleType)
@@ -531,7 +534,7 @@ Partial Class Form1
         Me.GroupBoxSettings.Controls.Add(Me.textIdleServo2)
         Me.GroupBoxSettings.Controls.Add(Me.textIdleServo1)
         Me.GroupBoxSettings.Controls.Add(Me.LabelExternalVoltage)
-        Me.GroupBoxSettings.Controls.Add(Me.Label19)
+        Me.GroupBoxSettings.Controls.Add(Me.labelInternalTemp)
         Me.GroupBoxSettings.Controls.Add(Me.labelInternalVoltage)
         Me.GroupBoxSettings.Controls.Add(Me.labelNbrBlades)
         Me.GroupBoxSettings.Controls.Add(Me.labelMode)
@@ -554,6 +557,33 @@ Partial Class Form1
         Me.GroupBoxSettings.TabIndex = 26
         Me.GroupBoxSettings.TabStop = False
         Me.GroupBoxSettings.Text = "Configuration"
+        '
+        'PictureBoxInternalVoltage
+        '
+        Me.PictureBoxInternalVoltage.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.PictureBoxInternalVoltage.ErrorImage = Global.SynchTwinRcEngine_Interface.My.Resources.Resources.rectangle_orange
+        Me.PictureBoxInternalVoltage.Location = New System.Drawing.Point(392, 125)
+        Me.PictureBoxInternalVoltage.Name = "PictureBoxInternalVoltage"
+        Me.PictureBoxInternalVoltage.Size = New System.Drawing.Size(13, 16)
+        Me.PictureBoxInternalVoltage.TabIndex = 160
+        Me.PictureBoxInternalVoltage.TabStop = False
+        '
+        'labelAuxChannel
+        '
+        Me.labelAuxChannel.AutoSize = True
+        Me.labelAuxChannel.Location = New System.Drawing.Point(277, 259)
+        Me.labelAuxChannel.Name = "labelAuxChannel"
+        Me.labelAuxChannel.Size = New System.Drawing.Size(58, 13)
+        Me.labelAuxChannel.TabIndex = 159
+        Me.labelAuxChannel.Text = "Canal Aux:"
+        '
+        'textBoxAuxChannel
+        '
+        Me.textBoxAuxChannel.Location = New System.Drawing.Point(347, 256)
+        Me.textBoxAuxChannel.Name = "textBoxAuxChannel"
+        Me.textBoxAuxChannel.Size = New System.Drawing.Size(28, 20)
+        Me.textBoxAuxChannel.TabIndex = 158
+        Me.textBoxAuxChannel.Text = "0"
         '
         'CheckBoxTelemetry
         '
@@ -592,14 +622,14 @@ Partial Class Form1
         Me.ButtonRcRadioMode.Text = "Mode"
         Me.ButtonRcRadioMode.UseVisualStyleBackColor = True
         '
-        'Label17
+        'labelModeSeparator
         '
-        Me.Label17.AutoSize = True
-        Me.Label17.Location = New System.Drawing.Point(335, 81)
-        Me.Label17.Name = "Label17"
-        Me.Label17.Size = New System.Drawing.Size(12, 13)
-        Me.Label17.TabIndex = 150
-        Me.Label17.Text = "/"
+        Me.labelModeSeparator.AutoSize = True
+        Me.labelModeSeparator.Location = New System.Drawing.Point(335, 81)
+        Me.labelModeSeparator.Name = "labelModeSeparator"
+        Me.labelModeSeparator.Size = New System.Drawing.Size(12, 13)
+        Me.labelModeSeparator.TabIndex = 150
+        Me.labelModeSeparator.Text = "/"
         '
         'labelChannelOrderRadio
         '
@@ -640,7 +670,7 @@ Partial Class Form1
         '
         Me.labelExtervalVoltageUsed.AutoSize = True
         Me.labelExtervalVoltageUsed.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.labelExtervalVoltageUsed.Location = New System.Drawing.Point(360, 149)
+        Me.labelExtervalVoltageUsed.Location = New System.Drawing.Point(341, 149)
         Me.labelExtervalVoltageUsed.Name = "labelExtervalVoltageUsed"
         Me.labelExtervalVoltageUsed.Size = New System.Drawing.Size(60, 13)
         Me.labelExtervalVoltageUsed.TabIndex = 145
@@ -818,25 +848,6 @@ Partial Class Form1
         Me.textGeneralMinMaxStopWatch.TabIndex = 128
         Me.textGeneralMinMaxStopWatch.Text = "0"
         '
-        'labelReverseAuxi
-        '
-        Me.labelReverseAuxi.AutoSize = True
-        Me.labelReverseAuxi.Location = New System.Drawing.Point(266, 259)
-        Me.labelReverseAuxi.Name = "labelReverseAuxi"
-        Me.labelReverseAuxi.Size = New System.Drawing.Size(74, 13)
-        Me.labelReverseAuxi.TabIndex = 127
-        Me.labelReverseAuxi.Text = "Inversion Aux:"
-        '
-        'CheckBoxInversionAux
-        '
-        Me.CheckBoxInversionAux.AutoSize = True
-        Me.CheckBoxInversionAux.Location = New System.Drawing.Point(340, 258)
-        Me.CheckBoxInversionAux.Name = "CheckBoxInversionAux"
-        Me.CheckBoxInversionAux.Size = New System.Drawing.Size(46, 17)
-        Me.CheckBoxInversionAux.TabIndex = 126
-        Me.CheckBoxInversionAux.Text = "Non"
-        Me.CheckBoxInversionAux.UseVisualStyleBackColor = True
-        '
         'LabelDEBUG
         '
         Me.LabelDEBUG.AutoSize = True
@@ -849,7 +860,7 @@ Partial Class Form1
         'CheckBoxFahrenheitDegrees
         '
         Me.CheckBoxFahrenheitDegrees.AutoSize = True
-        Me.CheckBoxFahrenheitDegrees.Location = New System.Drawing.Point(411, 170)
+        Me.CheckBoxFahrenheitDegrees.Location = New System.Drawing.Point(392, 170)
         Me.CheckBoxFahrenheitDegrees.Name = "CheckBoxFahrenheitDegrees"
         Me.CheckBoxFahrenheitDegrees.Size = New System.Drawing.Size(36, 17)
         Me.CheckBoxFahrenheitDegrees.TabIndex = 123
@@ -1083,7 +1094,7 @@ Partial Class Form1
         '
         'TextVoltageExterne
         '
-        Me.TextVoltageExterne.Location = New System.Drawing.Point(361, 146)
+        Me.TextVoltageExterne.Location = New System.Drawing.Point(343, 146)
         Me.TextVoltageExterne.Name = "TextVoltageExterne"
         Me.TextVoltageExterne.Size = New System.Drawing.Size(46, 20)
         Me.TextVoltageExterne.TabIndex = 91
@@ -1091,7 +1102,7 @@ Partial Class Form1
         '
         'TextTempInterne
         '
-        Me.TextTempInterne.Location = New System.Drawing.Point(361, 168)
+        Me.TextTempInterne.Location = New System.Drawing.Point(342, 168)
         Me.TextTempInterne.Name = "TextTempInterne"
         Me.TextTempInterne.Size = New System.Drawing.Size(46, 20)
         Me.TextTempInterne.TabIndex = 90
@@ -1099,7 +1110,7 @@ Partial Class Form1
         '
         'TextVoltageInterne
         '
-        Me.TextVoltageInterne.Location = New System.Drawing.Point(362, 123)
+        Me.TextVoltageInterne.Location = New System.Drawing.Point(343, 123)
         Me.TextVoltageInterne.Name = "TextVoltageInterne"
         Me.TextVoltageInterne.Size = New System.Drawing.Size(45, 20)
         Me.TextVoltageInterne.TabIndex = 89
@@ -1186,14 +1197,14 @@ Partial Class Form1
         Me.LabelExternalVoltage.TabIndex = 74
         Me.LabelExternalVoltage.Text = "Voltage Externe:"
         '
-        'Label19
+        'labelInternalTemp
         '
-        Me.Label19.AutoSize = True
-        Me.Label19.Location = New System.Drawing.Point(250, 169)
-        Me.Label19.Name = "Label19"
-        Me.Label19.Size = New System.Drawing.Size(108, 13)
-        Me.Label19.TabIndex = 73
-        Me.Label19.Text = "Temperature interne :"
+        Me.labelInternalTemp.AutoSize = True
+        Me.labelInternalTemp.Location = New System.Drawing.Point(250, 169)
+        Me.labelInternalTemp.Name = "labelInternalTemp"
+        Me.labelInternalTemp.Size = New System.Drawing.Size(79, 13)
+        Me.labelInternalTemp.TabIndex = 73
+        Me.labelInternalTemp.Text = "Temp. Interne :"
         '
         'labelInternalVoltage
         '
@@ -3019,22 +3030,20 @@ Partial Class Form1
         '
         Me.TimerProgressBars.Interval = 1000
         '
-        'textBoxAuxChannel
+        'TimerCheckInternalVoltage
         '
-        Me.textBoxAuxChannel.Location = New System.Drawing.Point(457, 256)
-        Me.textBoxAuxChannel.Name = "textBoxAuxChannel"
-        Me.textBoxAuxChannel.Size = New System.Drawing.Size(28, 20)
-        Me.textBoxAuxChannel.TabIndex = 158
-        Me.textBoxAuxChannel.Text = "0"
+        Me.TimerCheckInternalVoltage.Enabled = True
+        Me.TimerCheckInternalVoltage.Interval = 60000
         '
-        'labelAuxChannel
+        'PictureBoxExternalVoltage
         '
-        Me.labelAuxChannel.AutoSize = True
-        Me.labelAuxChannel.Location = New System.Drawing.Point(387, 259)
-        Me.labelAuxChannel.Name = "labelAuxChannel"
-        Me.labelAuxChannel.Size = New System.Drawing.Size(58, 13)
-        Me.labelAuxChannel.TabIndex = 159
-        Me.labelAuxChannel.Text = "Canal Aux:"
+        Me.PictureBoxExternalVoltage.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.PictureBoxExternalVoltage.ErrorImage = Global.SynchTwinRcEngine_Interface.My.Resources.Resources.rectangle_orange
+        Me.PictureBoxExternalVoltage.Location = New System.Drawing.Point(392, 149)
+        Me.PictureBoxExternalVoltage.Name = "PictureBoxExternalVoltage"
+        Me.PictureBoxExternalVoltage.Size = New System.Drawing.Size(13, 16)
+        Me.PictureBoxExternalVoltage.TabIndex = 161
+        Me.PictureBoxExternalVoltage.TabStop = False
         '
         'ProgressBarThrottleAuxiliary
         '
@@ -3103,6 +3112,7 @@ Partial Class Form1
         CType(Me.PictureBoxConnectedOK, System.ComponentModel.ISupportInitialize).EndInit()
         Me.GroupBoxSettings.ResumeLayout(False)
         Me.GroupBoxSettings.PerformLayout()
+        CType(Me.PictureBoxInternalVoltage, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.PictureBoxReadHardwareOnOff, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.PictureBoxTimer2OnOff, System.ComponentModel.ISupportInitialize).EndInit()
         Me.GroupBoxMoteurs.ResumeLayout(False)
@@ -3157,6 +3167,7 @@ Partial Class Form1
         Me.grpfile.ResumeLayout(False)
         Me.grpfile.PerformLayout()
         Me.TabPage8.ResumeLayout(False)
+        CType(Me.PictureBoxExternalVoltage, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 
     End Sub
@@ -3193,7 +3204,7 @@ Partial Class Form1
     Friend WithEvents textIdleServo1 As System.Windows.Forms.TextBox
     Friend WithEvents textCentreServo2 As System.Windows.Forms.TextBox
     Friend WithEvents textCentreServo1 As System.Windows.Forms.TextBox
-    Friend WithEvents Label19 As System.Windows.Forms.Label
+    Friend WithEvents labelInternalTemp As System.Windows.Forms.Label
     Friend WithEvents labelInternalVoltage As System.Windows.Forms.Label
     Friend WithEvents labelNbrBlades As System.Windows.Forms.Label
     Friend WithEvents labelMode As System.Windows.Forms.Label
@@ -3239,8 +3250,6 @@ Partial Class Form1
     Public WithEvents TimerDataLogger As System.Windows.Forms.Timer
     Friend WithEvents SerialPort1 As System.IO.Ports.SerialPort
     Friend WithEvents LabelDEBUG As System.Windows.Forms.Label
-    Friend WithEvents labelReverseAuxi As System.Windows.Forms.Label
-    Friend WithEvents CheckBoxInversionAux As System.Windows.Forms.CheckBox
     Friend WithEvents textGeneralMinMaxStopWatch As System.Windows.Forms.Label
     Friend WithEvents textMiniMotorRPM As System.Windows.Forms.TextBox
     Friend WithEvents labelSpeedMinMaxRPM As System.Windows.Forms.Label
@@ -3409,7 +3418,7 @@ Partial Class Form1
     Friend WithEvents ListBoxSDListFiles As System.Windows.Forms.ListBox
     Friend WithEvents LabelSignalType As System.Windows.Forms.Label
     Friend WithEvents ButtonRcRadioMode As System.Windows.Forms.Button
-    Friend WithEvents Label17 As System.Windows.Forms.Label
+    Friend WithEvents labelModeSeparator As System.Windows.Forms.Label
     Friend WithEvents labelChannelOrderRadio As System.Windows.Forms.Label
     Friend WithEvents LabelExternalVoltage As System.Windows.Forms.Label
     Public WithEvents TimerProgressBars As System.Windows.Forms.Timer
@@ -3424,6 +3433,9 @@ Partial Class Form1
     Friend WithEvents labelTelemetry As System.Windows.Forms.Label
     Friend WithEvents labelAuxChannel As System.Windows.Forms.Label
     Friend WithEvents textBoxAuxChannel As System.Windows.Forms.TextBox
+    Public WithEvents TimerCheckInternalVoltage As System.Windows.Forms.Timer
+    Friend WithEvents PictureBoxInternalVoltage As System.Windows.Forms.PictureBox
+    Friend WithEvents PictureBoxExternalVoltage As System.Windows.Forms.PictureBox
 
 
 End Class

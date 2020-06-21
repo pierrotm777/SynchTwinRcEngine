@@ -10,7 +10,6 @@
 
 #include <EEPROM.h>
 #include <Streaming.h>          /* Librairie remplacant SettingsPort.print() */
-#include <avdweb_VirtualDelay.h>
 
 /* Select your radio's channels order (see Marcos.h for other modes) */
 typedef struct{
@@ -49,7 +48,6 @@ const ChannelOrderSt_t ChannelOrder[] PROGMEM = {
                  /* RTEA */   {3, 2, 1, 0}
                             };
 
-//#define AETR
 #include "Macros.h"
 
 #include <SoftSerial.h>
@@ -63,9 +61,9 @@ SoftSerial SettingsPort(10,11);
 
 
 //#define DEBUG
-#define SECURITYENGINE          /* Engines security On/off */
-//#define ARDUINO2PC              /* PC interface (!!!!!! don't use this option with PLOTTER  !!!!!!) */
-//#define EXTERNALVBATT           /* Read external battery voltage */
+//#define SECURITYENGINE          /* Engines security On/off */
+#define ARDUINO2PC              /* PC interface (!!!!!! don't use this option with PLOTTER  !!!!!!) */
+#define EXTERNALVBATT           /* Read external battery voltage */
 //#define GLOWMANAGER             /* Glow driver */
 //#define I2CSLAVEFOUND           /* for command a second module by the I2C port */
 //#define INT_REF                 /* internal 1.1v reference */
@@ -180,7 +178,6 @@ struct MaStructure {
   /* Valeurs par defaut dans EEprom */
   byte ID;
   uint8_t InputMode;                               //0-PPM, 1-SBUS, 2-SRXL, 3-SUMD, 4-IBUS, 5-JETI
-//  uint8_t radioRcMode;                             //Rc mode 1 to 4
   uint8_t AuxiliaryNbChannel;                      //default is channel 5
   uint16_t centerposServo1;                        //value in uS
   uint16_t centerposServo2;                        //value in uS
@@ -192,12 +189,12 @@ struct MaStructure {
   uint8_t auxChannel;                              //1 to 4
   uint8_t reverseServo1;                           //0(normal), 1(reverse)
   uint8_t reverseServo2;                           //0(normal), 1(reverse)
-  double diffVitesseErr;                           //difference de vitesse entre les 2 moteurs en tr/mn toleree
+  uint16_t diffVitesseErr;                         //difference de vitesse entre les 2 moteurs en tr/mn toleree
   uint16_t minimumPulse_US;                        //value in uS
   uint16_t maximumPulse_US;                        //value in uS
-  uint8_t telemetryInUse;                           //0- Rien, 1- Sortie sur pins D1 et D9
+  uint8_t telemetryInUse;                          //0- Rien, 1- Sortie sur pins D1 et D9
   uint8_t nbPales;                                 //number of blades or nb of magnets
-  uint8_t moduleMasterOrSlave;                     //0 = module maitre , 1= module esclave
+  uint8_t moduleMasterOrSlave;                     //0 = module maitre , 1= module esclave( non utilisé pour l'instant)
   uint8_t fahrenheitDegrees;                       //0 = C degrees , 1= Fahrenheit degrees
   uint16_t minimumSpeed;                           //value in uS
   uint16_t maximumSpeed;                           //value in uS
@@ -213,7 +210,6 @@ uint8_t AileronNbChannel;
 
 /* comptage tr/mn */
 volatile long FirstInputChangeCount=0, SecondInputChangeCount=0;
-//uint8_t VirtualPortNb, VirtualPortNb_;
 uint16_t vitesse1, vitesse2;                    //blades speeds in rpm
 double diffVitesse;                             //difference de vitesse entre les 2 moteurs en tr/mn (peut etre negatif !!!)
 double stepMotor;                               //nb de micro secondes ajoutes ou enleves
@@ -238,13 +234,13 @@ SoftRcPulseOut ServoRudder;
 
 #define SERIAL_BAUD         115200         /* 115200 is need for use BlueSmirF BT module */
 #ifdef ARDUINO2PC
-#define LONGUEUR_MSG_MAX   48             /* ex: S1,1500,1500,1000,1000,2,2000,1250,1000,2000,1 ou S2,1,0,99,2,0,0,0,1000,20000,0,0 */
+#define LONGUEUR_MSG_MAX   48             /* ex: S1,1500,1500,1000,1000,2,2000,1250,1000,2000,1,0 ou S2,1,0,99,2,0,0,0,1000,20000,0,0,4.0,5 */
 #define RETOUR_CHARRIOT    0x0D           /* CR (code ASCII) */
 #define PASSAGE_LIGNE      0x0A           /* LF (code ASCII) */
 #define BACK_SPACE         0x08
 char Message[LONGUEUR_MSG_MAX + 1];
 uint8_t SubStrNb, SeparFound;
-#define SUB_STRING_NB_MAX  13//23             /* nombre de valeurs splitées */
+#define SUB_STRING_NB_MAX  14             /* nombre de valeurs splitées */
 char *StrTbl[SUB_STRING_NB_MAX];          /* declaration de pointeurs sur chaine, 1 pointeur = 2 octets seulement */
 #endif
 uint16_t pos = 0;
@@ -257,24 +253,9 @@ uint16_t pos = 0;
 
 void setup()
 {
+  
+  //clearEEprom();
 
-#ifdef FRAM_USED
-  setupFRAM();
-#endif
-
-  Serial.begin(115200);
-
-  SettingsPort.begin(57600);
-  delay(500);//while (SettingsPort.available() > 0)
-
-#ifdef DEBUG
-  SettingsPort << F("SynchTwinRcEngine est demarre") << endl << endl;
-#endif//endif DEBUG
-
-//#ifdef I2CSLAVEFOUND
-//  Wire.begin(SLAVE_ADRESS,2);
-//#endif
- 
   readAllEEprom();//read all settings from EEprom (save default's values in first start)
 
   AileronNbChannel = (uint8_t)pgm_read_byte(&ChannelOrder[ms.channelsOrder].Aileron) + 1;//AILERON + 1;
@@ -285,8 +266,33 @@ void setup()
 //    SettingsPort << F("Elevator")<< F("=")<< (uint8_t)pgm_read_byte(&ChannelOrder[Mode].Elevator) << endl;
     SettingsPort << F("Throttle")<< F("=")<< MotorNbChannel << endl;
     SettingsPort << F("Rudder")<< F("=") << RudderNbChannel << endl << endl;
-
 #endif
+  
+  ServoMotor1.attach(BROCHE_MOTOR1);
+  ServoMotor2.attach(BROCHE_MOTOR2);
+#ifdef SECURITYENGINE
+  /* two servos always on idle positions on start */
+  SecurityIsON = true;//security is set always ON on start
+  (ms.reverseServo1 == 0)?ServoMotor1.write_us(ms.idelposServos1):ServoMotor1.write_us((ms.centerposServo1*2)-ms.idelposServos1);               
+  (ms.reverseServo2 == 0)?ServoMotor2.write_us(ms.idelposServos2):ServoMotor2.write_us((ms.centerposServo2*2)-ms.idelposServos2); 
+#else
+  (ms.reverseServo1 == 0)?ServoMotor1.write_us(Width_us):ServoMotor1.write_us((ms.centerposServo1*2)-Width_us);
+  (ms.reverseServo2 == 0)?ServoMotor2.write_us(Width_us):ServoMotor2.write_us((ms.centerposServo2*2)-Width_us);
+#endif
+  SoftRcPulseOut::refresh(1); /* Immediate refresh of outgoing pulses */
+
+  Serial.begin(115200);
+  
+  SettingsPort.begin(57600);
+  delay(500);//while (SettingsPort.available() > 0)
+
+#ifdef DEBUG
+  SettingsPort << F("SynchTwinRcEngine est demarre") << endl << endl;
+#endif//endif DEBUG
+
+//#ifdef I2CSLAVEFOUND
+//  Wire.begin(SLAVE_ADRESS,2);
+//#endif
    
   //initialise les capteurs effet hall ou IR avec une interruption associee
   attachInterrupt(0, InterruptFunctionToCall1, RISING); // attache l'interruption externe n°0 (pin D2)
@@ -358,25 +364,6 @@ void setup()
   readAllEEpromOnSettingsPort();//lecture configuration du module dans le terminal serie
 #endif//endif DEBUG
 
-  ServoMotor1.attach(BROCHE_MOTOR1);
-  ServoMotor2.attach(BROCHE_MOTOR2);
-  
-
-#ifdef SECURITYENGINE
-  /* two servos always on idle positions on start */
-  SecurityIsON = true;//security is set always ON on start
-  if (ms.reverseServo1 == 0) {
-    ServoMotor1.write_us(ms.idelposServos1);
-  } else {
-    ServoMotor1.write_us((ms.centerposServo1 * 2) - ms.idelposServos1);
-  }
-  if (ms.reverseServo2 == 0) {
-    ServoMotor2.write_us(ms.idelposServos2);
-  } else {
-    ServoMotor2.write_us((ms.centerposServo2 * 2) - ms.idelposServos2);
-  }
-#endif
-
   /* init pins leds in output (RED leds are defined here if SettingsPort not used for settings*/
 #ifdef EXTLED
   out(LED);
@@ -439,6 +426,8 @@ void loop()
       if(millis()-started1s>=1000)
       {
         SettingsPort << F(".");started1s=millis();
+//        ServoMoteursWrite_Us();
+//        SoftRcPulseOut::refresh(1); /* Immediate refresh of outgoing pulses */ 
       }      
       /* Check 10s */
       if(millis()-ShutDownSerialSetting >= 10000)//Wait VB program 10s.
@@ -459,7 +448,8 @@ void loop()
     }
   }
 
-  if ((RunConfig == true)&&(CheckIfVBUsed == true))
+  if (RunConfig == true)
+  //if ((RunConfig == true)&&(CheckIfVBUsed == true))
   {
     SerialFromToVB();
 #ifdef RECORDER

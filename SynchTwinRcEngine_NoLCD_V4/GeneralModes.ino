@@ -55,8 +55,9 @@ void mode0()//run mode
   }
 
   if (InputSignalExist == true)
-  {    
-#ifdef SECURITYENGINE/* Security motors */    
+  {
+
+#ifdef SECURITYENGINE/* Security motors */   
     if (SecurityIsON == true && Width_us >= (ms.fullThrottle - 100))
     {
       SecurityIsON = false;/*( Security is set OFF if joystick pass on top position one time) */ 
@@ -82,11 +83,12 @@ void mode0()//run mode
     } 
 #endif/* End Security motors */
 
-    readAuxiliaryChannel();//read Auxiliary channel (1 to 6) 
+    readAuxiliaryChannel();//read Auxiliary channel (1 to 6)
+       
     SoftRcPulseOut::refresh(1); /* (=1) allows to synchronize outgoing pulses with incoming pulses */
     BeginChronoServoMs = millis();  /* Restart the Chrono for Pulse */
     
-    // Blink each 250ms if PPM found on pin Rx
+    // Blink each 250ms if PPM,SBUS... found on pin Rx
     if(millis()-LedStartMs>=LED_SIGNAL_FOUND)
     {
       flip(LED);
@@ -96,7 +98,7 @@ void mode0()//run mode
   }
   else//Si absence du canal RX
   {
-    // Blink each 1s if PPM not found on pin Rx
+    // Blink each 1s if PPM,SBUS... not found on pin Rx
     if(millis()-LedStartMs>=LED_SIGNAL_NOTFOUND)
     {
       flip(LED);
@@ -142,16 +144,16 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
           SoftRcPulseOut::refresh(1);      // generates the servo pulse
         } 
       }
-      else if( (pos >= ms.minimumPulse_US) && (pos <=ms.maximumPulse_US))//reception VB en uS 'servos'
-      {        
-        if (InputSignalExist == true && simulateSpeed == true)//verifie si Ch Moteur est inactif !!!
-        {
-          if (ms.reverseServo1 == 0) {ServoMotor1.write_us(pos);}else{ServoMotor1.write_us((ms.centerposServo1*2)-pos);}               
-          if (ms.reverseServo2 == 0) {ServoMotor2.write_us(pos);}else{ServoMotor2.write_us((ms.centerposServo2*2)-pos);}
-          //waitMs(5);
-          SoftRcPulseOut::refresh(1);      // generates the servo pulse
-        } 
-      }
+//      else if( (pos >= ms.minimumPulse_US) && (pos <=ms.maximumPulse_US))//reception VB en uS 'servos'
+//      {        
+//        if (InputSignalExist == true && simulateSpeed == true)//verifie si Ch Moteur est inactif !!!
+//        {
+//          if (ms.reverseServo1 == 0) {ServoMotor1.write_us(pos);}else{ServoMotor1.write_us((ms.centerposServo1*2)-pos);}               
+//          if (ms.reverseServo2 == 0) {ServoMotor2.write_us(pos);}else{ServoMotor2.write_us((ms.centerposServo2*2)-pos);}
+//          //waitMs(5);
+//          SoftRcPulseOut::refresh(1);      // generates the servo pulse
+//        } 
+//      }
     
       else if(pos == 360)//CPPM
       {             
@@ -191,7 +193,7 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
       }
       
       else if(pos == 368)//envoie settings au port serie
-      {//format send: 1657|1657|1225|1225|2|2075|1393|1070|2205|1|0|0|100|39|2|0|5.00|27.61|1.000|0|1000|20000|0|4.0
+      {//format send: 1657|1657|1225|1225|2|2075|1393|1070|2205|1|0|0|100|39|2|0|5.00|27.61|1.000|0|1000|20000|0|4.0|5
         sendConfigToSettingsPort();
       } 
       else if(pos == 369)//demande configuration par defaut par VB
@@ -318,7 +320,7 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
       }
 
       if(CountChar(Message,',')>0)
-      {/*formats received: S1,1500,1500,1000,1000,2,2000,1250,1200,1900,1,0
+      {/*formats received: S1,1500,1500,1000,1000,2,2000,1250,1200,1900,1,0,5
                            S2,0,99,2,0,0,0,1000,20000,0,0,4.0
                            S3,1000,1000,100
                            S4,0,0,100*/
@@ -393,7 +395,7 @@ void SerialFromToVB()/* thanks to LOUSSOUARN Philippe for this code */
     }
     readAuxiliaryChannel();//read Auxiliary channel and his modes (1 to 6)
 
-}//end SettingsPortFromToVB()
+}//end SerialFromToVB()
 
 uint8_t CountChar(String input, char c )
 {

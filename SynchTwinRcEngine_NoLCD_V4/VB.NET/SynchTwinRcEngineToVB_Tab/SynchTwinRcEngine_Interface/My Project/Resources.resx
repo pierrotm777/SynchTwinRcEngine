@@ -136,9 +136,6 @@
   <data name="delete" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\delete.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="labelRadioMode_EN" xml:space="preserve">
-    <value>Radio Mode:</value>
-  </data>
   <data name="labelReverseServo1_EN" xml:space="preserve">
     <value>Reverse Servo1:</value>
   </data>
@@ -150,6 +147,12 @@
   </data>
   <data name="buttonMotors_FR" xml:space="preserve">
     <value>Moteur</value>
+  </data>
+  <data name="labelRadioMode_EN" xml:space="preserve">
+    <value>Radio Mode:</value>
+  </data>
+  <data name="labelCenterServo2_EN" xml:space="preserve">
+    <value>Center Servo2:</value>
   </data>
   <data name="groupBoxSettings_FR" xml:space="preserve">
     <value>Configuration</value>
@@ -163,9 +166,6 @@
   <data name="buttonQuit_EN" xml:space="preserve">
     <value>Exit</value>
   </data>
-  <data name="UnderConstruction" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnderConstruction.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="labelCenterServo1_EN" xml:space="preserve">
     <value>Center Servo1:</value>
   </data>
@@ -175,8 +175,8 @@
   <data name="labelStartSynchroMotors_FR" xml:space="preserve">
     <value>Début Synchro Servos:</value>
   </data>
-  <data name="buttonAbortChanges_EN" xml:space="preserve">
-    <value>Abort Changes</value>
+  <data name="labelReverseAuxi_FR" xml:space="preserve">
+    <value>Inversion Aux:</value>
   </data>
   <data name="Mosquito" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Mosquito.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -196,9 +196,6 @@
   <data name="groupBoxSettings_EN" xml:space="preserve">
     <value>Settings</value>
   </data>
-  <data name="labelRadioMode_FR" xml:space="preserve">
-    <value>Mode Radio:</value>
-  </data>
   <data name="buttonAuxCenter_FR" xml:space="preserve">
     <value>Milieu</value>
   </data>
@@ -208,11 +205,14 @@
   <data name="labelCenterServo2_FR" xml:space="preserve">
     <value>Centre Servo2:</value>
   </data>
+  <data name="mode1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\mode1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="labelIdleServo1_EN" xml:space="preserve">
     <value>Position Idle Servo 1:</value>
   </data>
-  <data name="labelSpeedModuleAnswer_EN" xml:space="preserve">
-    <value>Speed Module Answer:</value>
+  <data name="_010_LowPriority_32x42_72" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\010_LowPriority_32x42_72.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="optLangFR_FR" xml:space="preserve">
     <value>Français</value>
@@ -220,8 +220,14 @@
   <data name="rectangle_vert" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\rectangle_vert.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="buttonModuleType_FR" xml:space="preserve">
+    <value>Maître</value>
+  </data>
   <data name="GlowPlug" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\GlowPlug.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="labelMode_FR" xml:space="preserve">
+    <value>Mode Radio:</value>
   </data>
   <data name="labelIdleServo1_FR" xml:space="preserve">
     <value>Position Ralenti Servo 1:</value>
@@ -232,8 +238,8 @@
   <data name="buttonResetSettings_EN" xml:space="preserve">
     <value>Reset Settings</value>
   </data>
-  <data name="labelReverseAuxi_FR" xml:space="preserve">
-    <value>Inversion Aux:</value>
+  <data name="labelMode_EN" xml:space="preserve">
+    <value>Radio Mode:</value>
   </data>
   <data name="labelGeneralePositionMaxi_FR" xml:space="preserve">
     <value>Position Maxi Générale:</value>
@@ -249,6 +255,9 @@
   </data>
   <data name="Servo" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Servo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="buttonModuleType_EN" xml:space="preserve">
+    <value>Master</value>
   </data>
   <data name="labelIntVoltage_EN" xml:space="preserve">
     <value>Internal Voltage:</value>
@@ -277,6 +286,9 @@
   <data name="buttonRead_EN" xml:space="preserve">
     <value>Read</value>
   </data>
+  <data name="buttonDebugSend_EN" xml:space="preserve">
+    <value>Send</value>
+  </data>
   <data name="logo_arduino" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\logo_arduino.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -292,6 +304,9 @@
   <data name="labelCenterServo1_FR" xml:space="preserve">
     <value>Centre Servo1:</value>
   </data>
+  <data name="labelTerminalWelcome_EN" xml:space="preserve">
+    <value>Terminal is ready !</value>
+  </data>
   <data name="buttonQuit_FR" xml:space="preserve">
     <value>Quitter</value>
   </data>
@@ -301,14 +316,11 @@
   <data name="labelGeneralePositionMini_FR" xml:space="preserve">
     <value>Position Mini Générale:</value>
   </data>
-  <data name="labelCenterServo2_EN" xml:space="preserve">
-    <value>Center Servo2:</value>
+  <data name="labelSpeedModuleAnswer_EN" xml:space="preserve">
+    <value>Speed Module Answer:</value>
   </data>
   <data name="Confirm" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Confirm.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="_010_LowPriority_32x42_72" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\010_LowPriority_32x42_72.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="labelStartSynchroMotors_EN" xml:space="preserve">
     <value>Start Synchro Servos:</value>
@@ -316,17 +328,17 @@
   <data name="buttonGlowOnOff_FR" xml:space="preserve">
     <value>Bougies On/Off</value>
   </data>
+  <data name="labelTerminalWelcome_FR" xml:space="preserve">
+    <value>Terminal prêt !</value>
+  </data>
   <data name="buttonAbortChanges_FR" xml:space="preserve">
     <value>Annuler Modifications</value>
   </data>
   <data name="buttonSaveComPort_EN" xml:space="preserve">
     <value>Backup</value>
   </data>
-  <data name="rectangle_gris" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\rectangle_gris.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="cmd" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\cmd.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="labelRadioMode_FR" xml:space="preserve">
+    <value>Mode Radio:</value>
   </data>
   <data name="labelAuxiPosition_EN" xml:space="preserve">
     <value>Position Auxiliary:</value>
@@ -340,11 +352,14 @@
   <data name="Warning" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Warning.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="buttonModuleType_EN" xml:space="preserve">
-    <value>Master</value>
+  <data name="cmd" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cmd.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="labelNbrBlades_FR" xml:space="preserve">
     <value>Nombre de pales ou d'aimants:</value>
+  </data>
+  <data name="optLangEN_EN" xml:space="preserve">
+    <value>English</value>
   </data>
   <data name="labelAuxiRudderSimu_EN" xml:space="preserve">
     <value>Channel Auxiliary Simulation</value>
@@ -361,11 +376,11 @@
   <data name="Lock" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Lock.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="buttonModuleType_FR" xml:space="preserve">
-    <value>Maître</value>
+  <data name="UnderConstruction" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\UnderConstruction.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="buttonDebugSend_EN" xml:space="preserve">
-    <value>Send</value>
+  <data name="rectangle_gris" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\rectangle_gris.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Info" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Info.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -391,11 +406,11 @@
   <data name="buttonResetSettings_FR" xml:space="preserve">
     <value>RAZ Configuration</value>
   </data>
+  <data name="buttonAbortChanges_EN" xml:space="preserve">
+    <value>Abort Changes</value>
+  </data>
   <data name="labelConfigModule_FR" xml:space="preserve">
     <value>Editeur de la configuration du module:</value>
-  </data>
-  <data name="optLangEN_EN" xml:space="preserve">
-    <value>English</value>
   </data>
   <data name="labelSpeedMotorMinMaxRPM_FR" xml:space="preserve">
     <value>Vitesse Moteurs Mini/Maxi (tr/mn):</value>
@@ -409,19 +424,7 @@
   <data name="NotAllowed" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\NotAllowed.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="mode1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\mode1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="labelMode_EN" xml:space="preserve">
-    <value>Radio Mode:</value>
-  </data>
-  <data name="labelMode_FR" xml:space="preserve">
-    <value>Mode Radio:</value>
-  </data>
-  <data name="labelTerminalWelcome_EN" xml:space="preserve">
-    <value>Terminal is ready !</value>
-  </data>
-  <data name="labelTerminalWelcome_FR" xml:space="preserve">
-    <value>Terminal prêt !</value>
+  <data name="rectangle_orange" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\rectangle_orange.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

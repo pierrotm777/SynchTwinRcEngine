@@ -138,6 +138,24 @@ Public Class Form1
         labelInfoNeedSaveCOM.Text = "You need to save the connection Settings (use 'Backup' button) !"
     End Sub
 
+    Function validateDoublesAndCurrency(ByVal stringValue As String, ByVal val As Double) As Boolean
+        Dim rslt As Boolean = False
+        Dim valueToTest As String = stringValue
+        Try
+            'valueToTest = Double.Parse(stringValue, Globalization.NumberStyles.Currency)
+            valueToTest = Double.Parse(stringValue, CultureInfo.InvariantCulture)
+        Catch ex As Exception
+
+        End Try
+
+        If valueToTest > val Then 'If Double.TryParse(valueToTest, value) Then
+            rslt = True
+        Else
+            rslt = False
+        End If
+        Return rslt
+    End Function
+
     Private Sub SerialPort1_DataReceived(ByVal sender As Object, ByVal e As System.IO.Ports.SerialDataReceivedEventArgs) Handles SerialPort1.DataReceived
         'This sub gets called automatically when the com port recieves some data
 
@@ -210,6 +228,7 @@ Public Class Form1
         'lecture config du module arduino 
         If Strings.Left(SerialMessagRecieved, 3) = "LLA" Then 'return module's settings
             Try
+                'TextBoxAuxiliairePulse.Text
                 array = SerialMessagRecieved.Replace("LLA", "").Split("|")
 
                 textCentreServo1.Text = array(0)
@@ -288,12 +307,33 @@ Public Class Form1
 
                 LabelInterType.Text = ModeAuxiliaireTypeText(Convert.ToInt16(textAuxiliaireMode.Text))
 
+ 
+                If validateDoublesAndCurrency(array(16), 4.8) = True Then 'si array(1) > 4.8v ==> tension module OK
+                    PictureBoxInternalVoltage.Image = My.Resources.rectangle_vert
+                    'ShowMsg("Tension interne du module OK", ShowMsgImage.Info, "Info")
+                Else
+                    PictureBoxInternalVoltage.Image = My.Resources.rectangle_orange
+                    'ShowMsg("Tension interne du module trop basse", ShowMsgImage.Critical, "Critique")
+                End If
+
+                If validateDoublesAndCurrency(Replace(TextVoltageExterne.Text, "v", ""), 11.0) = True Then 'si PictureBoxExternalVoltage.Text > 11v ==> tension module OK
+                    PictureBoxExternalVoltage.Image = My.Resources.rectangle_vert
+                    'ShowMsg("Tension externe du module OK", ShowMsgImage.Info, "Info")
+                Else
+                    PictureBoxExternalVoltage.Image = My.Resources.rectangle_orange
+                    'ShowMsg("Tension externe du module trop basse", ShowMsgImage.Critical, "Critique")
+                End If
+
+                '
             Catch ex As Exception
                 ShowMsg(SerialMessagRecieved & vbCrLf & ex.Message, ShowMsgImage.Critical, "Erreur")
+                'MessageBox.Show("Voltage too low ?", "oo OO Warning OO oo", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             End Try
 
 
         End If
+
+
 
         'lecture position canal moteur
         If Strings.Left(SerialMessagRecieved, 1) = "M" Then 'return throttle stick position
@@ -766,17 +806,7 @@ Public Class Form1
         If My.Settings.Language = "French" Then LabelModifications.Text = "Modifications non sauvegardées !" Else LabelModifications.Text = "Changes not saved !"
         If CheckBoxFahrenheitDegrees.Checked = False Then CheckBoxFahrenheitDegrees.Text = "°C" Else CheckBoxFahrenheitDegrees.Text = "°F"
     End Sub
-    Private Sub CheckBoxInversionAux_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CheckBoxInversionAux.CheckStateChanged
-        LabelModifications.Enabled = True
-        LabelModifications.ForeColor = Color.Red
-        If My.Settings.Language = "French" Then LabelModifications.Text = "Modifications non sauvegardées !" Else LabelModifications.Text = "Changes not saved !"
 
-        If My.Settings.Language = "French" Then
-            If (CheckBoxInversionAux.Checked = True) Then CheckBoxInversionAux.Text = "Oui" Else CheckBoxInversionAux.Text = "Non"
-        ElseIf My.Settings.Language = "English" Then
-            If (CheckBoxInversionAux.Checked = True) Then CheckBoxInversionAux.Text = "Yes" Else CheckBoxInversionAux.Text = "No"
-        End If
-    End Sub
 
     Private Sub ButtonMoinsVitesseReponse_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonMoinsVitesseReponse.Click
         If Convert.ToInt16(textTempsReponse.Text) > 0 Then textTempsReponse.Text = Convert.ToString(Convert.ToInt16(textTempsReponse.Text) - 1)
@@ -1247,10 +1277,10 @@ Public Class Form1
             Select Case Convert.ToInt32(textAuxiliaireMode.Text)
                 Case 0 : ShowMsg("Selectionnez un mode Auxiliaire (utiliser les boutons + ou - !!!)", ShowMsgImage.Info, "Canal Auxiliaire Erreur !!!")
                 Case 1 : ShowMsg("MODE1: Auxiliaire non utilisé" & vbCrLf & _
-                                "C'est le mode dans lequel le module devra être is l'entrée AUX n'est pas conectée." & vbCrLf & _
+                                "C'est le mode dans lequel le module devra être si l'entrée AUX n'est pas conectée." & vbCrLf & _
                                 "Le module laisse l'entrée gaz controler les servos jusqu'à 1/5eme de sa position." & vbCrLf & _
                                 "Au dela des 1/5eme des gaz, le module contrôle la position des servos et synchronise les moteurs." & vbCrLf & _
-                                "Si le manche des gaz bouge, le processus est repete.", ShowMsgImage.Info, "Canal Auxiliaire <--> Mode 1")
+                                "Si le manche des gaz bouge, le processus est répété.", ShowMsgImage.Info, "Canal Auxiliaire <--> Mode 1")
                 Case 2 : ShowMsg("MODE2: Fonctionnement indépendent des moteurs" & vbCrLf & _
                                 "Dans ce mode, l'entrée AUX est connectée à un switch 3 positions de l'émetteur." & vbCrLf & _
                                 "Si la sortie de ce canal est en dessous de 1/3 de sa course, le moteur 1 est contrôllé par" & vbCrLf & _
@@ -1403,6 +1433,15 @@ Public Class Form1
             btnSend.Visible = False
             ButtonClear.Visible = False
             labelConfigModule.Visible = False
+            labelTelemetry.Visible = False
+            CheckBoxTelemetry.Visible = False
+            labelChannelOrderRadio.Visible = False
+            labelModeSeparator.Visible = False
+            LabelSignalType.Visible = False
+            ButtonRcRadioMode.Visible = False
+            textBoxBatteryCoeff.Visible = False
+            labelAuxChannel.Visible = False
+            textBoxAuxChannel.Visible = False
         Else
             RichTextBoxSettingsHelp.Visible = False
             If labelExtervalVoltageUsed.Text = "Not Used" Then
@@ -1418,6 +1457,15 @@ Public Class Form1
             btnSend.Visible = True
             ButtonClear.Visible = True
             labelConfigModule.Visible = True
+            labelTelemetry.Visible = True
+            CheckBoxTelemetry.Visible = True
+            labelChannelOrderRadio.Visible = True
+            labelModeSeparator.Visible = True
+            LabelSignalType.Visible = True
+            ButtonRcRadioMode.Visible = True
+            textBoxBatteryCoeff.Visible = True
+            labelAuxChannel.Visible = True
+            textBoxAuxChannel.Visible = True
         End If
 
 
@@ -1494,7 +1542,7 @@ Public Class Form1
         ProgressBarSaveSettings.Visible = True
         ProgressBarSaveSettings.Value = 0
         'format envoyé : 
-        'S1, 1500, 1500, 1000, 1000, 2, 2000, 1250, 1200, 1900, 1,0
+        'S1, 1500, 1500, 1000, 1000, 2, 2000, 1250, 1200, 1900, 1,0,5
         'S2,0,99.00,2,0,0,0,1000,20000,0,0,4.0
 
         MessageToSend = "S1,"
@@ -1516,7 +1564,7 @@ Public Class Form1
         End If
         SerialPort1.Write(Trim(MessageToSend) & vbCr)
 
-        Thread.Sleep(1000)
+        Thread.Sleep(1500)
 
 
         MessageToSend = "S2,"
@@ -2180,6 +2228,9 @@ Public Class Form1
             Else
                 EnableDisableButtonsRead(True)
             End If
+
+            Thread.Sleep(500)
+            SerialPort1.Write("402" & vbCr) 'récupération position canal auxiliaire
 
         Catch ex As Exception
             ShowMsg("Please,connect to the module!", ShowMsgImage.Info, "Error")
@@ -3501,7 +3552,7 @@ Public Class Form1
         labelCenterServo2.Text = My.Resources.labelCenterServo2_FR & " µS"
         If (CheckBoxInversionServo1.Checked = True) Then CheckBoxInversionServo1.Text = "Oui" Else CheckBoxInversionServo1.Text = "Non"
         If (CheckBoxInversionServo2.Checked = True) Then CheckBoxInversionServo2.Text = "Oui" Else CheckBoxInversionServo2.Text = "Non"
-        If (CheckBoxInversionAux.Checked = True) Then CheckBoxInversionAux.Text = "Oui" Else CheckBoxInversionAux.Text = "Non"
+
         labelIdleServo1.Text = My.Resources.labelIdleServo1_FR & " µS"
         labelIdleServo2.Text = My.Resources.labelIdleServo2_FR & " µS"
         labelSpeedModuleAnswer.Text = My.Resources.labelSpeedModuleAnswer_FR
@@ -3511,7 +3562,7 @@ Public Class Form1
         labelAuxiPosition.Text = My.Resources.labelAuxiPosition_FR & " µS"
         labelReverseServo1.Text = My.Resources.labelReverseServo1_FR
         labelReverseServo2.Text = My.Resources.labelReverseServo2_FR
-        labelReverseAuxi.Text = My.Resources.labelReverseAuxi_FR
+
         labelMode.Text = My.Resources.labelRadioMode_FR
         labelNbrBlades.Text = My.Resources.labelNbrBlades_FR
         labelSpeedMinMaxRPM.Text = My.Resources.labelSpeedMotorMinMaxRPM_FR
@@ -3560,6 +3611,8 @@ Public Class Form1
         RcMode.labelIntputTypeTitle.Text = "Configuration Signal Entrée:"
         labelAuxChannel.Text = "Canal Aux:"
 
+        labelInternalTemp.Text = "Temp. Externe:"
+
     End Sub
 
     Private Sub SetEnglish()
@@ -3593,7 +3646,7 @@ Public Class Form1
         labelCenterServo2.Text = My.Resources.labelCenterServo2_EN & " µS"
         If (CheckBoxInversionServo1.Checked = True) Then CheckBoxInversionServo1.Text = "Yes" Else CheckBoxInversionServo1.Text = "No"
         If (CheckBoxInversionServo2.Checked = True) Then CheckBoxInversionServo2.Text = "Yes" Else CheckBoxInversionServo2.Text = "No"
-        If (CheckBoxInversionAux.Checked = True) Then CheckBoxInversionAux.Text = "Yes" Else CheckBoxInversionAux.Text = "No"
+
         labelIdleServo1.Text = My.Resources.labelIdleServo1_EN & " µS"
         labelIdleServo2.Text = My.Resources.labelIdleServo2_EN & " µS"
         labelSpeedModuleAnswer.Text = My.Resources.labelSpeedModuleAnswer_EN
@@ -3603,7 +3656,7 @@ Public Class Form1
         labelAuxiPosition.Text = My.Resources.labelAuxiPosition_EN & " µS"
         labelReverseServo1.Text = My.Resources.labelReverseServo1_EN
         labelReverseServo2.Text = My.Resources.labelReverseServo2_EN
-        labelReverseAuxi.Text = My.Resources.labelReverseAuxi_EN
+
         labelMode.Text = My.Resources.labelRadioMode_EN
         labelNbrBlades.Text = My.Resources.labelNbrBlades_EN
         labelSpeedMinMaxRPM.Text = My.Resources.labelSpeedMotorMinMaxRPM_EN
@@ -3652,6 +3705,8 @@ Public Class Form1
         RcMode.labelIntputTypeTitle.Text = "Setting of Signal Input:"
 
         labelAuxChannel.Text = "Aux Channel:"
+
+        labelInternalTemp.Text = "External Temp.:"
     End Sub
 
     Private Sub optLangFR_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles optLangFR.CheckedChanged
@@ -3849,7 +3904,14 @@ Public Class Form1
         'PictureBoxPlayer.Image = My.Resources.rectangle_rouge
     End Sub
 
-
+    'Private Sub TimerCheckInternalVoltage_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TimerCheckInternalVoltage.Tick
+    '    SerialPort1.Write("403" & vbCr)
+    '    TextVoltageInterne.Text = Trim(TextVoltageInterne.Text)
+    '    TextVoltageInterne.Text = Replace(TextVoltageInterne.Text, "v", "")
+    '    If Convert.ToDouble(TextVoltageInterne.Text) < 5.2 Then
+    '        ShowMsg("Aucun port trouvé", ShowMsgImage.Critical, "Critical")
+    '    End If
+    'End Sub
 End Class
 
 

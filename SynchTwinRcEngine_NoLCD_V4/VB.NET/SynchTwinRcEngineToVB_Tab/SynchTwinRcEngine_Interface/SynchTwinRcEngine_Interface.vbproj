@@ -331,6 +331,7 @@
     <None Include="Resources\0203_Textbox_32.png" />
     <Content Include="Resources\delete.png" />
     <None Include="Resources\mode1.png" />
+    <None Include="Resources\rectangle_orange.jpg" />
     <Content Include="Resources\Servo.png" />
     <None Include="Resources\TrackBar.png" />
     <Content Include="Resources\USBAsp_pinout.png" />
