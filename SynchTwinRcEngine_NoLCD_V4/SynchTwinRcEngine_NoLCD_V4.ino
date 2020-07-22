@@ -50,29 +50,32 @@ const ChannelOrderSt_t ChannelOrder[] PROGMEM = {
 
 #include "Macros.h"
 
-#include <SoftSerial.h>
-// software SettingsPort #1: RX = digital pin 10, TX = digital pin 11
-SoftSerial SettingsPort(10,11);
-
 // A TESTER I2C EEPROM pour recorder https://www.hobbytronics.co.uk/arduino-external-eeprom
 // et ici http://heliosoph.mit-links.info/512kb-eeprom-atmega328p/
 
-#define FirmwareVersion 0.6
+#define FirmwareVersion 0.7
 
 
 //#define DEBUG
 //#define SECURITYENGINE          /* Engines security On/off */
 #define ARDUINO2PC              /* PC interface (!!!!!! don't use this option with PLOTTER  !!!!!!) */
 #define EXTERNALVBATT           /* Read external battery voltage */
-//#define GLOWMANAGER             /* Glow driver */
+#define GLOWMANAGER             /* Glow driver */
 //#define I2CSLAVEFOUND           /* for command a second module by the I2C port */
 //#define INT_REF                 /* internal 1.1v reference */
 //#define PLOTTER                 /* Multi plot in IDE (don't use this option with ARDUINO2PC) */
-//#define RECORDER                /* L'enregistreur est déplacé dans VB */
+#define RECORDER                /* L'enregistreur est déplacé dans VB */
 //#define FRAM_USED
-//#define EXTLED                  
-//#define RPMOUTPUT               /* ouput sensor on D1 and D9 for RPM telemetry */
+#define EXTLED                  
+#define RPMOUTPUT               /* ouput sensor on D1 and D9 for RPM telemetry */
 //#define TELEMETRY_FRSKY
+#define OPENLOG
+
+
+#include <SoftSerial.h>
+// software SettingsPort: RX = digital pin 10, TX = digital pin 11
+SoftSerial SettingsPort(10,11);
+
 /*
 0     INPUT PPM
 1     RPM Out 1 to oXs
@@ -145,6 +148,7 @@ bool GlowDriverInUse = false;
 boolean RunConfig = true;
 boolean CheckIfVBUsed = false;
 boolean ServoRecorderIsON = false;
+boolean ServoPlayerIsON = false;
 boolean synchroIsActive = false;
 boolean glowControlIsActive = false;
 boolean SecurityIsON = false;
@@ -168,7 +172,7 @@ bool InputSignalExist = false;
 
 #ifdef RECORDER
 uint8_t recoderMode /*= 1*/;
-bool releaseButtonMode = false;
+//bool releaseButtonMode = false;
 #endif
 
 /** La structure permettant de stocker les données */
@@ -200,6 +204,7 @@ struct MaStructure {
   uint16_t maximumSpeed;                           //value in uS
   uint8_t channelsOrder;                           //AETR(AILERON,ELEVATOR,THROTTLE,RUDDER),AERT(AILERON,ELEVATOR,RUDDER,THROTTLE),ARET(AILERON,RUDDER,ELEVATOR,THROTTLE) etc...
   float coeff_division;                            //4.0
+  uint8_t failsafeMode;                            //0= hold 1=custom
 }; // Ne pas oublier le point virgule !
 
 MaStructure ms;
@@ -230,11 +235,11 @@ TinyCppmReader TinyCppmReader;
 /* Creation des objets Sorties servos */
 SoftRcPulseOut ServoMotor1;               /* Servo Engine 1 */
 SoftRcPulseOut ServoMotor2;               /* Servo Engine 2 */
-SoftRcPulseOut ServoRudder;
+SoftRcPulseOut ServoRudder;               /* Servo Rudder */
 
 #define SERIAL_BAUD         115200         /* 115200 is need for use BlueSmirF BT module */
 #ifdef ARDUINO2PC
-#define LONGUEUR_MSG_MAX   48             /* ex: S1,1500,1500,1000,1000,2,2000,1250,1000,2000,1,0 ou S2,1,0,99,2,0,0,0,1000,20000,0,0,4.0,5 */
+#define LONGUEUR_MSG_MAX   52             /* ex: S1,1500,1500,1000,1000,2,2000,1250,1000,2000,1,0,5 ou S2,1,0,99,2,0,0,0,1000,20000,0,0,4.0 */
 #define RETOUR_CHARRIOT    0x0D           /* CR (code ASCII) */
 #define PASSAGE_LIGNE      0x0A           /* LF (code ASCII) */
 #define BACK_SPACE         0x08
@@ -250,12 +255,17 @@ uint16_t pos = 0;
 //#define SLAVE_ADRESS      20
 //#endif
 
-
 void setup()
 {
-  
-  //clearEEprom();
+  /* SI INTERFACE VB NE REPOND PAS */
+//  clearEEprom();
+  /* SI INTERFACE VB NE REPOND PAS */
 
+//  Serial.begin(115200);
+  
+  SettingsPort.begin(57600);
+  delay(500);//while (SettingsPort.available() > 0)  
+  
   readAllEEprom();//read all settings from EEprom (save default's values in first start)
 
   AileronNbChannel = (uint8_t)pgm_read_byte(&ChannelOrder[ms.channelsOrder].Aileron) + 1;//AILERON + 1;
@@ -280,11 +290,6 @@ void setup()
   (ms.reverseServo2 == 0)?ServoMotor2.write_us(Width_us):ServoMotor2.write_us((ms.centerposServo2*2)-Width_us);
 #endif
   SoftRcPulseOut::refresh(1); /* Immediate refresh of outgoing pulses */
-
-  Serial.begin(115200);
-  
-  SettingsPort.begin(57600);
-  delay(500);//while (SettingsPort.available() > 0)
 
 #ifdef DEBUG
   SettingsPort << F("SynchTwinRcEngine est demarre") << endl << endl;
@@ -381,10 +386,6 @@ void setup()
   out(RPMOUT2);
 #endif
 
-#ifdef RECORDER
-  setupRecorder();
-#endif
-
 #ifdef GLOWMANAGER
 /*
 The two RED leds on the SyncTwinRcEngine will turn on continuous when the glow drivers are on. If
@@ -444,6 +445,10 @@ void loop()
 #endif         
 #endif
         RunConfig = false;
+#ifdef OPENLOG
+        setupOpenLog();//Resets logger and waits for the '<' I'm alive character
+#endif
+        
       }
     }
   }
@@ -452,9 +457,6 @@ void loop()
   //if ((RunConfig == true)&&(CheckIfVBUsed == true))
   {
     SerialFromToVB();
-#ifdef RECORDER
-    loopRecorder();
-#endif
   }
 
 #endif //ARDUINO2PC
@@ -517,6 +519,7 @@ void readAllEEprom()
   ms.InputMode           = 0;//CPPM defaut
   ms.channelsOrder       = 0;
   ms.coeff_division      = 4.0;
+  ms.failsafeMode        = 0;//default is hold last positions
  */
  
   EEPROM.get(0,ms);// Read all EEPROM settings in one time
@@ -615,6 +618,7 @@ void SettingsWriteDefault()
   ms.maximumSpeed        = 20000;//AddressMax += sizeof(ms.maximumSpeed);//maximum motor rpm
   ms.channelsOrder       = 0;
   ms.coeff_division      = 4.0;
+  ms.failsafeMode        = 0;
 
   //SettingsPort << F("Address maxi: ") << AddressMax << endl;
   EEPROM.put(0, ms);
@@ -672,7 +676,8 @@ void sendConfigToSettingsPort()
   SettingsPort << ms.maximumSpeed << F("|");//array(22)
   SettingsPort << ms.InputMode << F("|");//array(23)
   SettingsPort << ms.coeff_division << F("|");//array(24)
-  SettingsPort << ms.AuxiliaryNbChannel << endl;//array(25)
+  SettingsPort << ms.AuxiliaryNbChannel << F("|");//array(25)
+  SettingsPort << ms.failsafeMode << endl;//array(26)
   //SettingsPort.flush(); // clear SettingsPort port
 }
 

@@ -22,7 +22,7 @@ Public Class Form1
     Dim RecorderIsOn As Boolean
     Dim PlayerIsOn As Boolean
     Dim SimualtionSpeed As Boolean = False
-    Dim SDCardUsed As Boolean = False
+    'Dim SDCardUsed As Boolean = False
     Dim avrdude As New libavrdude
     Dim brdsetok As Boolean
     Dim baud As String = ""
@@ -39,14 +39,16 @@ Public Class Form1
     Public RcSignalType As String
 
     Dim servoPosition() As String
-    Dim RecordFilesPath As String = Application.StartupPath & "\"
+    'Dim RecordFilesPath As String = Application.StartupPath & "\"
+    Dim saveFileRecoder As New SaveFileDialog()
+    Dim openFileRecoder As New OpenFileDialog()
 
     Dim trd As Thread
 
 
 
 #Region "COM Port série"
-    Private Sub ButtonTerminal_Click(sender As System.Object, e As System.EventArgs) Handles ButtonTerminal.Click
+    Private Sub ButtonTerminal_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonTerminal.Click
         If term.Visible = False Then
             term.Show()
             term.Location = New Point(My.Settings.LocationX + Me.Width + 3, My.Settings.LocationY)
@@ -55,7 +57,7 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub Button_Connect_Click(sender As System.Object, e As System.EventArgs) Handles Button_Connect.Click
+    Private Sub Button_Connect_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button_Connect.Click
         Try
             If term.Visible = True Then
                 If My.Settings.Language = "French" Then
@@ -105,13 +107,13 @@ Public Class Form1
 
     End Sub
 
-    Private Sub ButtonSauvegardeCOM_Click(sender As System.Object, e As System.EventArgs) Handles ButtonSauvegardeCOM.Click
+    Private Sub ButtonSauvegardeCOM_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonSauvegardeCOM.Click
         My.Settings.COMPort = ComboPort.SelectedItem.ToString
         My.Settings.SpeedIndex = Convert.ToByte(ComboBaudRate.SelectedIndex)
         My.Settings.Save()
     End Sub
 
-    Private Sub ComboBaudRate_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles ComboBaudRate.SelectedIndexChanged
+    Private Sub ComboBaudRate_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ComboBaudRate.SelectedIndexChanged
         labelInfoNeedSaveCOM.Text = "You need to save the connection Settings (use 'Backup' button) !"
     End Sub
 
@@ -122,7 +124,7 @@ Public Class Form1
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
     ''' <remarks></remarks>
-    Private Sub ComboPort_MouseClick(sender As System.Object, e As System.EventArgs) Handles ComboPort.MouseClick
+    Private Sub ComboPort_MouseClick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ComboPort.MouseClick
         labelInfoNeedSaveCOM.Text = "You need to save the connection Settings (use 'Backup' button) !"
         Try
             ComboPort.Items.Clear()
@@ -134,7 +136,7 @@ Public Class Form1
         End Try
 
     End Sub
-    Private Sub ComboPort_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles ComboPort.SelectedIndexChanged
+    Private Sub ComboPort_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ComboPort.SelectedIndexChanged
         labelInfoNeedSaveCOM.Text = "You need to save the connection Settings (use 'Backup' button) !"
     End Sub
 
@@ -186,11 +188,15 @@ Public Class Form1
                     TextVoltageExterne.Visible = True
                     ButtonReadTempVoltage.Visible = True
                     PictureBoxReadHardwareOnOff.Visible = True
+                    PictureBoxExternalVoltage.Visible = True
+                    textBoxBatteryCoeff.Visible = True
                     labelExtervalVoltageUsed.Visible = False
                 ElseIf SerialMessagRecieved.Replace("POWER|", "") = "0" Then
                     TextVoltageExterne.Visible = False
                     ButtonReadTempVoltage.Visible = False
                     PictureBoxReadHardwareOnOff.Visible = False
+                    PictureBoxExternalVoltage.Visible = False
+                    textBoxBatteryCoeff.Visible = False
                     labelExtervalVoltageUsed.Visible = True
                 End If
                 If term.Visible = True Then
@@ -214,7 +220,7 @@ Public Class Form1
 
         If Strings.Left(SerialMessagRecieved, 6) = "NOFRAM" Then 'fram isn't used
             Try
-                SDCardUsed = False
+                'SDCardUsed = False
                 labelFRAMIsUsed.Text = "FRAM Used: NOT DEFINE"
                 labelFRAMType.Text = "FRAM Type: NOT DEFINE"
                 labelSDCardSize.Text = "FRAM Size: NOT DEFINE"
@@ -302,12 +308,21 @@ Public Class Form1
 
                 textBoxAuxChannel.Text = array(25)
 
+                If array(26) = "0" Then
+                    CheckBoxFailsafe.Checked = False
+                    CheckBoxFailsafe.Text = "Maintien"
+                Else
+                    CheckBoxFailsafe.Checked = True
+                    CheckBoxFailsafe.Text = "Modifié"
+                End If
+
+
                 LabelModifications.Enabled = False
                 LabelModifications.Text = "..."
 
                 LabelInterType.Text = ModeAuxiliaireTypeText(Convert.ToInt16(textAuxiliaireMode.Text))
 
- 
+
                 If validateDoublesAndCurrency(array(16), 4.8) = True Then 'si array(1) > 4.8v ==> tension module OK
                     PictureBoxInternalVoltage.Image = My.Resources.rectangle_vert
                     'ShowMsg("Tension interne du module OK", ShowMsgImage.Info, "Info")
@@ -324,7 +339,6 @@ Public Class Form1
                     'ShowMsg("Tension externe du module trop basse", ShowMsgImage.Critical, "Critique")
                 End If
 
-                '
             Catch ex As Exception
                 ShowMsg(SerialMessagRecieved & vbCrLf & ex.Message, ShowMsgImage.Critical, "Erreur")
                 'MessageBox.Show("Voltage too low ?", "oo OO Warning OO oo", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -341,13 +355,19 @@ Public Class Form1
             'If term.Visible = True Then
             '    term.TextBoxTerminalComPort.AppendText(pulseValue & vbCrLf)
             'End If
+
+
+
             If CheckBoxReadTracBarMotorOrMotorThrottle.Checked = True Then
                 If RecorderIsOn = True Then
-
-                    Dim t As New Threading.Thread(Sub() AddRecord(svfd.FileName, Str(pulseValue)))
-                    t.Start()
+                    Dim rec As New Threading.Thread(Sub() AddRecord(svfd.FileName, Str(TrackBarMotors.Value)))
+                    rec.Start()
                 End If
             Else
+                If RecorderIsOn = True Then
+                    Dim rec As New Threading.Thread(Sub() AddRecord(svfd.FileName, Str(pulseValue)))
+                    rec.Start()
+                End If
                 Select Case ModeType
                     Case 1 : textCentreServo1.Text = SerialMessagRecieved.Replace("M", "")
                     Case 2 : textCentreServo2.Text = SerialMessagRecieved.Replace("M", "")
@@ -807,6 +827,16 @@ Public Class Form1
         If CheckBoxFahrenheitDegrees.Checked = False Then CheckBoxFahrenheitDegrees.Text = "°C" Else CheckBoxFahrenheitDegrees.Text = "°F"
     End Sub
 
+    Private Sub CheckBoxFailsafe_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CheckBoxFailsafe.CheckStateChanged
+        LabelModifications.Enabled = True
+        LabelModifications.ForeColor = Color.Red
+        If My.Settings.Language = "French" Then LabelModifications.Text = "Modifications non sauvegardées !" Else LabelModifications.Text = "Changes not saved !"
+        If My.Settings.Language = "French" Then
+            If (CheckBoxFailsafe.Checked = True) Then CheckBoxFailsafe.Text = "Modifié" Else CheckBoxFailsafe.Text = "Maintien"
+        ElseIf My.Settings.Language = "English" Then
+            If (CheckBoxFailsafe.Checked = True) Then CheckBoxFailsafe.Text = "Yes" Else CheckBoxFailsafe.Text = "No"
+        End If
+    End Sub
 
     Private Sub ButtonMoinsVitesseReponse_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonMoinsVitesseReponse.Click
         If Convert.ToInt16(textTempsReponse.Text) > 0 Then textTempsReponse.Text = Convert.ToString(Convert.ToInt16(textTempsReponse.Text) - 1)
@@ -1442,6 +1472,8 @@ Public Class Form1
             textBoxBatteryCoeff.Visible = False
             labelAuxChannel.Visible = False
             textBoxAuxChannel.Visible = False
+            PictureBoxInternalVoltage.Visible = False
+            PictureBoxExternalVoltage.Visible = False
         Else
             RichTextBoxSettingsHelp.Visible = False
             If labelExtervalVoltageUsed.Text = "Not Used" Then
@@ -1466,6 +1498,8 @@ Public Class Form1
             textBoxBatteryCoeff.Visible = True
             labelAuxChannel.Visible = True
             textBoxAuxChannel.Visible = True
+            PictureBoxInternalVoltage.Visible = True
+            PictureBoxExternalVoltage.Visible = True
         End If
 
 
@@ -1595,7 +1629,8 @@ Public Class Form1
 
         MessageToSend &= textBoxBatteryCoeff.Text & ","  ' battery coefficient (~4.0)
 
-        If CheckBoxTelemetry.Checked = True Then MessageToSend &= "1" Else MessageToSend &= "0"
+        If CheckBoxTelemetry.Checked = True Then MessageToSend &= "1," Else MessageToSend &= "0,"
+        If CheckBoxFailsafe.Checked = True Then MessageToSend &= "1" Else MessageToSend &= "0"
 
         'MsgBox(MessageToSend)
         If TextBoxDiffSpeedSimuConsigne.Text = "0" Then
@@ -1897,10 +1932,34 @@ Public Class Form1
         'End If
     End Sub
 
+    Private Shared Sub AddText(ByVal fs As FileStream, ByVal value As String)
+        Dim info As Byte() = New UTF8Encoding(True).GetBytes(value)
+        fs.Write(info, 0, info.Length)
+    End Sub
+
     Private Sub ButtonRecorder_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonRecorder.Click
         RecorderIsOn = Not RecorderIsOn
         If RecorderIsOn = True Then
-            SerialPort1.Write("701" & vbCr)
+            SerialPort1.Write("700" & vbCr) 'DEMARRAGE ENREGISTREMENT
+            If term.Visible = True Then
+                term.TextBoxTerminalComPort.AppendText("700" & vbCrLf)
+            End If
+
+            If CheckBoxReadTracBarMotorOrMotorThrottle.Checked = False Then
+                If saveFileRecoder.ShowDialog() = DialogResult.OK Then
+                    svfd.FileName = Path.GetFileNameWithoutExtension(saveFileRecoder.FileName) & "_Throttle.record"
+                Else
+                    Exit Sub
+                End If
+            Else
+                If saveFileRecoder.ShowDialog() = DialogResult.OK Then
+                    svfd.FileName = Path.GetFileNameWithoutExtension(saveFileRecoder.FileName) & "_TrackBar.record"
+                Else
+                    Exit Sub
+                End If
+            End If
+
+
             If My.Settings.Language = "French" Then
                 ButtonRecorder.Text = "Arrêt Enregis."
             ElseIf My.Settings.Language = "English" Then
@@ -1908,17 +1967,17 @@ Public Class Form1
             End If
             PictureBoxRecorder.Image = My.Resources.rectangle_vert
 
-            If CheckBoxReadTracBarMotorOrMotorThrottle.Checked = False Then
-                'TrackBarMotors.ValueChanged call 'OnTrackBarMotorsChange' on a new thread !
-                TimerRXMotors.Interval = 300
-                TimerRXMotors.Enabled = False
-            Else
-                svfd.FileName = Path.GetFileNameWithoutExtension(svfd.FileName) & "_Throttle.record"
-                TimerRXMotors.Interval = 100
-                TimerRXMotors.Enabled = True
-            End If
+
+
+
+            TimerRXMotors.Interval = 300
+            TimerRXMotors.Enabled = True
         Else
-            SerialPort1.Write("700" & vbCr)
+            TimerRXMotors.Enabled = False
+            SerialPort1.Write("701" & vbCr) 'STOP ENREGISTREMENT
+            If term.Visible = True Then
+                term.TextBoxTerminalComPort.AppendText("701" & vbCrLf)
+            End If
             If My.Settings.Language = "French" Then
                 ButtonRecorder.Text = "Départ Enregis."
             ElseIf My.Settings.Language = "English" Then
@@ -1934,19 +1993,28 @@ Public Class Form1
     Private Sub ButtonPlayer_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonPlayer.Click
         PlayerIsOn = Not PlayerIsOn
         If PlayerIsOn = True Then
-            SerialPort1.Write("703" & vbCr)
-            'If CheckBoxReadTracBarMotorOrMotorThrottle.Checked = False Then
-            '    fd.Filter = "Text files|*.record"
-            'Else
-            '    fd.Filter = "Text files|*_Throttle.record"
-            'End If
+            SerialPort1.Write("702" & vbCr)
+            If term.Visible = True Then
+                term.TextBoxTerminalComPort.AppendText("702" & vbCrLf)
+            End If
 
-            'If fd.ShowDialog() = DialogResult.OK Then
-            '    If My.Settings.Language = "French" Then
-            '        ButtonPlayer.Text = "Arrêt Lecture"
-            '    ElseIf My.Settings.Language = "English" Then
-            '        ButtonPlayer.Text = "Stop Player"
-            '    End If
+            If CheckBoxReadTracBarMotorOrMotorThrottle.Checked = False Then
+                openFileRecoder.Filter = "Text files|*_Throttle.record"
+            Else
+                openFileRecoder.Filter = "Text files|*_TrackBar.record"
+            End If
+
+            If openFileRecoder.ShowDialog() = DialogResult.OK Then
+                If My.Settings.Language = "French" Then
+                    ButtonPlayer.Text = "Arrêt Lecture"
+                ElseIf My.Settings.Language = "English" Then
+                    ButtonPlayer.Text = "Stop Player"
+                End If
+            Else
+                Exit Sub
+            End If
+
+
             PictureBoxPlayer.Image = My.Resources.rectangle_vert
             LabelChrono.Visible = True
             LabelTestNow.Visible = True
@@ -1960,13 +2028,16 @@ Public Class Form1
                 ChronoInMinutes = (CInt(TextBoxChronoHH.Text) * 60) + CInt(TextBoxChronoMM.Text)
                 cntDown = Date.Now.AddMinutes(ChronoInMinutes)
 
-                BackgroundWorker1.WorkerSupportsCancellation = True
-                BackgroundWorker1.RunWorkerAsync()
+                BackgroundWorkerRead.WorkerSupportsCancellation = True
+                BackgroundWorkerRead.RunWorkerAsync()
             End If
-            'End If
+
 
         Else
-            SerialPort1.Write("702" & vbCr)
+            SerialPort1.Write("703" & vbCr)
+            If term.Visible = True Then
+                term.TextBoxTerminalComPort.AppendText("703" & vbCrLf)
+            End If
             If My.Settings.Language = "French" Then
                 ButtonPlayer.Text = "Départ Lecture"
             ElseIf My.Settings.Language = "English" Then
@@ -1988,10 +2059,10 @@ Public Class Form1
         LabelChronoSS.Text = "00"
     End Sub
 
-    Private Sub BackgroundWorker1_DoWork(ByVal sender As Object, ByVal e As DoWorkEventArgs) Handles BackgroundWorker1.DoWork
+    Private Sub BackgroundWorkerRead_DoWork(ByVal sender As Object, ByVal e As DoWorkEventArgs) Handles BackgroundWorkerRead.DoWork
         While PlayerIsOn
             Application.DoEvents()
-            ReadRecord(fd.FileName)
+            ReadRecord(openFileRecoder.FileName)
             Thread.Sleep(1000)
         End While
     End Sub
@@ -2003,7 +2074,7 @@ Public Class Form1
         'End If
     End Sub
 
-    Private Sub BackgroundWorker1_RunWorkerCompleted(ByVal sender As Object, ByVal e As RunWorkerCompletedEventArgs) Handles BackgroundWorker1.RunWorkerCompleted
+    Private Sub BackgroundWorkerRead_RunWorkerCompleted(ByVal sender As Object, ByVal e As RunWorkerCompletedEventArgs) Handles BackgroundWorkerRead.RunWorkerCompleted
         'If e.Cancelled = True Then
         'ElseIf e.Error IsNot Nothing Then
         '    'Me.tbProgress.Text = "Error: " & e.Error.Message
@@ -2048,15 +2119,15 @@ Public Class Form1
             servoPosition = IO.File.ReadAllLines(recorderList, Encoding.Unicode)
             For Each p In servoPosition
                 If PlayerIsOn = False Then Exit Sub ' force la sortie du player
-                TrackBarMotors.Value = CInt(p)
+                'TrackBarMotors.Value = CInt(p)
                 LabelMotors.Text = p
-                ProgressBarThrottle.Value = CInt(p)
+                'ProgressBarThrottle.Value = CInt(p)
                 SerialPort1.WriteLine(Trim(Str(p)))
                 If term.Visible = True Then
-                    term.TextBoxTerminalComPort.AppendText(LabelMotors.Text & vbCrLf)
+                    term.TextBoxTerminalComPort.AppendText(p & vbCrLf)
                 End If
                 'If CheckBoxReadTracBarMotorOrMotorThrottle.Checked = True Then
-                Thread.Sleep(25)
+                Thread.Sleep(300)
                 'End If
             Next
         End If
@@ -3438,7 +3509,7 @@ Public Class Form1
 
 
 
-    Private Sub TimerMotors_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TimerRXMotors.Tick
+    Private Sub TimerRXMotors_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TimerRXMotors.Tick
         SerialPort1.Write("400" & vbCr)
     End Sub
 
@@ -3463,8 +3534,8 @@ Public Class Form1
             LabelTestNow.Text = "Actual Time: " & Date.Now.ToString("H:mm:ss")
         End If
         If cntDown < Date.Now Then
-            If BackgroundWorker1.WorkerSupportsCancellation Then
-                BackgroundWorker1.CancelAsync()
+            If BackgroundWorkerRead.WorkerSupportsCancellation Then
+                BackgroundWorkerRead.CancelAsync()
             End If
             PlayerIsOn = False
             TimerChrono.Enabled = False
@@ -3912,6 +3983,7 @@ Public Class Form1
     '        ShowMsg("Aucun port trouvé", ShowMsgImage.Critical, "Critical")
     '    End If
     'End Sub
+
 End Class
 
 
